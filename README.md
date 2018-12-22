@@ -16,6 +16,7 @@ travian kingdom utilities for your need.
 ```python
 python3 zoo_tamer.py dummy@email.com dummypassword com9
 ```
+check your ingame notepad
 
 ---
 _we love lowercase_
