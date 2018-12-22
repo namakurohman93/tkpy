@@ -12,11 +12,7 @@ travian kingdom utilities for your need.
 4. enjoy
 
 ### how it work
-1. zoo tamer
-```python
-python3 zoo_tamer.py dummy@email.com dummypassword com9
-```
-check your ingame notepad
+1. zoo tamer: `python3 zoo_tamer.py dummy@email.com dummypassword com9`, then check your ingame notepad.
 
 ---
 _we love lowercase_
