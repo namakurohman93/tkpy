@@ -23,30 +23,6 @@ SOI = { # set of interest
 
 def thread_1(t5, task):
     while True:
-        x, y, results = task.get()
-        if x is None:
-            break
-        r = t5.map.getByRegionIds(
-            {
-                'regionIdCollection': {
-                    '1': [
-                        vid(x, y)
-                    ]
-                }
-            }
-        )
-        for result in r['response']['1']['region'][f'{vid(x, y)}']:
-            try:
-                oasis_status = int(result['oasis']['oasisStatus'])
-                if oasis_status == 3:
-                    results.append(result['id'])
-            except KeyError:
-                continue
-        task.task_done()
-
-
-def thread_2(t5, task):
-    while True:
         msg = ''
         result, results_2 = task.get()
         if result is None:
@@ -70,31 +46,32 @@ def thread_2(t5, task):
 def zoo(t5):
     results = list()
     results_2 = list()
+    req_list = list()
+    for x in range(-13, 14):
+        for y in range(-13, 14):
+            req_list.append(vid(x, y))
+    r = t5.map.getByRegionIds(
+        {
+            'regionIdCollection': {
+                '1': req_list
+            }
+        }
+    )
+    for vids in r['response']['1']['region']:
+        for result in r['response']['1']['region'][vids]:
+            try:
+                oasis_status = int(result['oasis']['oasisStatus'])
+                if oasis_status == 3:
+                    results.append(result['id'])
+            except KeyError:
+                continue
     # prepare thread
     task = Queue()
-    threads_1 = list()
+    threads = list()
     for _ in range(8):
         worker = Thread(target=thread_1, args=(t5, task))
         worker.start()
-        threads_1.append(worker)
-    # dispatch thread
-    for x in range(-13, 14):
-        for y in range(-13, 14):
-            task.put((x, y, results))
-            time.sleep(0.1)
-    # cleaning up
-    task.join()
-    for _ in range(8):
-        task.put((None, None, None))
-    for thread in threads_1:
-        thread.join()
-    # threading for next step
-    task = Queue()
-    threads_2 = list()
-    for _ in range(8):
-        worker = Thread(target=thread_2, args=(t5, task))
-        worker.start()
-        threads_2.append(worker)
+        threads.append(worker)
     # dispatch thread
     for result in results:
         task.put((result, results_2))
@@ -103,7 +80,7 @@ def zoo(t5):
     task.join()
     for _ in range(8):
         task.put((None, None))
-    for thread in threads_2:
+    for thread in threads:
         thread.join()
     # collecting results
     new_msg = ''
@@ -215,3 +192,4 @@ if __name__ == '__main__':
         sys.exit()
     gameworld = basic_login(email, password, gameworld_name)
     zoo(gameworld)
+    print(f'done, please check your {gameworld_name}\'s notepad.')
