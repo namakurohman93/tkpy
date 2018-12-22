@@ -70,7 +70,6 @@ def thread_2(t5, task):
 def zoo(t5):
     results = list()
     results_2 = list()
-    long_msg = ''
     # prepare thread
     task = Queue()
     threads_1 = list()
@@ -204,7 +203,6 @@ def zoo(t5):
         )
 
 
-
 if __name__ == '__main__':
     try:
         email = sys.argv[1]
@@ -212,7 +210,7 @@ if __name__ == '__main__':
         gameworld_name = sys.argv[3]
     except IndexError:
         errmsg = 'Missing arguments\n'+\
-                 f'Usage: \tpython {sys.argv[0]} <email> <password> <gameworld>'
+                 f'Usage: \tpython3 {sys.argv[0]} <email> <password> <gameworld>'
         print(errmsg)
         sys.exit()
     gameworld = basic_login(email, password, gameworld_name)
