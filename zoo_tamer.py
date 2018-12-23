@@ -105,30 +105,30 @@ def zoo(t5):
             }
         )
         nid = r['cache'][0]['data']['cache'][0]['data']['id']
-        t5.player.changeNote(
-            {
-                'newSettings': {
-                    'id': nid,
-                    'positionX': 4.5,
-                    'positionY': 10.5,
-                    'sizeX': 225,
-                    'sizeY': 100,
-                    'text': ''
-                }
-            }
-        )
-        t5.player.changeNote(
-            {
-                'newSettings': {
-                    'id': nid,
-                    'positionX': 4.5,
-                    'positionY': 10.5,
-                    'sizeX': 225,
-                    'sizeY': 100,
-                    'text': f'{new_msg}'
-                }
-            }
-        )
+        # t5.player.changeNote(
+        #     {
+        #         'newSettings': {
+        #             'id': nid,
+        #             'positionX': 4.5,
+        #             'positionY': 10.5,
+        #             'sizeX': 225,
+        #             'sizeY': 100,
+        #             'text': ''
+        #         }
+        #     }
+        # )
+        # t5.player.changeNote(
+        #     {
+        #         'newSettings': {
+        #             'id': nid,
+        #             'positionX': 4.5,
+        #             'positionY': 10.5,
+        #             'sizeX': 225,
+        #             'sizeY': 100,
+        #             'text': f'{new_msg}'
+        #         }
+        #     }
+        # )
     else:
         t5.post(
             action='changeSettings',
@@ -154,30 +154,30 @@ def zoo(t5):
                 }
             }
         )
-        t5.player.changeNote(
-            {
-                'newSettings': {
-                    'id': nid,
-                    'positionX': 4.5,
-                    'positionY': 10.5,
-                    'sizeX': 225,
-                    'sizeY': 100,
-                    'text': ''
-                }
+    t5.player.changeNote(
+        {
+            'newSettings': {
+                'id': nid,
+                'positionX': 4.5,
+                'positionY': 10.5,
+                'sizeX': 225,
+                'sizeY': 100,
+                'text': ''
             }
-        )
-        t5.player.changeNote(
-            {
-                'newSettings': {
-                    'id': nid,
-                    'positionX': 4.5,
-                    'positionY': 10.5,
-                    'sizeX': 225,
-                    'sizeY': 100,
-                    'text': f'{new_msg}'
-                }
+        }
+    )
+    t5.player.changeNote(
+        {
+            'newSettings': {
+                'id': nid,
+                'positionX': 4.5,
+                'positionY': 10.5,
+                'sizeX': 225,
+                'sizeY': 100,
+                'text': f'{new_msg}'
             }
-        )
+        }
+    )
 
 
 if __name__ == '__main__':
