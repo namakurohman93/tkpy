@@ -4,6 +4,7 @@ import logging
 from threading import Thread
 from queue import Queue
 from utils import basic_login, vid, fishout
+from utilities.notepads import Notepad
 
 logging.basicConfig(
     format='[%(asctime)s][%(levelname)s]: %(message)s',
@@ -87,73 +88,9 @@ def zoo(t5):
     for x, y, msg in results_2:
         new_msg += f'({x}|{y}) -> {msg}\n'
     # print to note
-    r = t5.cache.get({'names':['Collection:Notepad:']})
-    if r['cache'][0]['data']['cache']:
-        t5.post(
-            action='changeSettings',
-            controller='player',
-            params= {
-                'newSettings': {
-                    'notpadsVisible': True
-                }
-            }
-        )
-        r = t5.player.addNote(
-            {
-                'x': 4.5,
-                'y': 10.5
-            }
-        )
-        nid = r['cache'][0]['data']['cache'][0]['data']['id']
-    else:
-        t5.post(
-            action='changeSettings',
-            controller='player',
-            params= {
-                'newSettings': {
-                    'notpadsVisible': False
-                }
-            }
-        )
-        r = t5.post(
-            action='addNote',
-            controller='player',
-            params={}
-        )
-        nid = r['cache'][0]['data']['cache'][0]['data']['id']
-        t5.post(
-            action='changeSettings',
-            controller='player',
-            params= {
-                'newSettings': {
-                    'notpadsVisible': True
-                }
-            }
-        )
-    t5.player.changeNote(
-        {
-            'newSettings': {
-                'id': nid,
-                'positionX': 4.5,
-                'positionY': 10.5,
-                'sizeX': 225,
-                'sizeY': 100,
-                'text': ''
-            }
-        }
-    )
-    t5.player.changeNote(
-        {
-            'newSettings': {
-                'id': nid,
-                'positionX': 4.5,
-                'positionY': 10.5,
-                'sizeX': 225,
-                'sizeY': 100,
-                'text': f'{new_msg}'
-            }
-        }
-    )
+    notepad = Notepad(t5)
+    notepad.new_notepad()
+    notepad.message(new_msg)
 
 
 if __name__ == '__main__':
