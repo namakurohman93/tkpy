@@ -8,10 +8,10 @@ logging.basicConfig(
 class Notepad:
     def __init__(self, gameworld, notepad_id=None):
         self.gameworld = gameworld
-        self.notepad_id = notepad_id
+        self.id = notepad_id
 
     def __repr__(self):
-        return self.notepad_id
+        return self.id
 
     def new_notepad(self):
         r = self.gameworld.cache.get({'names':['Collection:Notepad:']})
@@ -57,30 +57,30 @@ class Notepad:
                     }
                 }
             )
-        self.notepad_id = nid
+        self.id = nid
 
     def delete_notepad(self):
-        if not self.notepad_id:
+        if not self.id:
             return 'There is no notepad.' +\
                    '\nPlease create one use new_notepad method'
         r = self.gameworld.player.removeNote(
             {
-                'id': self.notepad_id
+                'id': self.id
             }
         )
         if 'error' in r:
             logging.debug('Failed delete notepad.')
-        print(f'Delete notepad id:{self.notepad_id}')
+        print(f'Delete notepad id:{self.id}')
         return None
 
     def message(self, new_msg):
-        if not self.notepad_id:
+        if not self.id:
             return 'There is no notepad.' +\
                    '\nPlease create one use new_notepad method'
         self.gameworld.player.changeNote(
             {
                 'newSettings': {
-                    'id': self.notepad_id,
+                    'id': self.id,
                     'positionX': 4.5,
                     'positionY': 10.5,
                     'sizeX': 225,
@@ -92,7 +92,7 @@ class Notepad:
         self.gameworld.player.changeNote(
             {
                 'newSettings': {
-                    'id': self.notepad_id,
+                    'id': self.id,
                     'positionX': 4.5,
                     'positionY': 10.5,
                     'sizeX': 225,
