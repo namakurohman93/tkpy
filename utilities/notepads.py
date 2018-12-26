@@ -70,7 +70,8 @@ class Notepad:
         )
         if 'error' in r:
             logging.debug('Failed delete notepad.')
-        return f'Delete notepad id:{self.notepad_id}'
+        print(f'Delete notepad id:{self.notepad_id}')
+        return None
 
     def message(self, new_msg):
         if not self.notepad_id:
