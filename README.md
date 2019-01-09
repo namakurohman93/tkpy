@@ -13,6 +13,7 @@ travian kingdom utilities for your need.
 
 ### how it work
 1. zoo tamer: `python3 zoo_tamer.py dummy@email.com dummypassword com9`, then check your ingame notepad.
+2. cropper: `python3 cropper.py dummy@email.com dummypassword com9`, then check your ingame notepad.
 
 ---
 _we love lowercase_
