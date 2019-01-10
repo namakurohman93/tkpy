@@ -17,6 +17,13 @@ def basic_login(email, password, gameworld_name):
     return gameworld
 
 
+def advance_login(*args, **kwargs):
+    t5 = basic_login(*args, **kwargs)
+    r = t5.cache.get({'names':['Collection:Village:own']})
+    t5.player_id = r['cache'][0]['data']['cache'][0]['data']['playerId']
+    return t5
+
+
 def vid(x, y):
     return (536887296 + x) + (y * 32768)
 
