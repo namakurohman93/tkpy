@@ -1,5 +1,24 @@
 from primordial.lobby import Lobby
 
+COLOR = {
+'BLUE': 1,
+'YELLOW': 2,
+'BROWN': 3,
+'OWN': 4,
+'TEAL' : 5,
+'DARK GREEN': 6,
+'LIGHT GREEN': 7,
+'DARK BLUE': 8,
+'ALLIANCE': 9,
+'PURPLE': 10,
+'PINK': 11,
+'RED': 12,
+'ENEMY': 13,
+'NEUTRAL': 15,
+'TREATY COLOR NAP': 16,
+'TREATY COLOR BND': 17
+}
+
 
 def basic_login(email, password, gameworld_name):
     lobby = Lobby()
