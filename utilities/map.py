@@ -101,5 +101,18 @@ class Map:
         for color in COLOR:
             print(f'{color}')
 
+    def _filter(self, type):
+        results = dict()
+        for coord in self._data.keys():
+            try:
+                oasis = self._data[coord][type]
+                results[coord] = self._data[coord]
+            except KeyError:
+                continue
+        return results
+
     def oasis(self):
-        pass
+        return Map(self.client, self._filter('oasis'))
+
+    def tiles(self):
+        return Map(self.client, self._filter('resType'))
