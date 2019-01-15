@@ -3,7 +3,7 @@ from primordial.gameworld import Gameworld
 
 
 class Cell:
-    def __init__(self, client, cell_id, data={}):
+    def __init__(self, client, cell_id, data=None):
         self.client = client
         self.id = cell_id
         self.coord = fishout(self.id)
@@ -50,7 +50,7 @@ class Cell:
 
 
 class Map:
-    def __init__(self, client, data={}):
+    def __init__(self, client, data=None):
         assert isinstance(client, Gameworld), 'Need Gameworld object'
         self.client = client
         self._data = data or dict()
@@ -91,7 +91,7 @@ class Map:
         for vids in r['response']['1']['region']:
             for result in r['response']['1']['region'][vids]:
                 id = int(result['id'])
-                self._data[fishout(id)] = Cell(self.client, id, result)
+                self.__setitem__(fishout(id), Cell(self.client, id, result))
 
     def coordinate(self, x, y):
         return self._data[(x, y)]
