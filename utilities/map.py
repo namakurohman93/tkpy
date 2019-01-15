@@ -30,6 +30,12 @@ class Cell:
         errmsg = f'there is no {color} color, <object>.color_list is '+\
                   'complete list of color'
         assert color in COLOR, errmsg
+        r = self.client.cache.get({'names':['Collection:MapMarker:']})
+        for caches in r['cache'][0]['data']['cache']:
+            if caches['data']['targetId'] == str(self.id):
+                if caches['data']['color'] == str(COLOR[color]):
+                    return
+                self.delete_cell_color(int(caches['data']['id']))
         markers = [
             {
                 'color': COLOR[color],
@@ -38,6 +44,21 @@ class Cell:
                 'ownerId': self.client.player_id,
                 'targetId': self.id,
                 'type': 3
+            }
+        ]
+        self.client.post(
+            action='editMapMarkers',
+            controller='map',
+            params={
+                'markers': markers
+            }
+        )
+
+    def delete_cell_color(self, marker_id):
+        markers = [
+            {
+                'editType': 2,
+                'id': int(marker_id)
             }
         ]
         self.client.post(
