@@ -35,7 +35,8 @@ class Cell:
             if caches['data']['targetId'] == str(self.id):
                 if caches['data']['color'] == str(COLOR[color]):
                     return
-                self.delete_cell_color(int(caches['data']['id']))
+                self._edit_cell_color(int(caches['data']['id']), color)
+                return
         markers = [
             {
                 'color': COLOR[color],
@@ -59,6 +60,26 @@ class Cell:
             {
                 'editType': 2,
                 'id': int(marker_id)
+            }
+        ]
+        self.client.post(
+            action='editMapMarkers',
+            controller='map',
+            params={
+                'markers': markers
+            }
+        )
+
+    def _edit_cell_color(self, id, color):
+        markers = [
+            {
+                'color': COLOR[color],
+                'editType': 1,
+                'owner': 1,
+                'ownerId': self.client.player_id,
+                'targetId': self.id,
+                'type': 3,
+                'id': id
             }
         ]
         self.client.post(
