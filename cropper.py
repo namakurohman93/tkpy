@@ -3,91 +3,63 @@ import time
 import logging
 from utils import basic_login, vid, fishout
 from utilities.notepads import Notepad
+from utilities.map import Map
 
 logging.basicConfig(
     format='[%(asctime)s][%(levelname)s]: %(message)s',
     level=logging.DEBUG, datefmt='%d/%b/%Y:%H:%M:%S'
 )
-TOI = ('11115', '3339') # tuple of interest
+TOI = (
+    {
+        'res_type': '11115',
+        'msg': '15 croppers:\n',
+        'results': dict()
+    },
+    {
+        'res_type': '3339',
+        'msg': '9croppers:\n',
+        'results': dict()
+    }
+)
 
 
 def crop_finder(t5):
-    nine = dict()
-    fifteen = dict()
-    results = dict()
-    req_list = list()
-    for x in range(-13, 14):
-        for y in range(-13, 14):
-            req_list.append(vid(x, y))
-    r = t5.map.getByRegionIds(
-        {
-            'regionIdCollection': {
-                '1': req_list
-            }
+    maps = Map(t5)
+    maps.init()
+    oasis = maps.oasis()
+    tiles = maps.tiles()
+    for coord in tiles:
+        if tiles.coordinate(*coord)['resType'] == TOI[0]['res_type']:
+            TOI[0]['results'][coord] = list((0,))
+        elif tiles.coordinate(*coord)['resType'] == TOI[1]['res_type']:
+            TOI[1]['results'][coord] = list((0,))
+        else:
+            continue
+    for toi in TOI:
+        new_msg = toi['msg']
+        for coord in toi['results']:
+            x, y = coord
+            for x2 in range(x-3, x+4):
+                for y2 in range(y-3, y+4):
+                    try:
+                        bonus = oasis.coordinate(x2, y2)['oasis']['bonus']['4']
+                        toi['results'][coord].append(bonus)
+                    except KeyError:
+                        continue
+            sorted_bonus = sorted(toi['results'][coord], reverse=True)
+            toi['results'][coord] = sum(sorted_bonus[:3])
+        sorted_result = {
+            k: toi['results'][k] for k in sorted(
+                toi['results'], key=toi['results'].__getitem__, reverse=True
+            )
         }
-    )
-    for vids in r['response']['1']['region']:
-        for result in r['response']['1']['region'][vids]:
-            results[result['id']] = result
-            try:
-                res_type = result['resType']
-                cell_id = result['id']
-            except KeyError:
-                continue
-            if res_type == TOI[0]:
-                fifteen[cell_id] = list((0,))
-            elif res_type == TOI[1]:
-                nine[cell_id] = list((0,))
-            else:
-                continue
-    new_msg = '15 croppers:\n'
-    for cell_id in fifteen:
-        x, y = fishout(int(cell_id))
-        for x2 in range(x-3, x+4):
-            for y2 in range(y-3, y+4):
-                try:
-                    bonus = results[str(vid(x2, y2))]['oasis']['bonus']['4']
-                    fifteen[cell_id].append(bonus)
-                except KeyError:
-                    continue
-        sorted_bonus = sorted(fifteen[cell_id], reverse=True)
-        fifteen[cell_id] = sum(sorted_bonus[:3])
-    sorted_result = {
-        k: fifteen[k] for k in sorted(
-            fifteen, key=fifteen.__getitem__, reverse=True
-        )
-    }
-    for cell_id in sorted_result:
-        x, y = fishout(int(cell_id))
-        bonus = sorted_result[cell_id]
-        new_msg += f'({x}|{y}) -> bonus: {bonus}\n'
-    fifteen_notepad = Notepad(t5)
-    fifteen_notepad.new_notepad()
-    fifteen_notepad.message(new_msg)
-    new_msg = '9 croppers:\n'
-    for cell_id in nine:
-        x, y = fishout(int(cell_id))
-        for x2 in range(x-3, x+4):
-            for y2 in range(y-3, y+4):
-                try:
-                    bonus = results[str(vid(x2, y2))]['oasis']['bonus']['4']
-                    nine[cell_id].append(bonus)
-                except KeyError:
-                    continue
-        sorted_bonus = sorted(nine[cell_id], reverse=True)
-        nine[cell_id] = sum(sorted_bonus[:3])
-    sorted_result = {
-        k: nine[k] for k in sorted(
-            nine, key=nine.__getitem__, reverse=True
-        )
-    }
-    for cell_id in sorted_result:
-        x, y = fishout(int(cell_id))
-        bonus = sorted_result[cell_id]
-        new_msg += f'({x}|{y}) -> bonus: {bonus}\n'
-    nine_notepad = Notepad(t5)
-    nine_notepad.new_notepad()
-    nine_notepad.message(new_msg)
+        for coord in sorted_result:
+            x, y = coord
+            bonus = sorted_result[coord]
+            new_msg += f'({x}|{y}) -> bonus: {bonus}\n'
+        notepad = Notepad(t5)
+        notepad.new_notepad()
+        notepad.message(new_msg)
 
 
 if __name__ == '__main__':
