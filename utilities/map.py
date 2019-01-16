@@ -55,20 +55,24 @@ class Cell:
             }
         )
 
-    def delete_cell_color(self, marker_id):
-        markers = [
-            {
-                'editType': 2,
-                'id': int(marker_id)
-            }
-        ]
-        self.client.post(
-            action='editMapMarkers',
-            controller='map',
-            params={
-                'markers': markers
-            }
-        )
+    def delete_cell_color(self):
+        r = self.client.cache.get({'names':['Collection:MapMarker:']})
+        for caches in r['cache'][0]['data']['cache']:
+            if caches['data']['targetId'] == str(self.id):
+                markers = [
+                    {
+                        'editType': 2,
+                        'id': int(caches['data']['id'])
+                    }
+                ]
+                self.client.post(
+                    action='editMapMarkers',
+                    controller='map',
+                    params={
+                        'markers': markers
+                    }
+                )
+                return
 
     def _edit_cell_color(self, id, color):
         markers = [
