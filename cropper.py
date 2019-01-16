@@ -9,7 +9,7 @@ logging.basicConfig(
     format='[%(asctime)s][%(levelname)s]: %(message)s',
     level=logging.DEBUG, datefmt='%d/%b/%Y:%H:%M:%S'
 )
-TOI = (
+TOI = ( # tuple of interest
     {
         'res_type': '11115',
         'msg': '15 croppers:\n',
