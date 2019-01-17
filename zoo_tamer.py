@@ -3,7 +3,7 @@ import time
 import logging
 from threading import Thread
 from queue import Queue
-from utils import basic_login, vid, fishout
+from utils import basic_login
 from utilities.notepads import Notepad
 from utilities.map import Map
 
