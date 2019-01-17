@@ -147,11 +147,11 @@ class Map:
         for color in COLOR:
             print(f'{color}')
 
-    def _filter(self, type):
+    def _filter(self, group):
         results = dict()
         for coord in self._data.keys():
             try:
-                oasis = self._data[coord][type]
+                oasis = self._data[coord][group]
                 results[coord] = self._data[coord]
             except KeyError:
                 continue
