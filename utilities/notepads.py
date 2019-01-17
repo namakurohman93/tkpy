@@ -7,16 +7,16 @@ logging.basicConfig(
 
 class Notepad:
     def __init__(self, gameworld, notepad_id=None):
-        self.gameworld = gameworld
+        self.client = gameworld
         self.id = notepad_id
 
     def __repr__(self):
         return self.id
 
     def new_notepad(self):
-        r = self.gameworld.cache.get({'names':['Collection:Notepad:']})
+        r = self.client.cache.get({'names':['Collection:Notepad:']})
         if r['cache'][0]['data']['cache']:
-            self.gameworld.post(
+            self.client.post(
                 action='changeSettings',
                 controller='player',
                 params= {
@@ -25,7 +25,7 @@ class Notepad:
                     }
                 }
             )
-            r = self.gameworld.player.addNote(
+            r = self.client.player.addNote(
                 {
                     'x': 4.5,
                     'y': 10.5
@@ -33,7 +33,7 @@ class Notepad:
             )
             nid = r['cache'][0]['data']['cache'][0]['data']['id']
         else:
-            self.gameworld.post(
+            self.client.post(
                 action='changeSettings',
                 controller='player',
                 params= {
@@ -42,13 +42,13 @@ class Notepad:
                     }
                 }
             )
-            r = self.gameworld.post(
+            r = self.client.post(
                 action='addNote',
                 controller='player',
                 params={}
             )
             nid = r['cache'][0]['data']['cache'][0]['data']['id']
-            self.gameworld.post(
+            self.client.post(
                 action='changeSettings',
                 controller='player',
                 params= {
@@ -63,7 +63,7 @@ class Notepad:
         if not self.id:
             return 'There is no notepad.' +\
                    '\nPlease create one use new_notepad method'
-        r = self.gameworld.player.removeNote(
+        r = self.client.player.removeNote(
             {
                 'id': self.id
             }
@@ -77,7 +77,7 @@ class Notepad:
         if not self.id:
             return 'There is no notepad.' +\
                    '\nPlease create one use new_notepad method'
-        self.gameworld.player.changeNote(
+        self.client.player.changeNote(
             {
                 'newSettings': {
                     'id': self.id,
@@ -89,7 +89,7 @@ class Notepad:
                 }
             }
         )
-        self.gameworld.player.changeNote(
+        self.client.player.changeNote(
             {
                 'newSettings': {
                     'id': self.id,

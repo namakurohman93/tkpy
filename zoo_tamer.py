@@ -5,6 +5,7 @@ from threading import Thread
 from queue import Queue
 from utils import basic_login, vid, fishout
 from utilities.notepads import Notepad
+from utilities.map import Map
 
 logging.basicConfig(
     format='[%(asctime)s][%(levelname)s]: %(message)s',
@@ -22,20 +23,14 @@ SOI = { # set of interest
 }
 
 
-def thread_1(t5, task):
+def thread_1(task):
     while True:
         msg = ''
         result, results_2 = task.get()
         if result is None:
             break
-        r = t5.cache.get(
-            {
-                'names': [
-                    f'MapDetails:{result}'
-                ]
-            }
-        )
-        x, y = fishout(int(result))
+        r = result.details()
+        x, y = result.coord
         units = r['cache'][0]['data']['troops']['units']
         if set(units) & SOI:
             for unit in units:
@@ -47,30 +42,18 @@ def thread_1(t5, task):
 def zoo(t5):
     results = list()
     results_2 = list()
-    req_list = list()
-    for x in range(-13, 14):
-        for y in range(-13, 14):
-            req_list.append(vid(x, y))
-    r = t5.map.getByRegionIds(
-        {
-            'regionIdCollection': {
-                '1': req_list
-            }
-        }
-    )
-    for vids in r['response']['1']['region']:
-        for result in r['response']['1']['region'][vids]:
-            try:
-                oasis_status = int(result['oasis']['oasisStatus'])
-                if oasis_status == 3:
-                    results.append(result['id'])
-            except KeyError:
-                continue
-    # prepare thread
+    maps = Map(t5)
+    maps.init()
+    oasis = maps.oasis()
+    for coord in oasis:
+        if int(oasis.coordinate(*coord)['oasis']['oasisStatus']) == 3:
+            results.append(oasis.coordinate(*coord))
+        else:
+            continue
     task = Queue()
     threads = list()
     for _ in range(8):
-        worker = Thread(target=thread_1, args=(t5, task))
+        worker = Thread(target=thread_1, args=(task,))
         worker.start()
         threads.append(worker)
     # dispatch thread

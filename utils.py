@@ -1,4 +1,24 @@
+import requests
 from primordial.lobby import Lobby
+
+COLOR = {
+'BLUE': 1,
+'YELLOW': 2,
+'BROWN': 3,
+'OWN': 4,
+'TEAL' : 5,
+'DARK GREEN': 6,
+'LIGHT GREEN': 7,
+'DARK BLUE': 8,
+'ALLIANCE': 9,
+'PURPLE': 10,
+'PINK': 11,
+'RED': 12,
+'ENEMY': 13,
+'NEUTRAL': 15,
+'TREATY COLOR NAP': 16,
+'TREATY COLOR BND': 17
+}
 
 
 def basic_login(email, password, gameworld_name):
@@ -15,6 +35,17 @@ def basic_login(email, password, gameworld_name):
         gameworld_id=gameworld_id
     )
     return gameworld
+
+
+def advance_login(*args, **kwargs):
+    t5 = basic_login(*args, **kwargs)
+    t5.client.session.headers['cookie'] = f'msid={t5.msid}'
+    cookie_dict = requests.utils.dict_from_cookiejar(t5.client.session.cookies)
+    for k, v in cookie_dict.items():
+        t5.client.session.headers['cookie'] += f'; {k}={v}'
+    r = t5.cache.get({'names':['Collection:Village:own']})
+    t5.player_id = r['cache'][0]['data']['cache'][0]['data']['playerId']
+    return t5
 
 
 def vid(x, y):
