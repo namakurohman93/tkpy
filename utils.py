@@ -1,3 +1,4 @@
+import requests
 from primordial.lobby import Lobby
 
 COLOR = {
@@ -40,6 +41,10 @@ def advance_login(*args, **kwargs):
     t5 = basic_login(*args, **kwargs)
     r = t5.cache.get({'names':['Collection:Village:own']})
     t5.player_id = r['cache'][0]['data']['cache'][0]['data']['playerId']
+    t5.client.session.headers['cookie'] = f'msid={t5.msid}'
+    cookie_dict = requests.utils.dict_from_cookiejar(t5.client.session.cookies)
+    for k, v in cookie_dict.items():
+        t5.client.session.headers['cookie'] += f'; {k}={v}'
     return t5
 
 
