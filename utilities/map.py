@@ -113,6 +113,7 @@ class Map:
             raise AssertionError(errmsg)
 
     def __getitem__(self, key):
+        """the only way to get the item is use coordinate method"""
         errmsg = f'\'{type(self).__name__}\' object does not support indexing'
         raise TypeError(errmsg)
 
@@ -122,7 +123,8 @@ class Map:
     def __repr__(self):
         return f'{type(self).__name__}({dict(self._data.items())})'
 
-    def init(self):
+    def pull(self):
+        """git pull like function for pulling map data from server"""
         req_list = list()
         for x in range(-13, 14):
             for y in range(-13, 14):
@@ -140,6 +142,7 @@ class Map:
                 self.__setitem__(fishout(id), Cell(self.client, id, result))
 
     def coordinate(self, x, y):
+        """the one and only method for getting the item"""
         return self._data[(x, y)]
 
     @property

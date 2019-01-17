@@ -43,7 +43,7 @@ def zoo(t5):
     results = list()
     results_2 = list()
     maps = Map(t5)
-    maps.init()
+    maps.pull()
     oasis = maps.oasis()
     for coord in oasis:
         if int(oasis.coordinate(*coord)['oasis']['oasisStatus']) == 3:

@@ -25,7 +25,7 @@ TOI = ( # tuple of interest
 
 def crop_finder(t5):
     maps = Map(t5)
-    maps.init()
+    maps.pull()
     oasis = maps.oasis()
     tiles = maps.tiles()
     for coord in tiles:
