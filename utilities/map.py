@@ -94,6 +94,22 @@ class Cell:
             }
         )
 
+    def message(self, msg):
+        self.client.post(
+            action='editMapMarkers',
+            controller='map',
+            params={
+                'fieldMessage': {
+                    'cellId': self.id,
+                    'duration': 12,
+                    'targetId': self.client.player_id,
+                    'text': msg,
+                    'type': 5
+                },
+                'markers': []
+            }
+        )
+
 
 class Map:
     def __init__(self, client, data=None):
