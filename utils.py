@@ -45,6 +45,8 @@ def advance_login(*args, **kwargs):
         t5.client.session.headers['cookie'] += f'; {k}={v}'
     r = t5.cache.get({'names':['Collection:Village:own']})
     t5.player_id = r['cache'][0]['data']['cache'][0]['data']['playerId']
+    r = t5.cache.get({'names':[f'Player:{t5.player_id}']})
+    t5.plus_account = int(r['cache'][0]['data']['plusAccountTime'])
     return t5
 
 
