@@ -34,6 +34,7 @@ def filter_population(village_list):
             result.append(village)
     return result
 
+
 def filter_distance(village_list):
     min_x_distance = MIN_DISTANCE + CENTER[0]
     max_x_distance = MAX_DISTANCE + CENTER[0]
@@ -47,6 +48,7 @@ def filter_distance(village_list):
             if min_y_distance <= y <= max_y_distance:
                 result.append(village)
     return result
+
 
 def create_farmlist(t5):
     r = t5.farmList.createList({'name': time.strftime('%d%m%y%H%M%S')})
