@@ -19,11 +19,20 @@ class Village:
         return units
 
     def incoming_attack(self):
+        troop_id = list()
+        incoming = dict()
         names = f'Collection:TroopsMovementInfo:attackVillage:{self.villageId}'
         params = {'names':[names]}
         r = self.client.cache.get(params)
-        # incoming = r['cache'][0]['data']['cache'][0]['data']
-        # return incoming
+        for caches in r['cache'][0]['data']['cache']:
+            troop_id.append(caches['data']['troopId'])
+        params = {'names': [f'Collection:Troops:moving:{self.villageId}']}
+        r = self.client.cache.get(params)
+        for caches in r['cache'][0]['data']['cache']:
+            id = caches['data']['troopId']
+            if id in troop_id:
+                incoming[id] = caches['data']
+        return incoming
 
     def merchants(self):
         params = {'names':[f'Merchants:{self.villageId}']}
@@ -43,7 +52,9 @@ class Village:
         production = r['cache'][0]['data']['production']
         storage = r['cache'][0]['data']['storage']
         storage_capacity = r['cache'][0]['data']['storageCapacity']
-        print(f'production = {production}\nstorage = {storage}\ncapacity = {storage_capacity}')
+        results = f'production = {production}\nstorage = {storage}\n'+\
+                  f'capacity = {storage_capacity}'
+        print(results)
 
     @property
     def is_capital(self):
@@ -61,6 +72,9 @@ class Villages:
 
     def __getitem__(self, key):
         return self._data[key]
+
+    def __iter__(self):
+        return iter(list(self._data.keys()))
 
     def pull(self):
         """git pull like function for pulling own village data"""
