@@ -1,6 +1,7 @@
 import sys
 import time
 import logging
+from math import sqrt
 from utils import advance_login, fishout
 from utilities.players import Players
 
@@ -36,17 +37,13 @@ def filter_population(village_list):
 
 
 def filter_distance(village_list):
-    min_x_distance = MIN_DISTANCE + CENTER[0]
-    max_x_distance = MAX_DISTANCE + CENTER[0]
-    min_y_distance = MIN_DISTANCE + CENTER[1]
-    max_y_distance = MAX_DISTANCE + CENTER[1]
     result = list()
     for village in village_list:
         village_id = int(village['villageId'])
         x, y = fishout(village_id)
-        if min_x_distance <= x <= max_x_distance:
-            if min_y_distance <= y <= max_y_distance:
-                result.append(village)
+        d = sqrt((CENTER[0] - x)**2 + (CENTER[1] - y)**2)
+        if MIN_DISTANCE <= d <= MAX_DISTANCE:
+            result.append(village)
     return result
 
 
