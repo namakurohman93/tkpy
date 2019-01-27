@@ -3,7 +3,7 @@ import time
 import logging
 from threading import Thread
 from queue import Queue
-from utils import basic_login, vid, fishout
+from utils import basic_login
 from utilities.notepads import Notepad
 from utilities.map import Map
 
@@ -43,7 +43,7 @@ def zoo(t5):
     results = list()
     results_2 = list()
     maps = Map(t5)
-    maps.init()
+    maps.pull()
     oasis = maps.oasis()
     for coord in oasis:
         if int(oasis.coordinate(*coord)['oasis']['oasisStatus']) == 3:
