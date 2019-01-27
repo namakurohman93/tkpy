@@ -23,4 +23,10 @@ travian kingdom utilities for your need.
 > * save and run it again.
 
 ---
+### postscript
+
+you have an idea? or found a bug? wanna contribute to project? open an issue and make a PR.
+it is open project after all :wink:
+
+---
 _we love lowercase_
