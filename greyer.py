@@ -48,7 +48,7 @@ def filter_distance(village_list):
 
 
 def create_farmlist(t5):
-    r = t5.farmList.createList({'name': time.strftime('%d%m%y%H%M%S')})
+    r = t5.farmList.createList({'name': time.strftime('%d%b%y%H%M%S')})
     return r['cache'][0]['data']['cache'][0]['data']['listId']
 
 
