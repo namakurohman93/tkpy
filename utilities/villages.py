@@ -92,6 +92,9 @@ class Villages:
             if self._data[key].villageId == id:
                 return self._data[key]
 
+    def keys(self):
+        return self._data.keys()
+
     @property
     def list(self):
         for village in self._data:

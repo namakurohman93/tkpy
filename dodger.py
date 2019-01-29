@@ -13,7 +13,7 @@ logging.basicConfig(
 for logs in logging.Logger.manager.loggerDict:
     logging.getLogger(logs).setLevel(logging.INFO)
 VOI = [] # village of interest
-TARGET = 0, 0 # x, y coordinate
+TARGET = -13, 13 # x, y coordinate
 
 
 def evader(t5, data, villages):
@@ -56,6 +56,15 @@ def threads_list():
     return result
 
 
+def check_village(t5):
+    if not VOI:
+        return
+    villages = village_list(t5)
+    for village_name in VOI:
+        errmsg = f'you didnt have village {village_name}'
+        assert village_name in villages.keys(), errmsg
+
+
 if __name__ == '__main__':
     try:
         email = sys.argv[1]
@@ -71,6 +80,7 @@ if __name__ == '__main__':
         sys.exit()
     logging.info('loging in')
     gameworld = advance_login(email, password, gameworld_name)
+    check_village(gameworld)
     logging.info('dodger.py started, enjoy your day :)')
     while True:
         villages = village_list(gameworld)
