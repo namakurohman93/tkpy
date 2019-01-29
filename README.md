@@ -17,7 +17,8 @@ travian kingdom utilities for your need.
 > * open zoo_tamer.py with any text editor
 > * change the SOI value.
 ```python
-SOI = {'7', '8', '9', '10'}```
+SOI = {'7', '8', '9', '10'}
+```
 > * save and run it again
 2. cropper: `python3 cropper.py dummy@email.com dummypassword com9`, then check your ingame notepad.
 3. greyer: `python3 greyer.py dummy@email.com dummypassword com9`, then check your farm list.
@@ -38,7 +39,8 @@ SOI = {'7', '8', '9', '10'}```
 > * if you just want to cover some village (usually scout village and hammer village), you need to edit VOI as well. example:
 ```python
 VOI = ['scout village name', 'hammer village name']
-TARGET = -13, 13```
+TARGET = -13, 13
+```
 > * save and run it again
 
 ---
