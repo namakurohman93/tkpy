@@ -34,12 +34,13 @@ SOI = {'7', '8', '9', '10'}```
 4. dodger: `python3 dodger.py dummy@email.com dummypassword com9`, then enjoy your day.
 > by default dodger will cover all your village, but before you run dodger, you need to:
 > * open dodger.py with any text editor
-> * then change the TARGET value (usually coordinate of nearest occupied oasis)
-> * if you just want to cover some village (usually scout village and hammer village), you need to edit VOI as well. example:
+> * then change the TARGET value (coordinate of nearest occupied oasis)
+> * save and run it again
+
+> if you just want to cover some village (usually scout village and hammer village), you need to edit VOI as well. example:
 ```python
 VOI = ['scout village name', 'hammer village name']
 TARGET = -13, 13```
-> * save and run it again
 
 ---
 ### postscript
