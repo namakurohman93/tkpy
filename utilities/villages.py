@@ -15,7 +15,9 @@ class Village:
     def troops(self):
         params = {'names':[f'Collection:Troops:stationary:{self.villageId}']}
         r = self.client.cache.get(params)
-        units = r['cache'][0]['data']['cache'][0]['data']['units']
+        for troop in r['cache'][0]['data']['cache']:
+            if troop['data']['villageId'] == self.villageId:
+                units = troop['data']['units']
         return units
 
     def incoming_attack(self):
