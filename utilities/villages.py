@@ -1,7 +1,3 @@
-from utils import fishout
-from primordial.gameworld import Gameworld
-
-
 class Village:
     __attrs__ = ['villageId', 'playerId', 'name', 'isMainVillage']
 
@@ -9,7 +5,6 @@ class Village:
         self.client = client
         for attr in Village.__attrs__:
             setattr(self, attr, data[attr])
-        self.coord = fishout(int(self.villageId))
         del data
 
     def troops(self):
@@ -64,8 +59,8 @@ class Village:
 
 
 class Villages:
+    """a container for own village"""
     def __init__(self, client, data=None):
-        assert isinstance(client, Gameworld), 'Need Gameworld object'
         self.client = client
         self._data = data or dict()
 
