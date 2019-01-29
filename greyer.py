@@ -48,11 +48,11 @@ def filter_distance(village_list):
 
 
 def create_farmlist(t5):
-    r = t5.farmList.createList({'name': time.strftime('%d%m%y%H%M%S')})
+    r = t5.farmList.createList({'name': time.strftime('%d%b%y%H%M%S')})
     return r['cache'][0]['data']['cache'][0]['data']['listId']
 
 
-def add_village_to_famrlist(t5, village_id, farmlist_id):
+def add_village_to_farmlist(t5, village_id, farmlist_id):
     t5.farmList.toggleEntry({'listId': farmlist_id, 'villageId': village_id})
 
 
@@ -75,7 +75,7 @@ if __name__ == '__main__':
         farmlist_id = int(create_farmlist(gameworld))
         for _ in range(100):
             village_id = village_list.pop()['villageId']
-            add_village_to_famrlist(gameworld, village_id, farmlist_id)
+            add_village_to_farmlist(gameworld, village_id, farmlist_id)
             if not village_list:
                 break
         time.sleep(0.1)

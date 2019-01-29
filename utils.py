@@ -47,6 +47,7 @@ def advance_login(*args, **kwargs):
     t5.player_id = r['cache'][0]['data']['cache'][0]['data']['playerId']
     r = t5.cache.get({'names':[f'Player:{t5.player_id}']})
     t5.plus_account = int(r['cache'][0]['data']['plusAccountTime'])
+    t5.kingdom_id = int(r['cache'][0]['data']['kingdomId'])
     return t5
 
 
@@ -62,3 +63,21 @@ def fishout(vid):
     realx = int(xcord, 2) - 16384
     realy = int(ycord, 2) - 16384
     return realx, realy
+
+
+def send_troops(client, target, source, move_type, units):
+    r = client.troops.send(
+        {
+            'destVillageId': target,
+            'movementType': move_type,
+            'redeployHero': False,
+            'spyMission': 'resources',
+            'units': units,
+            'villageId': source
+        }
+    )
+    return r['cache'][0]['data']['cache'][0]['data']['troopId']
+
+
+def abort_troop_movement(client, id):
+    client.troops.abortTroopMovement({'troopId': id})
