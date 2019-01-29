@@ -20,7 +20,7 @@ class Village:
 
     def incoming_attack(self):
         troop_id = list()
-        incoming = dict()
+        incoming = list()
         names = f'Collection:TroopsMovementInfo:attackVillage:{self.villageId}'
         params = {'names':[names]}
         r = self.client.cache.get(params)
@@ -31,7 +31,7 @@ class Village:
         for caches in r['cache'][0]['data']['cache']:
             id = caches['data']['troopId']
             if id in troop_id:
-                incoming[id] = caches['data']
+                incoming.append(caches['data'])
         return incoming
 
     def merchants(self):
@@ -83,6 +83,12 @@ class Villages:
             village_name = villages['data']['name']
             village = Village(self.client, villages['data'])
             self.__setitem__(village_name, village)
+
+    def id(self, id):
+        """use village id as a key for getting the item"""
+        for key in self._data:
+            if self._data[key].villageId == id:
+                return self._data[key]
 
     @property
     def list(self):
