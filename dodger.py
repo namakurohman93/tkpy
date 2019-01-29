@@ -2,6 +2,7 @@ import sys
 import time
 import logging
 import threading
+from random import randint
 from utils import advance_login, send_troops, vid, abort_troop_movement
 from utilities.villages import Villages
 
@@ -84,4 +85,4 @@ if __name__ == '__main__':
                     name=data['troopId'],
                     args=(gameworld, data, villages)
                 ).start()
-        time.sleep(20)
+        time.sleep(randint(20, 25))
