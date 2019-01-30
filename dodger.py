@@ -13,7 +13,7 @@ logging.basicConfig(
 for logs in logging.Logger.manager.loggerDict:
     logging.getLogger(logs).setLevel(logging.INFO)
 VOI = [] # village of interest
-TARGET = -13, 13 # x, y coordinate
+TARGET = 0, 0 # x, y coordinate
 
 
 def evader(t5, data, villages):
