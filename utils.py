@@ -1,23 +1,24 @@
 import requests
 from primordial.lobby import Lobby
+from utilities.database import Database
 
 COLOR = {
-'BLUE': 1,
-'YELLOW': 2,
-'BROWN': 3,
-'OWN': 4,
-'TEAL' : 5,
-'DARK GREEN': 6,
-'LIGHT GREEN': 7,
-'DARK BLUE': 8,
-'ALLIANCE': 9,
-'PURPLE': 10,
-'PINK': 11,
-'RED': 12,
-'ENEMY': 13,
-'NEUTRAL': 15,
-'TREATY COLOR NAP': 16,
-'TREATY COLOR BND': 17
+    'BLUE': 1,
+    'YELLOW': 2,
+    'BROWN': 3,
+    'OWN': 4,
+    'TEAL' : 5,
+    'DARK GREEN': 6,
+    'LIGHT GREEN': 7,
+    'DARK BLUE': 8,
+    'ALLIANCE': 9,
+    'PURPLE': 10,
+    'PINK': 11,
+    'RED': 12,
+    'ENEMY': 13,
+    'NEUTRAL': 15,
+    'TREATY COLOR NAP': 16,
+    'TREATY COLOR BND': 17
 }
 
 
@@ -48,6 +49,22 @@ def advance_login(*args, **kwargs):
     r = t5.cache.get({'names':[f'Player:{t5.player_id}']})
     t5.plus_account = int(r['cache'][0]['data']['plusAccountTime'])
     t5.kingdom_id = int(r['cache'][0]['data']['kingdomId'])
+    return t5
+
+
+def extended_login(*args, **kwargs):
+    database = Database(*args, **kwargs)
+    t5 = database.get_driver()
+    if t5:
+        # saved account
+        if not t5.is_authenticated(): # check session
+            # session expired
+            t5 = advance_login(*args, **kwargs)
+            database.update_data(t5)
+    else:
+        # new account
+        t5 = advance_login(*args, **kwargs)
+        database.insert_data(t5)
     return t5
 
 

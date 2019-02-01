@@ -106,6 +106,25 @@ class Cell:
             }
         )
 
+    def kingdom_message(self, msg):
+        if not self.client.kingdom_id:
+            print('not in any kingdom')
+            return
+        self.client.post(
+            action='editMapMarkers',
+            controller='map',
+            params={
+                'fieldMessage': {
+                    'cellId': self.id,
+                    'duration': 48,
+                    'targetId': 0,
+                    'text': msg,
+                    'type': 2
+                },
+                'markers': []
+            }
+        )
+
 
 class Map:
     """a container for cell object on gameworld"""
