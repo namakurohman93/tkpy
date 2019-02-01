@@ -2,7 +2,7 @@ import sys
 import time
 import logging
 from math import sqrt
-from utils import advance_login, fishout
+from utils import extended_login, fishout
 from utilities.players import Players
 from utilities.map import Map
 
@@ -80,7 +80,7 @@ if __name__ == '__main__':
                  f'Usage: \tpython3 {sys.argv[0]} <email> <password> <gameworld>'
         print(errmsg)
         sys.exit()
-    gameworld = advance_login(email, password, gameworld_name)
+    gameworld = extended_login(email, password, gameworld_name)
     if not gameworld.plus_account:
         print('need travian plus for running this utilities.')
         sys.exit()

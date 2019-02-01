@@ -3,7 +3,7 @@ import time
 import logging
 import threading
 from random import randint
-from utils import advance_login, send_troops, vid, abort_troop_movement
+from utils import extended_login, send_troops, vid, abort_troop_movement
 from utilities.villages import Villages
 
 logging.basicConfig(
@@ -79,7 +79,7 @@ if __name__ == '__main__':
         print('please change the target first')
         sys.exit()
     logging.info('loging in')
-    gameworld = advance_login(email, password, gameworld_name)
+    gameworld = extended_login(email, password, gameworld_name)
     check_village(gameworld)
     logging.info('dodger.py started, enjoy your day :)')
     while True:
