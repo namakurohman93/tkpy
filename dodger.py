@@ -81,7 +81,7 @@ if __name__ == '__main__':
     logging.info('loging in')
     gameworld = extended_login(email, password, gameworld_name)
     check_village(gameworld)
-    logging.info('dodger.py started, enjoy your day :)')
+    logging.info(f'{sys.argv[0]} started, enjoy your day :)')
     while True:
         villages = village_list(gameworld)
         incoming = incoming_list(villages)
