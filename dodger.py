@@ -17,20 +17,18 @@ TARGET = 0, 0 # x, y coordinate
 
 
 def evader(t5, data, villages):
-    time_finish = int(data['movement']['timeFinish'])
-    arrive = time.strftime('%Y-%m-%d %H:%M:%S', time.localtime(time_finish))
-    msg = f'{villages.id(data["villageIdLocation"]).name}: '+\
-          f'incoming (id: {data["troopId"]}, player: {data["playerName"]}'+\
-          f', village: {data["villageName"]}, arrive: {arrive})'
-    logging.info(msg)
-    time_now = int('{:.0f}'.format(time.time()).replace('.', ''))
-    diff = time_finish - time_now
+    print_log(data, villages)
+    diff = diff_time(data)
     time.sleep(diff-3)
     units = villages.id(data['villageIdLocation']).troops()
-    id = send_troops(t5, vid(*TARGET), data['villageIdLocation'], 5, units)
-    logging.info(f'evading incoming id: {data["troopId"]}')
-    time.sleep(4)
-    abort_troop_movement(t5, id)
+    if units:
+        id = send_troops(t5, vid(*TARGET), data['villageIdLocation'], 5, units)
+        logging.info(f'evading incoming id: {data["troopId"]}')
+        time.sleep(4)
+        abort_troop_movement(t5, id)
+    else:
+        village_name = villages.id(data["villageIdLocation"]).name
+        logging.info(f'no troop in {village_name}')
 
 
 def village_list(t5):
@@ -63,6 +61,22 @@ def check_village(t5):
     for village_name in VOI:
         errmsg = f'you didnt have village {village_name}'
         assert village_name in villages.keys(), errmsg
+
+
+def diff_time(data):
+    time_finish = int(data['movement']['timeFinish'])
+    time_now = int('{:.0f}'.format(time.time()).replace('.', ''))
+    diff = time_finish - time_now
+    return diff
+
+
+def print_log(data, villages):
+    time_finish = int(data['movement']['timeFinish'])
+    arrive = time.strftime('%Y-%m-%d %H:%M:%S', time.localtime(time_finish))
+    msg = f'{villages.id(data["villageIdLocation"]).name}: '+\
+          f'incoming (id: {data["troopId"]}, player: {data["playerName"]}'+\
+          f', village: {data["villageName"]}, arrive: {arrive})'
+    logging.info(msg)
 
 
 if __name__ == '__main__':

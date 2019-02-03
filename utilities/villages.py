@@ -34,7 +34,7 @@ class Village:
     def merchants(self):
         params = {'names':[f'Merchants:{self.villageId}']}
         r = self.client.cache.get(params)
-        merchants = r['cache'][0]['data']['max']
+        merchants = r['cache'][0]['data']
         return merchants
 
     def buildings(self):
@@ -47,11 +47,13 @@ class Village:
         params = {'names':[f'Village:{self.villageId}']}
         r = self.client.cache.get(params)
         production = r['cache'][0]['data']['production']
-        storage = r['cache'][0]['data']['storage']
+        amount = r['cache'][0]['data']['storage']
         storage_capacity = r['cache'][0]['data']['storageCapacity']
-        results = f'production = {production}\nstorage = {storage}\n'+\
-                  f'capacity = {storage_capacity}'
-        print(results)
+        results = dict()
+        results['production'] = production
+        results['amount'] = amount
+        results['storage capacity'] = storage_capacity
+        return results
 
     @property
     def is_capital(self):
