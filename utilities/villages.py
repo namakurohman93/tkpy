@@ -55,6 +55,14 @@ class Village:
         results['storage capacity'] = storage_capacity
         return results
 
+    def cranny(self):
+        results = 0
+        buildings = self.buildings()
+        for building in buildings:
+            if building['data']['buildingType'] == '23':
+                results += building['data']['effect'][0]
+        return results
+
     @property
     def is_capital(self):
         return self.isMainVillage
