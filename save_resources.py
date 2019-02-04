@@ -66,7 +66,9 @@ def id_offer_list(t5, village, av_mer, merchants):
         res = str(next(res_cycle))
         if ress[res]:
             if amount[res] >= cranny:
-                id = offer_resource(t5, village.villageId, res, merchants)
+                id = offer_resource(
+                    t5, village.villageId, res, merchants, amount[res]
+                )
                 id_list.append(id)
                 amount[res] -= int(merchants['carry'])
                 av_mer -= 1
@@ -81,8 +83,9 @@ def id_offer_list(t5, village, av_mer, merchants):
     return id_list
 
 
-def offer_resource(t5, vil_id, res, merchants):
-    offered_amount = int(merchants['carry'])
+def offer_resource(t5, vil_id, res, merchants, amount):
+    carry = int(merchants['carry'])
+    offered_amount = carry if amount >= carry else amount
     offered_res = int(res)
     search_amount = 2 * offered_amount
     search_res = 2 if offered_res == 1 else 1

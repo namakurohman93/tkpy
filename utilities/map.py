@@ -174,7 +174,7 @@ class Map:
         results = dict()
         for coord in self._data.keys():
             try:
-                oasis = self._data[coord][group]
+                test = self._data[coord][group]
                 results[coord] = self._data[coord]
             except KeyError:
                 continue
