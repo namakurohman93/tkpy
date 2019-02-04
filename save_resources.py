@@ -74,7 +74,7 @@ def id_offer_list(t5, village, av_mer, merchants):
                     carry, resources['amount'][res]
                 )
                 id_list.append(id)
-                amount[res] -= carry
+                resources['amount'][res] -= carry
                 av_mer -= 1
             else:
                 # amount of this resources less than cranny capacity so it is
