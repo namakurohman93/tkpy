@@ -15,71 +15,6 @@ logging.basicConfig(
 for logs in logging.Logger.manager.loggerDict:
     logging.getLogger(logs).setLevel(logging.INFO)
 VOI = [] # village of interest
-TOLERANCE_THRESHOLD = 1000
-
-
-def prttm(t5, data, villages): # put resources to the marketplace
-    id_list = list()
-    ress = {'1': True, '2': True, '3': True, '4': True}
-    print_log(data, villages)
-    diff = diff_time(data)
-    time.sleep(diff-20)
-    logging.info(f'saving the resources for incoming id: {data["troopId"]}')
-    resources = villages.id(data['villageIdLocation']).resources()
-    merchants = villages.id(data['villageIdLocation']).merchants()
-    cranny = villages.id(data['villageIdLocation']).cranny()
-    re_cycle = cycle(range(1, 5))
-    av_mer = (int(merchants['max'])
-             - int(merchants['inOffers'])
-             - int(merchants['inTransport']))
-    if av_mer:
-        while True:
-            res = str(next(re_cycle))
-            if ress[res]:
-                if int(resources['amount'][res]) >= cranny:
-                    temp = int(resources['amount'][res]) - cranny
-                    if temp >= TOLERANCE_THRESHOLD:
-                        offered_amount = int(merchants['carry'])
-                        offered_res = int(res)
-                        search_amount = offered_amount * 2
-                        search_res = 2 if offered_res == 1 else 1
-                        id = create_offer(
-                            t5, offered_amount, offered_res,
-                            search_amount, search_res,
-                            int(data['villageIdLocation'])
-                        )
-                        id_list.append(id)
-                        av_mer -= 1
-                else:
-                    ress[res] = False
-            if not av_mer:
-                break
-            if not check_availability(ress):
-                break
-        if id_list:
-            time.sleep(40)
-            for id in id_list:
-                cancel_offer(t5, id)
-        else:
-            time.sleep(21)
-    else:
-        logging.info('there is no merchant available')
-        time.sleep(21)
-
-
-def create_offer(t5, offered_amount, offered_res,
-    search_amount, search_res, village_id):
-    r = t5.trade.createOffer(
-        {
-            'kingdomOnly': False,
-            'offeredAmount': offered_amount,
-            'offeredResource': offered_res,
-            'searchedAmount': search_amount,
-            'searchedResource': search_res,
-            'villageId': village_id
-        }
-    )
-    return r['cache'][0]['data']['cache'][0]['data']['offerId']
 
 
 def cancel_offer(t5, offer_id):
@@ -91,6 +26,78 @@ def check_availability(ress):
         return True
     else:
         return False
+
+
+def save_ress(t5, data, villages):
+    print_log(data, villages)
+    diff = diff_time(data)
+    time.sleep(diff-20)
+    logging.info(f'start saving resource for incoming id: {data["troopId"]}')
+    village = villages.id(data['villageIdLocation'])
+    merchants = village.merchants()
+    av_mer = (int(merchants['max'])
+             - int(merchants['inOffers'])
+             - int(merchants['inTransport']))
+    if av_mer:
+        # merchant available
+        id_list = id_offer_list(t5, village, av_mer, merchants)
+        if id_list:
+            time.sleep(40)
+            for id in id_list:
+                cancel_offer(t5, id)
+        else:
+            # merchant is available but amount of every resource is less than
+            # cranny so its just do nothing until attack land
+            time.sleep(21)
+    else:
+        # no merchant available
+        logging.info('no merchant available')
+        time.sleep(21)
+
+
+def id_offer_list(t5, village, av_mer, merchants):
+    id_list = list()
+    cranny = village.cranny()
+    resources = village.resources()
+    amount = {k: int(v) for k, v in resources['amount'].items()}
+    res_cycle = cycle(range(1, 5))
+    ress = {'1': True, '2': True, '3': True, '4': True}
+    while True:
+        res = str(next(res_cycle))
+        if ress[res]:
+            if amount[res] >= cranny:
+                id = offer_resource(t5, village.villageId, res, merchants)
+                id_list.append(id)
+                amount[res] -= int(merchants['carry'])
+                av_mer -= 1
+            else:
+                # amount of this resources less than cranny capacity so it is
+                # save and didn't need to check again
+                ress[res] = False
+        if not av_mer:
+            break
+        if not check_availability(ress):
+            break
+    return id_list
+
+
+def offer_resource(t5, vil_id, res, merchants):
+    offered_amount = int(merchants['carry'])
+    offered_res = int(res)
+    search_amount = 2 * offered_amount
+    search_res = 2 if offered_res == 1 else 1
+    village_id = int(vil_id)
+    r = t5.trade.createOffer(
+        {
+            'kingdomOnly': False,
+            'offeredAmount': offered_amount,
+            'offeredResource': offered_res,
+            'searchedAmount': search_amount,
+            'searchedResource': search_res,
+            'villageId': village_id
+        }
+    )
+    return r['cache'][0]['data']['cache'][0]['data']['offerId']
 
 
 if __name__ == '__main__':
@@ -116,7 +123,7 @@ if __name__ == '__main__':
                 continue
             else:
                 threading.Thread(
-                    target=prttm,
+                    target=save_ress,
                     name=data['troopId'],
                     args=(gameworld, data, villages)
                 ).start()
