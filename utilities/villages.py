@@ -48,11 +48,11 @@ class Village:
         r = self.client.cache.get(params)
         production = r['cache'][0]['data']['production']
         amount = r['cache'][0]['data']['storage']
-        storage_capacity = r['cache'][0]['data']['storageCapacity']
+        stor_cap = r['cache'][0]['data']['storageCapacity']
         results = dict()
-        results['production'] = production
-        results['amount'] = amount
-        results['storage capacity'] = storage_capacity
+        results['production'] = {k: int(v) for k, v in production.items()}
+        results['amount'] = {k: int(v) for k, v in amount.items()}
+        results['storage capacity'] = {k: int(v) for k, v in stor_cap.items()}
         return results
 
     def cranny(self):

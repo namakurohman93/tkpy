@@ -59,18 +59,22 @@ def id_offer_list(t5, village, av_mer, merchants):
     id_list = list()
     cranny = village.cranny()
     resources = village.resources()
-    amount = {k: int(v) for k, v in resources['amount'].items()}
+    carry = int(merchants['carry'])
     res_cycle = cycle(range(1, 5))
     ress = {'1': True, '2': True, '3': True, '4': True}
+    if resources['production']['4'] < 0:
+        # minus crop production, dont put to market
+        ress['4'] = False
     while True:
         res = str(next(res_cycle))
         if ress[res]:
-            if amount[res] >= cranny:
+            if resources['amount'][res] >= cranny:
                 id = offer_resource(
-                    t5, village.villageId, res, merchants, amount[res]
+                    t5, village.villageId, res,
+                    carry, resources['amount'][res]
                 )
                 id_list.append(id)
-                amount[res] -= int(merchants['carry'])
+                amount[res] -= carry
                 av_mer -= 1
             else:
                 # amount of this resources less than cranny capacity so it is
@@ -83,8 +87,7 @@ def id_offer_list(t5, village, av_mer, merchants):
     return id_list
 
 
-def offer_resource(t5, vil_id, res, merchants, amount):
-    carry = int(merchants['carry'])
+def offer_resource(t5, vil_id, res, carry, amount):
     offered_amount = carry if amount >= carry else amount
     offered_res = int(res)
     search_amount = 2 * offered_amount
