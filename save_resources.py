@@ -5,7 +5,8 @@ import threading
 from itertools import cycle
 from random import randint
 from utils import extended_login
-from dodger import village_list, threads_list, diff_time, print_log
+from dodger import (village_list, incoming_list,
+threads_list, check_village, diff_time, print_log)
 
 logging.basicConfig(
     format='[%(asctime)s][%(levelname)s]: %(message)s',
@@ -99,25 +100,6 @@ def offer_resource(t5, vil_id, res, merchants):
     return r['cache'][0]['data']['cache'][0]['data']['offerId']
 
 
-def check_village(t5):
-    if not VOI:
-        return
-    villages = village_list(t5)
-    for village_name in VOI:
-        errmsg = f'you didnt have village {village_name}'
-        assert village_name in villages.keys(), errmsg
-
-
-def incoming_list(village):
-    results = list()
-    temp = VOI or village
-    for village_name in temp:
-        incoming = village[village_name].incoming_attack()
-        if incoming:
-            results.extend(incoming)
-    return results
-
-
 if __name__ == '__main__':
     try:
         email = sys.argv[1]
@@ -130,11 +112,11 @@ if __name__ == '__main__':
         sys.exit()
     logging.info('loging in')
     gameworld = extended_login(email, password, gameworld_name)
-    check_village(gameworld)
+    check_village(gameworld, VOI)
     logging.info(f'{sys.argv[0]} started, enjoy your day :)')
     while True:
         villages = village_list(gameworld)
-        incoming = incoming_list(villages)
+        incoming = incoming_list(villages, VOI)
         threads = threads_list()
         for data in incoming:
             if data['troopId'] in threads:

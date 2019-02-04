@@ -39,9 +39,9 @@ def village_list(t5):
     return villages
 
 
-def incoming_list(village):
+def incoming_list(village, voi=VOI):
     results = list()
-    temp = VOI or village
+    temp = voi or village
     for village_name in temp:
         incoming = village[village_name].incoming_attack()
         if incoming:
@@ -56,11 +56,11 @@ def threads_list():
     return result
 
 
-def check_village(t5):
-    if not VOI:
+def check_village(t5, voi=VOI):
+    if not voi:
         return
     villages = village_list(t5)
-    for village_name in VOI:
+    for village_name in voi:
         errmsg = f'you didnt have village {village_name}'
         assert village_name in villages.keys(), errmsg
 
