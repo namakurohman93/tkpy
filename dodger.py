@@ -27,8 +27,10 @@ def evader(t5, data, villages):
         time.sleep(4)
         abort_troop_movement(t5, id)
     else:
+        # no troop, do nothing till attack landing
         village_name = villages.id(data["villageIdLocation"]).name
         logging.info(f'no troop in {village_name}')
+        time.sleep(4)
 
 
 def village_list(t5):
