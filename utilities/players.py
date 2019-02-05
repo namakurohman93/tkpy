@@ -19,6 +19,10 @@ class Player:
         r = self.client.cache.get({'names':[f'Player:{self.id}']})
         return r
 
+    def hero_equipment(self):
+        r = self.client.cache.get({'names':[f'Collection:HeroItem:{self.id}']})
+        return r
+
 
 class Players:
     """a container for all players who play on the game"""
@@ -31,6 +35,9 @@ class Players:
 
     def __getitem__(self, key):
         return self._data[key]
+
+    def __delitem__(self, key):
+        del self._data[key]
 
     def __iter__(self):
         return iter(list(self._data.keys()))

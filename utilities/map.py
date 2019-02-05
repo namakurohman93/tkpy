@@ -138,6 +138,9 @@ class Map:
     def __getitem__(self, key):
         return self._data[key]
 
+    def __delitem__(self, key):
+        del self._data[key]
+
     def __iter__(self):
         return iter(list(self._data.keys()))
 
