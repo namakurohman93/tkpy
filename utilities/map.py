@@ -6,7 +6,7 @@ class Cell:
         self.client = client
         self.id = cell_id
         self.coord = fishout(self.id)
-        self._data = data or dict()
+        self._data = data
 
     def __getitem__(self, key):
         return self._data[key]

@@ -117,8 +117,14 @@ class Villages:
     def __getitem__(self, key):
         return self._data[key]
 
+    def __delitem__(self, key):
+        del self._data[key]
+
     def __iter__(self):
         return iter(list(self._data.keys()))
+
+    def __repr__(self):
+        return f'{type(self).__name__}({dict(self._data.items())})'
 
     def pull(self):
         """git pull like function for pulling own village data"""
