@@ -1,3 +1,6 @@
+from utils import vid
+
+
 class Village:
     __attrs__ = ['villageId', 'playerId', 'name', 'isMainVillage']
 
@@ -56,12 +59,46 @@ class Village:
         return results
 
     def cranny(self):
+        """return amount of cranny of village"""
         results = 0
         buildings = self.buildings()
         for building in buildings:
             if building['data']['buildingType'] == '23':
                 results += building['data']['effect'][0]
         return results
+
+    def _send_troops(self, target, target_id, move_type, units):
+        troop = units or self.troops()
+        id = vid(*target) or target_id
+        r = self.client.troops.send(
+            {
+                'destVillageId': id,
+                'movementType': move_type,
+                'redeployHero': False,
+                'spyMission': 'resources',
+                'units': troop,
+                'villageId': self.villageId
+            }
+        )
+        return r
+
+    def attack(self, x=None, y=None, target_id=None, units=None):
+        return self._send_troops(
+            target=(x, y), target_id=target_id,
+            move_type=3, units=units
+        )
+
+    def raid(self, x=None, y=None, target_id=None, units=None):
+        return self._send_troops(
+            target=(x, y), target_id=target_id,
+            move_type=4, units=units
+        )
+
+    def defend(self, x=None, y=None, target_id=None, units=None):
+        return self._send_troops(
+            target=(x, y), target_id=target_id,
+            move_type=5, units=units
+        )
 
     @property
     def is_capital(self):
