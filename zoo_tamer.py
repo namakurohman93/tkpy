@@ -3,7 +3,7 @@ import time
 import logging
 from threading import Thread
 from queue import Queue
-from utils import basic_login
+from utils import extended_login
 from utilities.notepads import Notepad
 from utilities.map import Map
 
@@ -86,6 +86,6 @@ if __name__ == '__main__':
                  f'Usage: \tpython3 {sys.argv[0]} <email> <password> <gameworld>'
         print(errmsg)
         sys.exit()
-    gameworld = basic_login(email, password, gameworld_name)
+    gameworld = extended_login(email, password, gameworld_name)
     zoo(gameworld)
     print(f'done, please check your {gameworld_name}\'s notepad.')

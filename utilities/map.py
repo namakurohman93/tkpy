@@ -1,13 +1,12 @@
 from utils import vid, fishout, COLOR
-from primordial.gameworld import Gameworld
 
 
 class Cell:
-    def __init__(self, client, cell_id, data=None):
+    def __init__(self, client, cell_id, data):
         self.client = client
         self.id = cell_id
         self.coord = fishout(self.id)
-        self._data = data or dict()
+        self._data = data
 
     def __getitem__(self, key):
         return self._data[key]
@@ -27,9 +26,6 @@ class Cell:
 
     def coloring_cell(self, color=None):
         color = color.upper() or 'BLUE'
-        errmsg = f'there is no {color} color, <object>.color_list is '+\
-                  'complete list of color'
-        assert color in COLOR, errmsg
         r = self.client.cache.get({'names':['Collection:MapMarker:']})
         for caches in r['cache'][0]['data']['cache']:
             if caches['data']['targetId'] == str(self.id):
@@ -110,28 +106,40 @@ class Cell:
             }
         )
 
+    def kingdom_message(self, msg):
+        if not self.client.kingdom_id:
+            print('not in any kingdom')
+            return
+        self.client.post(
+            action='editMapMarkers',
+            controller='map',
+            params={
+                'fieldMessage': {
+                    'cellId': self.id,
+                    'duration': 48,
+                    'targetId': 0,
+                    'text': msg,
+                    'type': 2
+                },
+                'markers': []
+            }
+        )
+
 
 class Map:
+    """a container for cell object on gameworld"""
     def __init__(self, client, data=None):
-        assert isinstance(client, Gameworld), 'Need Gameworld object'
         self.client = client
         self._data = data or dict()
 
     def __setitem__(self, key, value):
-        assert isinstance(value, Cell), 'value must be Cell object'
-        if isinstance(key, tuple) and len(key) == 2:
-            for k in key:
-                errmsg = f'value must be integer but {k} is given'
-                assert isinstance(k, int), errmsg
-            self._data[key] = value
-        else:
-            errmsg = 'key must x, y pairing tuple'
-            raise AssertionError(errmsg)
+        self._data[key] = value
 
     def __getitem__(self, key):
-        """the only way to get the item is use coordinate method"""
-        errmsg = f'\'{type(self).__name__}\' object does not support indexing'
-        raise TypeError(errmsg)
+        return self._data[key]
+
+    def __delitem__(self, key):
+        del self._data[key]
 
     def __iter__(self):
         return iter(list(self._data.keys()))
@@ -158,7 +166,6 @@ class Map:
                 self.__setitem__(fishout(id), Cell(self.client, id, result))
 
     def coordinate(self, x, y):
-        """the one and only method for getting the item"""
         return self._data[(x, y)]
 
     @property
@@ -170,7 +177,7 @@ class Map:
         results = dict()
         for coord in self._data.keys():
             try:
-                oasis = self._data[coord][group]
+                test = self._data[coord][group]
                 results[coord] = self._data[coord]
             except KeyError:
                 continue

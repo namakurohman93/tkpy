@@ -1,5 +1,4 @@
-from utils import fishout
-from primordial.gameworld import Gameworld
+from utils import vid
 
 
 class Village:
@@ -9,7 +8,6 @@ class Village:
         self.client = client
         for attr in Village.__attrs__:
             setattr(self, attr, data[attr])
-        self.coord = fishout(int(self.villageId))
         del data
 
     def troops(self):
@@ -39,7 +37,7 @@ class Village:
     def merchants(self):
         params = {'names':[f'Merchants:{self.villageId}']}
         r = self.client.cache.get(params)
-        merchants = r['cache'][0]['data']['max']
+        merchants = r['cache'][0]['data']
         return merchants
 
     def buildings(self):
@@ -52,11 +50,55 @@ class Village:
         params = {'names':[f'Village:{self.villageId}']}
         r = self.client.cache.get(params)
         production = r['cache'][0]['data']['production']
-        storage = r['cache'][0]['data']['storage']
-        storage_capacity = r['cache'][0]['data']['storageCapacity']
-        results = f'production = {production}\nstorage = {storage}\n'+\
-                  f'capacity = {storage_capacity}'
-        print(results)
+        amount = r['cache'][0]['data']['storage']
+        stor_cap = r['cache'][0]['data']['storageCapacity']
+        results = dict()
+        results['production'] = {k: int(v) for k, v in production.items()}
+        results['amount'] = {k: int(v) for k, v in amount.items()}
+        results['storage capacity'] = {k: int(v) for k, v in stor_cap.items()}
+        return results
+
+    def cranny(self):
+        """return amount of cranny of village"""
+        results = 0
+        buildings = self.buildings()
+        for building in buildings:
+            if building['data']['buildingType'] == '23':
+                results += building['data']['effect'][0]
+        return results
+
+    def _send_troops(self, target, target_id, move_type, units):
+        troop = units or self.troops()
+        id = vid(*target) or target_id
+        r = self.client.troops.send(
+            {
+                'destVillageId': id,
+                'movementType': move_type,
+                'redeployHero': False,
+                'spyMission': 'resources',
+                'units': troop,
+                'villageId': self.villageId
+            }
+        )
+        return r
+
+    def attack(self, x=None, y=None, target_id=None, units=None):
+        return self._send_troops(
+            target=(x, y), target_id=target_id,
+            move_type=3, units=units
+        )
+
+    def raid(self, x=None, y=None, target_id=None, units=None):
+        return self._send_troops(
+            target=(x, y), target_id=target_id,
+            move_type=4, units=units
+        )
+
+    def defend(self, x=None, y=None, target_id=None, units=None):
+        return self._send_troops(
+            target=(x, y), target_id=target_id,
+            move_type=5, units=units
+        )
 
     @property
     def is_capital(self):
@@ -64,8 +106,8 @@ class Village:
 
 
 class Villages:
+    """a container for own village"""
     def __init__(self, client, data=None):
-        assert isinstance(client, Gameworld), 'Need Gameworld object'
         self.client = client
         self._data = data or dict()
 
@@ -75,8 +117,14 @@ class Villages:
     def __getitem__(self, key):
         return self._data[key]
 
+    def __delitem__(self, key):
+        del self._data[key]
+
     def __iter__(self):
         return iter(list(self._data.keys()))
+
+    def __repr__(self):
+        return f'{type(self).__name__}({dict(self._data.items())})'
 
     def pull(self):
         """git pull like function for pulling own village data"""
@@ -91,6 +139,9 @@ class Villages:
         for key in self._data:
             if self._data[key].villageId == id:
                 return self._data[key]
+
+    def keys(self):
+        return self._data.keys()
 
     @property
     def list(self):

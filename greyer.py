@@ -2,8 +2,9 @@ import sys
 import time
 import logging
 from math import sqrt
-from utils import advance_login, fishout
+from utils import extended_login, fishout
 from utilities.players import Players
+from utilities.map import Map
 
 logging.basicConfig(
     format='[%(asctime)s][%(levelname)s]: %(message)s',
@@ -18,14 +19,27 @@ MAX_DISTANCE = 100 # maximum distance from CENTER
 
 def grey_finder(t5):
     village_list = list()
+    inactive_players = inactive_players_list(t5)
+    maps = Map(t5)
+    maps.pull()
+    for coord in maps:
+        try:
+            player_id = int(maps[coord]['playerId'])
+            if player_id in inactive_players:
+                village_list.append(maps[coord]['village'])
+        except KeyError:
+            continue
+    return village_list
+
+
+def inactive_players_list(t5):
+    results = list()
     players = Players(t5)
     players.pull()
     inactive_players = players.inactive()
     for player_name in inactive_players:
-        details = inactive_players[player_name].details()
-        for villages in details['cache'][0]['data']['villages']:
-            village_list.append(villages)
-    return village_list
+        results.append(inactive_players[player_name].id)
+    return results
 
 
 def filter_population(village_list):
@@ -66,11 +80,14 @@ if __name__ == '__main__':
                  f'Usage: \tpython3 {sys.argv[0]} <email> <password> <gameworld>'
         print(errmsg)
         sys.exit()
-    gameworld = advance_login(email, password, gameworld_name)
+    gameworld = extended_login(email, password, gameworld_name)
     if not gameworld.plus_account:
         print('need travian plus for running this utilities.')
         sys.exit()
     village_list = filter_distance(filter_population(grey_finder(gameworld)))
+    if len(village_list) == 0:
+        print('didnt found grey village.')
+        sys.exit()
     for _ in range((len(village_list) // 100)+1):
         farmlist_id = int(create_farmlist(gameworld))
         for _ in range(100):

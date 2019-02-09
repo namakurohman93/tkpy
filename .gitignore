@@ -1,2 +1,5 @@
-*/
-!/utilities/*.py
+/__pycache__/
+/venv
+/utilities/__pycache__/
+/assets/__pycache__/
+*.db

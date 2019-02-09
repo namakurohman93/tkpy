@@ -1,10 +1,3 @@
-import logging
-
-logging.basicConfig(
-    format='[%(asctime)s][%(levelname)s]: %(message)s',
-    level=logging.DEBUG, datefmt='%d/%b/%Y:%H:%M:%S'
-)
-
 class Notepad:
     def __init__(self, gameworld, notepad_id=None):
         self.client = gameworld
