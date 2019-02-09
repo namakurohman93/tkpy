@@ -56,7 +56,9 @@ if __name__ == '__main__':
                  f'Usage: \tpython3 {sys.argv[0]} <email> <password> <gameworld>'
         print(errmsg)
         sys.exit()
+    logging.info('loging in')
     gameworld = extended_login(email, password, gameworld_name)
+    logging.info('loged in')
     farmlist = farmlist_dict(gameworld)
     villages = village_list(gameworld)
     for k, v in farmlist.items():
