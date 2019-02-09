@@ -5,7 +5,7 @@ travian kingdom utilities for your need.
 [![Python 3.6](https://img.shields.io/badge/python-3.6+-blue.svg)](https://www.python.org/downloads/release/python-367/)
 
 ---
-### instalation
+### installation
 1. install [primordial package](https://github.com/lijok/primordial)
 2. git clone [this repo](https://github.com/didadadida93/tkpy.git)
 3. change directory to tkpy
@@ -43,6 +43,27 @@ SOI = {'7', '8', '9', '10'}
 VOI = ['scout village name', 'hammer village name']
 TARGET = -13, 13
 ```
+5. chickener: `python3 chickener.py dummy@email.com dummypassword com9`, then check ingame map.
+> by default chickener will **find all player who use chicken boot** and mark their village with purple flag.
+> _advice_: spesific area when you use this feature, cause it find all player within the map who use chicken boot _syncronously_
+> for find player within spesific area, you need to:
+> * open `chickener.py` with any text editor
+> * then change:
+>	* `CENTER` value (coordinate of center area that you want to find)
+>	* `RADIUS` value based on your need
+> * save and run it again
+6. save resources: `python3 save_resources.py dummy@email.com dummypassword com9`, then enjoy your day.
+> by default save resources will **save all resources to marketplace on all your village**.
+> if you want to cover some village (usually resources village), you need to edit `VOI` value. example:
+```python
+VOI = ['resources village 1', 'resources village 2', 'and so on..']
+```
+7. run farmlist: `python3 run_farmlist.py dummy@email.com dummypassword com9`.
+**this feature still in early stage.** it will automatically send farmlist every given time in minute.
+before you run this feature you need to rename your farmlist that want to run automatically. the name should follow this rule:
+`tkpy <minute>`
+example:
+![example](assets/example.png)
 
 ---
 ### postscript
