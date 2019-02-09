@@ -63,7 +63,7 @@ if __name__ == '__main__':
         threading.Thread(
             target=sender,
             name=k,
-            args=(gameworld, v[0], villages[VILLAGES].villageId, v[1])
+            args=(gameworld, v[0], villages[VILLAGE].villageId, v[1])
         ).start()
     while True:
         gameworld.is_authenticated()
