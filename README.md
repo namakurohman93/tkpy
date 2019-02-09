@@ -97,7 +97,12 @@ VOI = ['resources village 1', 'resources village 2', 'and so on..']
 `python3 run_farmlist.py dummy@email.com dummypassword com9`
 
 **this feature still in early stage.** it will automatically send farmlist every given time in minute.
-before you run this feature you need to rename your farmlist that want to run automatically. the name should follow this rule:
+before you run this feature you need to:
+* open `run_farmlist.py` with any text editor
+* change `VILLAGES` value
+* save and run it again
+
+after that, rename your farmlist that want to run automatically. the name should follow this rule:
 `tkpy <minute>`
 
 example:
