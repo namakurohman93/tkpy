@@ -85,6 +85,9 @@ if __name__ == '__main__':
         print('need travian plus for running this utilities.')
         sys.exit()
     village_list = filter_distance(filter_population(grey_finder(gameworld)))
+    if len(village_list) == 0:
+        print('didnt found grey village.')
+        sys.exit()
     for _ in range((len(village_list) // 100)+1):
         farmlist_id = int(create_farmlist(gameworld))
         for _ in range(100):
