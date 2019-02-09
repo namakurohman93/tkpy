@@ -56,14 +56,16 @@ if __name__ == '__main__':
                  f'Usage: \tpython3 {sys.argv[0]} <email> <password> <gameworld>'
         print(errmsg)
         sys.exit()
+    logging.info('loging in')
     gameworld = extended_login(email, password, gameworld_name)
+    logging.info('loged in')
     farmlist = farmlist_dict(gameworld)
     villages = village_list(gameworld)
     for k, v in farmlist.items():
         threading.Thread(
             target=sender,
             name=k,
-            args=(gameworld, v[0], villages[VILLAGES].villageId, v[1])
+            args=(gameworld, v[0], villages[VILLAGE].villageId, v[1])
         ).start()
     while True:
         gameworld.is_authenticated()
