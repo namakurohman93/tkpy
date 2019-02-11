@@ -1,4 +1,3 @@
-import requests
 from primordial.lobby import Lobby
 from utilities.database import Database
 
@@ -40,7 +39,7 @@ def basic_login(email, password, gameworld_name):
 
 def add_attribute(t5):
     t5.client.session.headers['cookie'] = f'msid={t5.msid}'
-    cookie_dict = requests.utils.dict_from_cookiejar(t5.client.session.cookies)
+    cookie_dict = t5.client.session.cookies.get_dict()
     for k, v in cookie_dict.items():
         t5.client.session.headers['cookie'] += f'; {k}={v}'
     r = t5.cache.get({'names':['Collection:Village:own']})
