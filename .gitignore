@@ -2,4 +2,5 @@
 /venv
 /utilities/__pycache__/
 /assets/__pycache__/
+/aiodriver/__pycache__/
 *.db
