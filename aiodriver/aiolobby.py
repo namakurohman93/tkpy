@@ -2,9 +2,9 @@ import re
 import json
 import urllib
 import asyncio
-from aiogw import Gameworld
-from aioclient import HttpClient
-from response import Response
+from aiodriver.aiogw import Gameworld
+from aiodriver.aioclient import HttpClient
+from utilities.response import Response
 
 
 class Lobby:

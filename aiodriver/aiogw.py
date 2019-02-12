@@ -3,7 +3,7 @@ import json
 import time
 import urllib
 import asyncio
-from response import Response
+from utilities.response import Response
 
 
 class Gameworld:
