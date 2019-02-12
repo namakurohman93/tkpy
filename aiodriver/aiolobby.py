@@ -1,7 +1,6 @@
 import re
 import json
 import urllib
-import asyncio
 from aiodriver.aiogw import Gameworld
 from aiodriver.aioclient import HttpClient
 from utilities.response import Response

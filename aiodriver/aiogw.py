@@ -2,7 +2,6 @@ import re
 import json
 import time
 import urllib
-import asyncio
 from utilities.response import Response
 
 
