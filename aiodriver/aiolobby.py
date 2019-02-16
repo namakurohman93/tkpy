@@ -33,6 +33,9 @@ class Lobby:
                 encoded_session = k.value
                 break
 
+        # attribute error, cookiejar has no attribute get
+        # encoded_session = self.client.session.cookie_jar.get('gl5SessionKey')
+
         decoded_session = urllib.parse.unquote(encoded_session)
         self.session = json.loads(decoded_session)['key']
 

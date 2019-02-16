@@ -19,7 +19,7 @@ class Gameworld:
         )
 
         token = re.search(r'token=([\w]*)&msid', r).group(1)
-        r = await self.client.get(
+        await self.client.get(
             f'https://{gameworld_name.lower()}.kingdoms.com/api/login.php?token={token}&msid={self.msid}&msname=msid'
         )
 
@@ -28,8 +28,12 @@ class Gameworld:
                 encoded_session = k.value
                 break
 
+        # attribute error, cookiejar has no attribute get
+        # encoded_session = self.client.session.cookie_jar.get('t5SessionKey')
+
         decoded_session = urllib.parse.unquote(encoded_session)
         self.session = json.loads(decoded_session)['key']
+        self.player_id = json.loads(decoded_session)['id']
 
         self.api_endpoint = self.api_endpoint.format(gameworld_name.lower())
 

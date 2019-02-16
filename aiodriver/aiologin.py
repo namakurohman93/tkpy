@@ -20,16 +20,4 @@ async def login(email, password, gameworld_name):
 
 	gameworld = await driver.connect_to_gameworld(g_name=gameworld_name, g_id=gameworld_id)
 
-	caches = await gameworld.post(
-		action='get',
-		controller='cache',
-		params={
-			'names': ['Collection:Village:own']
-		}
-	)
-
-	for data in caches:
-		gameworld.player_id = data.playerId
-		break
-
 	return gameworld

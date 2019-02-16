@@ -23,7 +23,7 @@ class HttpClient:
         return r
 
     async def return_response(self):
-        if 'text' in self.response.headers['content-type']:
+        if 'text' in self.response.headers['content-type'] or 'octet' in self.response.headers['content-type']:
             return await self.response.text()
         elif 'json' in self.response.headers['content-type']:
             return await self.response.json()
