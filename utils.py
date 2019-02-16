@@ -1,3 +1,6 @@
+import math
+import random
+import time
 from primordial.lobby import Lobby
 from utilities.database import Database
 
@@ -118,3 +121,23 @@ def delete_player_marker(client):
                 'markers':[{'editType': 2, 'id': id}]
             }
         )
+
+
+def uniqid():
+    def fun(seed, e):
+        seed = hex(seed)[2:]
+        if e < len(seed):
+            return seed[:len(seed) - e]
+        elif e > len(seed):
+            return f'{"0"*(len(seed)-e)}{seed}'
+        else:
+            return seed
+
+    seed = math.floor(random.random() * 123456789) + 1
+    id = fun(int(time.time()), 8)
+    id += fun(seed, 5)
+    return f'client{id}'
+
+
+def timestamp():
+    return int('{:.3f}'.format(time.time()).replace('.', ''))
