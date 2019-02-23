@@ -1,4 +1,5 @@
 from utils import vid
+from utilities.master_builder import MasterBuilder
 
 
 class Village:
@@ -6,6 +7,7 @@ class Village:
 
     def __init__(self, client, data):
         self.client = client
+        self.master_builder = MasterBuilder(self)
         for attr in Village.__attrs__:
             setattr(self, attr, data[attr])
         del data
@@ -99,6 +101,9 @@ class Village:
             target=(x, y), target_id=target_id,
             move_type=5, units=units
         )
+
+    def upgrade(self, building):
+        self.master_builder.upgrade(building)
 
     @property
     def is_capital(self):

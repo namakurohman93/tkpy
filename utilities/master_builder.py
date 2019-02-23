@@ -59,24 +59,28 @@ class Building:
     def _building_detail(self):
         found = False
         cache = dict()
+        results = dict()
         buildings = self.village.buildings()
         for building in buildings:
             if building['data']['buildingType'] == str(self.b_id):
-                if building['data']['isMaxLvl'] is True:
-                    self.exist = False
-                    found = False
-                else:
-                    self.exist = True
-                    found = True
-                self.details.update(building)
+                location = int(building['data']['locationId'])
+                results[location] = building
+                found = True
             elif building['data']['buildingType'] == '0' and not cache:
                 cache.update(building)
             else:
                 continue
-        # building not installed
         if not found:
             self.exist = False
             self.details.update(cache)
+        else:
+            loc = min(results.keys(), key=lambda l: int(results[l]['data']['lvl']))
+            if results[loc]['data']['isMaxLvl'] is True:
+                self.exist = False
+                self.details.update(cache)
+            else:
+                self.exist = True
+                self.details.update(results[loc])
 
     def _resources_detail(self):
         self.exist = True
@@ -119,7 +123,10 @@ class Building:
 
 
 class MasterBuilder:
-    """object that make upgrade building is simple"""
+    """object that make upgrade building so simple
+       example:
+        mb = MasterBuilder(village)
+        mb.upgrade('bakery')"""
     def __init__(self, village):
         self.village = village
         del village
@@ -169,7 +176,8 @@ class MasterBuilder:
         else:
             self.enough_resource = True
 
-    def upgrade(self, building, location_id=None):
+    def upgrade(self, building):
+        """interface for upgrade building"""
         self.b_id = BUILDINGS[building.lower()]
         self.building = Building(self.village, self.b_id)
         if self.building.buildable:
