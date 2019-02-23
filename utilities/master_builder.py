@@ -1,26 +1,135 @@
 import time
 from assets.buildings import buildings as BUILDINGS
 
+def _instant_5_finish(slot, village_id):
+    r = self.village.client.premiumFeature.finishNow(
+        {
+            'price': 0,
+            'queueType': slot,
+            'villageId': village_id
+        }
+    )
+    try:
+        # report if 5 min finish earlier failed
+        if r['response']['data'] is False:
+            return '5 minute finish earlier failed'
+    except KeyError:
+        pass
+
+
+class Building:
+    """building object for collecting details of upgraded building"""
+    def __init__(self, village, building_id):
+        self.village = village
+        self.b_id = building_id
+        self.details = dict()
+        self.get_building_details()
+        if not self.exist and self.details:
+            # building not exist and have free location id
+            self.update_details()
+        elif not self.details:
+            # can't upgrade building cause there is no free slot
+            self.buildable = False
+        else:
+            self.buildable = True
+        # check if it is wall cause they have fixed location id
+        the_wall = [31, 32, 33, 43]
+        if self.b_id in the_wall:
+            self.details['data']['locationId'] = '33'
+        # if rally point, change location id in to fixed location id
+        if self.b_id == 16:
+            self.details['data']['locationId'] = '32'
+
+        # TODO:
+        # need to check if building can't be upgrade due to lack of
+        # warehouse and granary capacity
+
+    def __getitem__(self, key):
+        return self.details[key]
+
+    def __repr__(self):
+        return str(self.details)
+
+    def get_building_details(self):
+        if self.b_id < 5:
+            self._resources_detail()
+        else:
+            self._building_detail()
+
+    def _building_detail(self):
+        found = False
+        cache = dict()
+        buildings = self.village.buildings()
+        for building in buildings:
+            if building['data']['buildingType'] == str(self.b_id):
+                if building['data']['isMaxLvl'] is True:
+                    self.exist = False
+                    found = False
+                else:
+                    self.exist = True
+                    found = True
+                self.details.update(building)
+            elif building['data']['buildingType'] == '0' and not cache:
+                cache.update(building)
+            else:
+                continue
+        # building not installed
+        if not found:
+            self.exist = False
+            self.details.update(cache)
+
+    def _resources_detail(self):
+        self.exist = True
+        results = dict()
+        buildings = self.village.buildings()
+        for building in buildings:
+            if building['data']['buildingType'] == str(self.b_id):
+                location = int(building['data']['locationId'])
+                results[location] = building
+        loc = min(results.keys(), key=lambda l: int(results[l]['data']['lvl']))
+        self.details.update(results[loc])
+
+    def update_details(self):
+        found = False
+        cache = self.details
+        r = self.village.client.building.getBuildingList(
+            {
+                'locationId': cache['data']['locationId'],
+                'villageId': self.village.villageId
+            }
+        )
+        for building in r['response']['buildings']['buildable']:
+            if building['buildingType'] == self.b_id:
+                found = True
+                cache['data'].update(building)
+                self.buildable = True
+                break
+        if not found:
+            for building in r['response']['buildings']['notBuildable']:
+                if building['buildingType'] == self.b_id:
+                    found = True
+                    cache['data'].update(building)
+                    # can't upgrade building due to lack of requirements
+                    self.buildable = False
+                    break
+        if not found:
+            # it seems the building have max level and can't build another
+            self.buildable = False
+        self.details.update(cache)
+
 
 class MasterBuilder:
-    """just a bunch of function tied up at same class and wrapped by sequence
-    of if else logic to make upgrading building as simple as possible
-    example:
-        villages = Villages(gameworld)
-        master_builder = MasterBuilder(villages['village name'])
-        master_builder.upgrade('marketplace')
-    """
+    """object that make upgrade building is simple"""
     def __init__(self, village):
         self.village = village
-        self.buildings = BUILDINGS
         del village
 
-    def _check_bcs(self, building_id):
+    def _check_bcs(self):
         """building construction slot checker"""
         r = self.village.client.cache.get(
             {'names':[f'BuildingQueue:{self.village.villageId}']}
         )
-        if self.village.client.tribe_id == 1 and building_id < 5:
+        if self.village.client.tribe_id == 1 and self.b_id < 5:
             # it's roman and building is resources type
             # check slots '2'
             self.slot = r['cache'][0]['data']['freeSlots']['2'] # boolean
@@ -45,260 +154,109 @@ class MasterBuilder:
                 continue
         return True in results
 
-    def _check_building(self, building_id):
-        """building checker
-        it check if building already installed/exist in village or not
-        if installed return locationId
-        if not installed find free locationId"""
-        found = False
-        buildings = self.village.buildings()
-        # if building_id is resources type, find locationId lowest level of
-        # that resources
-        if building_id < 5:
-            self._lowest_lid(building_id, buildings)
-        for building in buildings:
-            if building['data']['buildingType'] == str(building_id):
-                # gotcha
-                self.exist = True
-                found = True
-                location_id = building['data']['locationId']
-                self.upgrade_cost = building['data']['upgradeCosts']
-                break
-        if not found:
-            # find free location id
-            self.exist = False
-            for building in buildings:
-                if building['data']['buildingType'] == '0':
-                    location_id = building['data']['locationId']
-                    break
-        return int(location_id)
-
-    def _lowest_lid(self, building_id, buildings):
-        """building_id is resources type
-        it will find location id of this resources type that have
-        lowest level"""
-        self.exist = True
-        results = dict()
-        for building in buildings:
-            if building['data']['buildingType'] == str(building_id):
-                location = int(building['data']['locationId'])
-                level = int(building['data']['lvl'])
-                upgrade_cost = building['data']['upgradeCosts']
-                results[location] = {
-                    'level':level, 'upgrade costs':upgrade_cost
-                }
-        lowlvl = min(results.keys(), key=lambda k: results[k]['level'])
-        self.upgrade_cost = results[lowlvl]['upgrade costs']
-        return lowlvl
-
-    def _get_building_list(self, location_id):
-        """building isnt exist, so need a building list for install
-        it to location id"""
-        r = self.village.client.building.getBuildingList(
-            {
-                'locationId': location_id,
-                'villageId': self.village.villageId
-            }
-        )
-        self.buildable = r['response']['buildings']['buildable'] # list
-        self.unbuildable = r['response']['buildings']['notBuildable'] # list
-
-    def _check_buildable(self, building_id):
-        """check if building can be build or not"""
-        for building in self.buildable:
-            if building['buildingType'] == building_id:
-                self.upgrade_cost = building['upgradeCosts']
-                return True
-        return False
-
-    def _check_requirements(self, building_id):
-        """cant build building due to lack of requirements
-        check the requirements and return it as list"""
-        results = list()
-        for building in self.unbuildable:
-            if building['buildingType'] == building_id:
-                for requirements in building['requiredBuildings']:
-                    if not requirements['valid']:
-                        results.append(requirements)
-        return results
-
-    def _enough_resources(self):
+    def _check_resources(self):
         """check whether its enough resources or not for upgrade building"""
         results = list()
         ress = self.village.resources()
-        for key in self.upgrade_cost:
-            if ress['amount'][key] > self.upgrade_cost[key]:
+        upgrade_cost = self.building['data']['upgradeCosts']
+        for key in upgrade_cost:
+            if ress['amount'][key] > upgrade_cost[key]:
                 results.append(True)
             else:
                 results.append(False)
         if False in results:
-            return False
+            self.enough_resource = False
         else:
-            return True
-
-    def _validate(self, building_id, location_id):
-        """validate building id is resources type and validate if this
-        resources located on location_id"""
-        if location_id:
-            self._validate_resources_type(building_id)
-            locid_list = list()
-            buildings = self.village.buildings()
-            for building in buildings:
-                if building['data']['buildingType'] == str(building_id):
-                    locid_list.append(int(building['data']['locationId']))
-            errmsg = 'building isnt in location id'
-            assert location_id in locid_list, errmsg
-            self.exist = True
-
-    def _validate_resources_type(self, building_id):
-        errmsg = 'location_id only needed when upgrade spesific resources \
-            on spesific location'
-        assert building_id < 5, errmsg
+            self.enough_resource = True
 
     def upgrade(self, building, location_id=None):
-        """method for upgrade building"""
-        builid = self.buildings[building]
-        self._validate(builid, location_id) # validate location_id with builid
-        # 1. check building queue
-        self._check_bcs(builid)
-        if self.slot:
+        self.b_id = BUILDINGS[building.lower()]
+        self.building = Building(self.village, self.b_id)
+        if self.building.buildable:
             # can upgrade building
-            # 2. check building is installed or not and location id
-            location = location_id or self._check_building(builid)
-            # 3. check if resources is enough for upgrade building
-            if self.exist:
-                # building installed
-                if self._enough_resources():
-                    # upgrade
-                    self._upgrade(builid, location)
-                else:
-                    # not enough resources, check mb_slot
-                    # if mb_slot available then add it to master builder slot
-                    if self._check_mbs():
-                        # have free slot
-                        self._add_to_queue(builid, location)
-                    else:
-                        # not enough resources and mb_slot not available
-                        print('not enough resources and queue full')
+            self._check_bcs()
+            self._check_resources()
+            if self.slot and self.enough_resource:
+                # building construction slot is empty
+                self._upgrade()
             else:
-                # building not exist
-                # need to check if building can be upgrade or it still lack
-                # of requirements
-                self._get_building_list(location)
-                if self._check_buildable(builid):
-                    # check if resources is enough for ugprade building
-                    if self._enough_resources():
-                        # upgrade
-                        self._upgrade(builid, location)
-                    else:
-                        # not enough resources, check mb_slot
-                        # if mb_slot available then add it
-                        # to master builder slot
-                        if self._check_mbs():
-                            # have free slot
-                            self._add_to_queue(builid, location)
-                        else:
-                            # not enough resources and mb_slot not available
-                            print('not enough resources and queue full')
+                # building construction slot isn't empty
+                # check master builder slot
+                if self._check_mbs():
+                    # master builder slot empty
+                    # add it to master builder slot
+                    self._add_to_queue()
                 else:
-                    # can't upgrade building due to lack of requirements
-                    # check requirements and print it out
-                    requirements = self._check_requirements(builid)
-                    self.print_req(requirements)
+                    # master builder slot full
+                    print('master builder slot is full')
         else:
-            # building queue is being used
-            # check mb_slot, if mb_slot available then add it
-            # to master builder slot
-            if self._check_mbs():
-                # have free slot
-                location = location_id or self._check_building(builid)
-                if self.exist:
-                    # building installed
-                    self._add_to_queue(builid, location)
-                else:
-                    # building not exist
-                    # need to check if building can be upgrade or it still
-                    # lack of requirements
-                    self._get_building_list(location)
-                    if self._check_buildable(builid):
-                        # can build this building
-                        # put it on master builder slot
-                        self._add_to_queue(builid, location)
+            # can't upgrade building
+            try:
+                requirements = self.building['data']['requiredBuildings'] # list
+            except KeyError:
+                try:
+                    if self.building['data']['isMaxLvl'] is True:
+                        print('cant upgrade building cause its already at max level')
                     else:
-                        # can't upgrade building due to lack of requirements
-                        # check requirements and print it out
-                        requirements = self._check_requirements(builid)
-                        self.print_req(requirements)
+                        print('cant upgrade building due to unknown reason')
+                except KeyError:
+                    # can't upgrade cause location is full
+                    print('cant upgrade building cause there is no slot in village')
             else:
-                # mb_slot not available
-                print('queue full')
+                # can't upgrade due to lack of requirements
+                self.print_req(requirements)
 
-    def print_req(self, requirements):
-        red = '\033[1;31m'
-        normal = '\033[0;0m'
-        msg = 'cant upgrade need requirements:\n'
-        reverse = {v: k for k, v in self.buildings.items()}
-        for req in requirements:
-            current_lvl = int(req['currentLevel'])
-            req_lvl = int(req['requiredLevel'])
-            diff = req_lvl - current_lvl
-            builid = req['buildingType']
-            msg += f'{reverse[builid]} level {req_lvl}{red}(+{diff}){normal}\n'
-        print(msg[:-1])
-
-    def _upgrade(self, building_id, location):
+    def _upgrade(self):
         red = '\033[1;31m'
         green = '\033[1;32m'
         normal = '\033[0;0m'
-        reverse = {v: k for k, v in self.buildings.items()}
+        reverse = {v: k for k, v in BUILDINGS.items()}
         r = self.village.client.building.upgrade(
             {
-            'buildingType': building_id, # id/type of building
-            'locationId': location,
-            'villageId': self.village.villageId
+                'buildingType': self.b_id, # id/type of building
+                'locationId': int(self.building['data']['locationId']),
+                'villageId': self.village.villageId
             }
         )
         if not r['response']:
             # succes upgrade building
-            print(f'upgrade {reverse[building_id]} {green}success{normal}')
+            print(f'upgrade {reverse[self.b_id]} {green}success{normal}')
         else:
             # failed
-            print(f'upgrade {reverse[building_id]} {red}failed{normal}')
+            print(f'upgrade {reverse[self.b_id]} {red}failed{normal}')
 
-    def _add_to_queue(self, building_id, location):
+    def _add_to_queue(self):
         red = '\033[1;31m'
         green = '\033[1;32m'
         normal = '\033[0;0m'
-        reverse = {v: k for k, v in self.buildings.items()}
+        reverse = {v: k for k, v in BUILDINGS.items()}
         r = self.village.client.building.useMasterBuilder(
             {
-                'buildingType': building_id,
-                'locationId': location,
+                'buildingType': self.b_id,
+                'locationId': int(self.building['data']['locationId']),
                 'villageId': self.village.villageId,
-                'reserveResources': self._enough_resources()
+                'reserveResources': self.enough_resource
             }
         )
         if not r['response']:
             # success add building to queue
             print(
-                f'add {reverse[building_id]} to queue {green}success{normal}'
+                f'add {reverse[self.b_id]} to queue {green}success{normal}'
             )
         else:
             # failed
-            print(f'add {reverse[building_id]} to queue {red}failed{normal}')
+            print(f'add {reverse[self.b_id]} to queue {red}failed{normal}')
 
-
-def _instant_5_finish(slot, village_id):
-    r = self.village.client.premiumFeature.finishNow(
-        {
-            'price': 0,
-            'queueType': slot,
-            'villageId': village_id
-        }
-    )
-    try:
-        # report if 5 min finish earlier failed
-        if r['response']['data'] is False:
-            return '5 minute finish earlier failed'
-    except KeyError:
-        pass
+    def print_req(self, requirements):
+        red = '\033[1;31m'
+        normal = '\033[0;0m'
+        msg = 'cant upgrade need requirements:\n'
+        reverse = {v: k for k, v in BUILDINGS.items()}
+        for req in requirements:
+            if req['valid'] is False:
+                current_lvl = int(req['currentLevel'])
+                req_lvl = int(req['requiredLevel'])
+                diff = req_lvl - current_lvl
+                builid = req['buildingType']
+                msg += f'{reverse[builid]} level {req_lvl}{red}(+{diff}){normal}\n'
+        print(msg[:-1])
