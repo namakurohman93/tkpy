@@ -78,6 +78,7 @@ class Building:
             if results[loc]['data']['isMaxLvl'] is True:
                 self.exist = False
                 self.details.update(cache)
+                self.details['data']['isMaxLvl'] = True
             else:
                 self.exist = True
                 self.details.update(results[loc])
