@@ -1,4 +1,5 @@
 from .driver import Lobby
+from .database import CredentialDb
 import argparse
 
 
@@ -21,8 +22,23 @@ def arg_parser():
     return email, password, gameworld, avatar
 
 
-def login(email, password, gameworld, avatar=None):
+def _login(email, password, gameworld, avatar):
     lobby = Lobby()
     lobby.authenticate(email, password)
     client = lobby.get_gameworld(gameworld, avatar)
     return client
+
+
+def login(email, password, gameworld, avatar=None):
+    db = CredentialDb(email, password, gameworld, avatar)
+    try:
+        driver = db.get()
+        try:
+            driver.is_authenticated()
+        except:
+            driver = _login(email, password, gameworld, avatar)
+            db.update(driver=driver)
+    except:
+        driver = _login(email, password, gameworld, avatar)
+        db.insert(driver=driver)
+    return driver
