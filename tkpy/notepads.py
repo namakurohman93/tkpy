@@ -1,12 +1,10 @@
 class Notepad:
-    def __init__(self, gameworld, notepad_id=None):
-        self.client = gameworld
-        self.id = notepad_id
+    def __init__(self, client):
+        self.client = client
+        self.id = None
+        self._init()
 
-    def __repr__(self):
-        return self.id
-
-    def new_notepad(self):
+    def _init(self):
         r = self.client.cache.get({'names':['Collection:Notepad:']})
         if r['cache'][0]['data']['cache']:
             self.client.post(
@@ -52,24 +50,7 @@ class Notepad:
             )
         self.id = nid
 
-    def delete_notepad(self):
-        if not self.id:
-            return 'There is no notepad.' +\
-                   '\nPlease create one use new_notepad method'
-        r = self.client.player.removeNote(
-            {
-                'id': self.id
-            }
-        )
-        if 'error' in r:
-            logging.debug('Failed delete notepad.')
-        print(f'Delete notepad id:{self.id}')
-        return None
-
-    def message(self, new_msg):
-        if not self.id:
-            return 'There is no notepad.' +\
-                   '\nPlease create one use new_notepad method'
+    def message(self, msg):
         self.client.player.changeNote(
             {
                 'newSettings': {
@@ -90,7 +71,7 @@ class Notepad:
                     'positionY': 10.5,
                     'sizeX': 225,
                     'sizeY': 100,
-                    'text': f'{new_msg}'
+                    'text': f'{msg}'
                 }
             }
         )
