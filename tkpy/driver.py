@@ -23,8 +23,7 @@ class AvatarNotFound(Exception):
 class HttpClient:
     def __init__(self, cookies=None):
         self.headers = {'User-Agent': 'Mozilla/5.0 (X11; Ubuntu; Linux x86_64; rv:66.0) Gecko/20100101 Firefox/66.0'}
-        self.cookies = cookies or requests.cookies.RequestsCookieJar()
-        # self.cookies = self._set_cookies(cookies)
+        self.cookies = self._set_cookies(cookies)
         self.timeout = 20
         self.hooks = {'response': (self._update_cookies,)}
 
@@ -54,12 +53,25 @@ class HttpClient:
     def _set_cookies(self, cookies):
         if cookies:
             cookie_jar = requests.cookies.RequestsCookieJar()
-            for x in ['test']:
-                pass
+            xs = {
+                'msid': '.kingdoms.com',
+                'gl5SessionKey': 'lobby.kingdoms.com',
+                'gl5PlayerId': 'lobby.kingdoms.com',
+                'gameworld': 'www.example.com',
+                't5SessionKey': f'{cookies["gameworld"]}.kingdoms.com',
+                't5mu': f'{cookies["gameworld"]}.kingdoms.com'
+            }
+            for x in xs:
+                cookie_jar.set(
+                    name=x,
+                    value=cookies[x],
+                    domain=xs[x]
+                )
+            return cookie_jar
         else:
             return requests.cookies.RequestsCookieJar()
 
-    def get_cookie(self, name, domain):
+    def get_cookie(self, name, domain=None):
         return self.cookies.get(name=name, domain=domain)
 
 
@@ -100,8 +112,7 @@ class Lobby:
         self.client.cookies.set(
             name='msid',
             value=msid,
-            path='/',
-            domain='.kingdoms.com',
+            domain='.kingdoms.com'
         )
 
     def get_gameworld(self, gw_name, avatar_name=None):
@@ -181,7 +192,6 @@ class Gameworld:
         self.client = client
         self.gameConfig = None # Travian Config
         self.accountDetails = None # account details
-        self.api_root = 'https://%s.kingdoms.com/api/?'
 
         # Controllers
         self.player = player.Player(post_handler=self.post)
@@ -211,7 +221,11 @@ class Gameworld:
             raise NotAuthenticated()
 
     def authenticate(self, gameworld_name, gameworld_id=None, avatar_id=None):
-        self.api_root = self.api_root % gameworld_name
+        self.client.cookies.set(
+            name='gameworld',
+            value=gameworld_name,
+            domain='www.example.com'
+        )
         mellon_url = 'https://mellon-t5.traviangames.com'
         if gameworld_id:
             r = self.client.get(
@@ -236,6 +250,17 @@ class Gameworld:
     def update_account(self):
         r = self.cache.get({'names':[f'Player:{self.player_id}']})
         return r['cache'][0]['data']
+
+    @property
+    def gameworld(self):
+        return self.client.get_cookie(
+            name='gameworld',
+            domain='www.example.com'
+        )
+
+    @property
+    def api_root(self):
+        return 'https://%s.kingdoms.com/api/?' % self.gameworld
 
     @property
     def msid(self):
@@ -264,6 +289,10 @@ class Gameworld:
     def tribe_id(self):
         return self.accountDetails['tribeId']
 
+    @property
+    def kingdom_id(self):
+        return self.accountDetails['kingdomId']
+
     def post(self, controller, action, params={}):
         payload = {
             'action': action,
@@ -274,4 +303,6 @@ class Gameworld:
         timestamp = int('{:.3f}'.format(time.time()).replace('.', ''))
         url = f'{self.api_root}c={controller}&a={action}&t{timestamp}'
         r = self.client.post(url=url, json=payload)
+        if 'error' in r.json():
+            raise NotAuthenticated()
         return r.json()
