@@ -3,7 +3,7 @@ from .database import CredentialDb
 import argparse
 
 
-def arg_parser():
+def credential():
     parser = argparse.ArgumentParser(usage='python3 %(prog)s <email> <password> <gameworld> [--avatar]')
 
     parser.add_argument('email', metavar='email', type=str, help='your email', nargs=1)

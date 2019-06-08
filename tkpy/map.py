@@ -1,13 +1,14 @@
+from math import sqrt
 from collections import namedtuple
 
 class Map:
-    def __init__(self, client, data=None):
+    def __init__(self, client):
         self.client = client
+        self._raw = dict()
         self.Player = namedtuple('Player', ['id', 'data'])
         self.Kingdom = namedtuple('Kingdom', ['id', 'name'])
-        self._raw = data or self._pull()
 
-    def _pull(self):
+    def pull(self):
         req_list = (
             cell_id(x, y) for x in range(-13, 14) for y in range(-13, 14)
         )
@@ -19,10 +20,7 @@ class Map:
             }
         )
         del r['response']['1']['reports']
-        return r
-
-    def update(self):
-        self._raw = self._pull()
+        self._raw.update(r)
 
     @property
     def cell(self):
@@ -121,7 +119,7 @@ class Cell:
 
     def __getitem__(self, key):
         try:
-            self.data[key]
+            return self.data[key]
         except:
             raise
 
@@ -129,8 +127,16 @@ class Cell:
         return str(self.data)
 
     def details(self):
-        r = self.client.cache.get({'names':[f'MapDetails:{self.data["id"]}']})
+        r = self.client.cache.get({'names':[f'MapDetails:{self.id}']})
         return r['cache'][0]['data']
+
+    @property
+    def id(self):
+        return int(self.data['id'])
+
+    @property
+    def coordinate(self):
+        return reverse_id(self.id)
 
 
 def cell_id(x, y):
@@ -145,3 +151,11 @@ def reverse_id(vid):
     realx = int(xcord, 2) - 16384
     realy = int(ycord, 2) - 16384
     return realx, realy
+
+
+def distance(source, target):
+    """
+    :param source: x, y tuple object of source coordinates
+    :param target: x, y tuple object of target coordinates
+    """
+    return sqrt((source[0] - target[0])**2 + (source[1] - target[1])**2)
