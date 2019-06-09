@@ -51,8 +51,8 @@ class HttpClient:
         self.cookies.update(r.cookies)
 
     def _set_cookies(self, cookies):
+        cookie_jar = requests.cookies.RequestsCookieJar()
         if cookies:
-            cookie_jar = requests.cookies.RequestsCookieJar()
             xs = {
                 'msid': '.kingdoms.com',
                 'gl5SessionKey': 'lobby.kingdoms.com',
@@ -67,9 +67,7 @@ class HttpClient:
                     value=cookies[x],
                     domain=xs[x]
                 )
-            return cookie_jar
-        else:
-            return requests.cookies.RequestsCookieJar()
+        return cookie_jar
 
     def get_cookie(self, name, domain=None):
         return self.cookies.get(name=name, domain=domain)
@@ -140,19 +138,6 @@ class Lobby:
                 if avatar['data']['avatarName'] == avatar_name and avatar['data']['worldName'].lower() == gameworld:
                     return avatar['data']['avatarIdentifier']
         raise AvatarNotFound(f'Avatar {avatar_name} on {gameworld} not found.')
-
-    def collection_avatar(self):
-        results = dict()
-        for x in ['Collection:Avatar', 'Collection:Sitter:1', 'Collection:Sitter:4']:
-            r = self.cache.get({'names':[x]})
-            for avatar in r['cache'][0]['data']['cache']:
-                if 'Avatar' in avatar['name']:
-                    world_name = avatar['data']['worldName'].lower()
-                    results[world_name] = avatar
-                else:
-                    name = avatar['data']['avatarName']
-                    results[name] = avatar
-        return results
 
     @property
     def session(self):
@@ -279,7 +264,7 @@ class Gameworld:
 
     @property
     def player_id(self):
-        return self.decoded_session['id']
+        return int(self.decoded_session['id'])
 
     @property
     def session(self):
@@ -287,11 +272,15 @@ class Gameworld:
 
     @property
     def tribe_id(self):
-        return self.accountDetails['tribeId']
+        return int(self.accountDetails['tribeId'])
 
     @property
     def kingdom_id(self):
-        return self.accountDetails['kingdomId']
+        return int(self.accountDetails['kingdomId'])
+
+    @property
+    def plus_account(self):
+        return int(self.accountDetails['plusAccountTime'])
 
     def post(self, controller, action, params={}):
         payload = {
