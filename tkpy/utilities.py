@@ -42,3 +42,19 @@ def login(email, password, gameworld, avatar=None):
         driver = _login(email, password, gameworld, avatar)
         db.insert(driver=driver)
     return driver
+
+
+def send_troops(driver, destVillageId, movementType, redeployHero, spyMission,
+        units, villageId):
+    return driver.troops.send({
+        # 'catapultTargets': [
+        #     99, # random
+        #     3
+        # ],
+        'destVillageId': destVillageId,
+        'movementType': movementType,
+        'redeployHero': redeployHero,
+        'spyMission': spyMission,
+        'units': units,
+        'villageId': villageId
+    })
