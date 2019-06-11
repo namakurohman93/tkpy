@@ -234,7 +234,7 @@ class Gameworld:
         self.update_account()
 
     def update_account(self):
-        r = self.client.cache.get({'names':[f'Player:{self.player_id}']})
+        r = self.cache.get({'names':[f'Player:{self.player_id}']})
         self.accountDetails.update(
             r['cache'][0]['data']
         )
