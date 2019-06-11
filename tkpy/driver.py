@@ -2,6 +2,7 @@ import json
 import time
 import requests
 from urllib import parse
+from .exception import NotAuthenticated, AvatarNotFound
 from primordial.primordial.controllers.lobby import (
     achievements, cache, dual, gameworld, notification, player, sitter, login
 )
@@ -10,14 +11,6 @@ from primordial.primordial.controllers.gameworld import (
     hero, building, trade, ranking, kingdom, map, reports, society,
     premiumFeature, payment, kingdomTreaty, login
 )
-
-
-class NotAuthenticated(Exception):
-    """ Not authenticated """
-
-
-class AvatarNotFound(Exception):
-    """ Avatar not found """
 
 
 class HttpClient:

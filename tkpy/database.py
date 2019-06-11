@@ -1,12 +1,9 @@
 import os
 import pickle
 import sqlite3
+from .exception import DriverNotFound
 
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
-
-
-class DriverNotFound(Exception):
-    """ Driver not found """
 
 
 class CredentialDb:

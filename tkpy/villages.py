@@ -96,10 +96,16 @@ class Village:
                     'Send at least 1 troops'
                 )
         else:
+            # use all troops on village
             if sum(int(v) for v in troops.values()) <= 0:
                 raise SyntaxError(
                     f'There is no troops on {self.name} village'
                 )
+            # set scout amount to 0
+            if self.client.tribe_id in (1, 2):
+                troops['4'] = 0
+            else:
+                troops['3'] = 0
         return send_troops(
             driver=self.client,
             destVillageId=target,
