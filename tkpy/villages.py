@@ -1,4 +1,5 @@
-from .utilities import send_troops
+from .utilities import send_troops, send_farmlist
+from .farmlist import FarmList
 from .map import cell_id
 
 
@@ -90,6 +91,15 @@ class Village:
                     raise SyntaxError(
                         f'Not enough troops {k}'
                     )
+            if sum(units.values()) <= 0:
+                raise SyntaxError(
+                    'Send at least 1 troops'
+                )
+        else:
+            if sum(troops.values()) <= 0:
+                raise SyntaxError(
+                    f'There is no troops on {self.name} village'
+                )
         return send_troops(
             driver=self.client,
             destVillageId=target,
@@ -189,4 +199,11 @@ class Village:
             redeployHero=False,
             spyMission='resources',
             units=units
+        )
+
+    def send_farmlist(self, listIds):
+        return send_farmlist(
+            driver=self.client,
+            listIds=listIds,
+            villageId=self.id
         )
