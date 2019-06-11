@@ -96,7 +96,7 @@ class Village:
                     'Send at least 1 troops'
                 )
         else:
-            if sum(troops.values()) <= 0:
+            if sum(int(v) for v in troops.values()) <= 0:
                 raise SyntaxError(
                     f'There is no troops on {self.name} village'
                 )
