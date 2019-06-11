@@ -35,6 +35,7 @@ def login(email, password, gameworld, avatar=None):
         driver = db.get()
         try:
             driver.is_authenticated()
+            driver.update_account()
         except:
             driver = _login(email, password, gameworld, avatar)
             db.update(driver=driver)
@@ -56,5 +57,12 @@ def send_troops(driver, destVillageId, movementType, redeployHero, spyMission,
         'redeployHero': redeployHero,
         'spyMission': spyMission,
         'units': units,
+        'villageId': villageId
+    })
+
+
+def send_farmlist(driver, listIds, villageId):
+    return driver.troops.startFarmListRaid({
+        'listIds': listIds,
         'villageId': villageId
     })

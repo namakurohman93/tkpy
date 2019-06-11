@@ -175,8 +175,8 @@ class Lobby:
 class Gameworld:
     def __init__(self, client):
         self.client = client
-        self.gameConfig = None # Travian Config
-        self.accountDetails = None # account details
+        self.gameConfig = dict() # Travian Config
+        self.accountDetails = dict() # account details
 
         # Controllers
         self.player = player.Player(post_handler=self.post)
@@ -226,15 +226,18 @@ class Gameworld:
         )
         # add travian config
         r = self.client.get(self.api_root[:-5])
-        self.gameConfig = json.loads(
-            r.text[r.text.find('Travian.Config = {\"feature')+17:r.text.find('Travian.Config.worldRadius =')-1]
+        self.gameConfig.update(
+            json.loads(
+                r.text[r.text.find('Travian.Config = {\"feature')+17:r.text.find('Travian.Config.worldRadius =')-1]
+            )
         )
-        del r
-        self.accountDetails = self.update_account()
+        self.update_account()
 
     def update_account(self):
-        r = self.cache.get({'names':[f'Player:{self.player_id}']})
-        return r['cache'][0]['data']
+        r = self.client.cache.get({'names':[f'Player:{self.player_id}']})
+        self.accountDetails.update(
+            r['cache'][0]['data']
+        )
 
     @property
     def gameworld(self):
