@@ -16,3 +16,7 @@ class FarmListNotFound(Exception):
 
 class DriverNotFound(Exception):
     """ Driver not found """
+
+
+class VillageNotFound(Exception):
+    """ Village not found """

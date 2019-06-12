@@ -1,10 +1,6 @@
 from .utilities import send_troops, send_farmlist
-from .farmlist import FarmList
 from .map import cell_id
-
-
-class VillageNotFound(Exception):
-    """ Village not found """
+from .exception import VillageNotFound
 
 
 class Villages:
