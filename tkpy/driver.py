@@ -218,7 +218,6 @@ class Gameworld:
             f'https://{gameworld_name.lower()}.kingdoms.com/api/login.php?token={token}&msid={self.msid}&msname=msid'
         )
         # add travian config
-        r = self.client.get(self.api_root[:-5])
         self.gameConfig.update(
             json.loads(
                 r.text[r.text.find('Travian.Config = {\"feature')+17:r.text.find('Travian.Config.worldRadius =')-1]
