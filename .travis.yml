@@ -7,4 +7,4 @@ install:
 script:
   - python -m unittest discover
 after_success:
-  bash <(curl -s https://codecov.io/bash) -t 06247a9c-50da-49c8-ac9b-8c937e2f65c5
+  bash <(curl -s https://codecov.io/bash)
