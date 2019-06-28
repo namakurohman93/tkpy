@@ -1,0 +1,301 @@
+<!DOCTYPE html><html lang="en">
+    <head>
+        <meta charset="utf-8">
+        <title>Mellon</title><meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <link href="/min?g=core-styles" media="screen" rel="stylesheet" type="text/css">
+<link href="/min?g=styles" media="screen" rel="stylesheet" type="text/css"><script type="text/javascript" src="/min?g=core-scripts"></script>
+<script type="text/javascript" src="/min?g=scripts"></script>
+<script type="text/javascript">
+    //<!--
+    $(function () {
+if (!window.parent || !window.parent.bridge) {return;}
+var bridge = window.parent.bridge;
+
+                var body = $('body');
+                setTimeout(function () {
+                    bridge.resize(body.width(), body.height());
+                    setTimeout(function () {
+                        bridge.resize(body.width(), body.height());
+                    }, 400);
+                }, 30);
+            
+});
+    //-->
+</script>
+<script type="text/javascript">
+    //<!--
+    $(function () {
+if (!window.parent || !window.parent.bridge) {return;}
+var bridge = window.parent.bridge;
+bridge.setCookie("msid", "hef39l99m6b9ae5gj42mf7udf4", {});
+});
+    //-->
+</script>
+<script type="text/javascript">
+    //<!--
+    var mellonFacebookConfig = {"appId":"780743665316084","version":"v3.2"};
+    //-->
+</script>
+<script type="text/javascript">
+    //<!--
+    
+            window.___gcfg = {
+                lang: 'en'
+            };
+
+            $(document).ready(function() {
+               var po = document.createElement('script'); po.type = 'text/javascript'; po.async = false;
+               po.src = 'https://apis.google.com/js/api:client.js?onload=renderGoogleBtn';
+               var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(po, s);
+             });
+    //-->
+</script>
+<script type="text/javascript">
+    //<!--
+    $(function () {
+if (!window.parent || !window.parent.bridge) {return;}
+var bridge = window.parent.bridge;
+bridge.event("login");
+});
+    //-->
+</script>
+<script type="text/javascript">
+    //<!--
+    $(function () {
+if (!window.parent || !window.parent.bridge) {return;}
+var bridge = window.parent.bridge;
+bridge.event("loaded");
+});
+    //-->
+</script>        <script>
+            $(document).ready(function() {
+                $.fn.ajaxValidation.defaults.url = "/ajax/form-validate?msid=hef39l99m6b9ae5gj42mf7udf4&msname=msid";
+            });
+        </script>
+    </head>
+
+        <body class="mellon-dialog c-authentication-login ltr">
+        <div class="container">
+<form action="&#x2F;authentication&#x2F;login&#x3F;msid&#x3D;hef39l99m6b9ae5gj42mf7udf4&amp;msname&#x3D;msid" method="POST" name="login" class="form-horizontal&#x20;tk-sign-process" id="login"><fieldset class="social-login"><legend>Log in with</legend><div class="form-group form-group-type-img">
+                
+            <div class="facebook-login-wrapper">
+    <div class="facebook-login-button">
+		<img name="social&#x5B;facebook-login&#x5D;" id="fb-login-button" src="">		<span>Facebook</span>
+        <input id="fb_access_token" type="hidden" value="">
+	</div>
+</div>
+
+<script type="text/javascript">
+
+    $(function () {
+        $('#fb-login-button').closest('.facebook-login-wrapper').on('click', function (e) {
+            if ($(this).data('locked') == true) {
+                return;
+            }
+
+            $(this).data('locked', true);
+
+            
+            var redirectUrl = location.protocol + '//' + location.host + '/authentication/login-facebook-helper';
+            var options = {
+                client_id: mellonFacebookConfig.appId,
+                redirect_uri: redirectUrl,
+                response_type: 'token'
+            };
+            $.extend(options, {"scope":"email"});
+
+            var url = 'https://www.facebook.com/' + mellonFacebookConfig.version + '/dialog/oauth?' + $.param(options);
+            var handle = window.open(url);
+            if (!handle) {
+                // Can't open pop-up - not much can be done (FB auth doesn't work in iFrame). Maybe next time...
+                $(this).data('locked', false);
+                return;
+            }
+            var checker = function () {
+                if (!handle.closed) {
+                    setTimeout(checker, 100);
+                    return;
+                }
+                var access_token = document.getElementById('fb_access_token').value;
+                var response = {
+                    status: access_token !== '' ? 'connected' : '',
+                    authResponse: {
+                        accessToken: access_token
+                    }
+                };
+                $(document).trigger('fbLogin', response);
+            };
+            checker();
+        });
+    });
+
+    $(document).on('fbLogin', function (event, response) {
+        if (response.status !== 'connected') {
+            $('#fb-login-button').closest('.facebook-login-wrapper').data('locked', false);
+            return false;
+        }
+
+        var url = '/authentication/login-facebook/access-token/-at-?msid=hef39l99m6b9ae5gj42mf7udf4&msname=msid';
+
+        url = url.replace('-at-', response.authResponse.accessToken);
+
+        window.parent && window.parent.bridge && window.parent.bridge.event('formSubmit');
+        window.location.href = url;
+
+        return false;
+    });
+</script>
+        
+                </div>
+<div class="form-group form-group-type-hidden">
+                
+            <div class="google-login-wrapper">
+    <div id="block-google-login" class="google-login-button">
+        <input type="hidden" name="social&#x5B;google-login&#x5D;" id="google-login" value="Google">        <span>Google</span>
+    </div>
+</div>
+
+<script type="text/javascript">
+    function renderGoogleBtn() {
+        $('.google-login-button').bind('click', function (e) {
+            if ($(this).data('locked')) {
+                return;
+            }
+
+            
+            $(this).data('locked', true);
+            gapi.auth.authorize({
+                client_id: '692823100644-ioveuchqrt57fj6fkg8eq3gsghuvi9p1.apps.googleusercontent.com',
+                immediate: false,
+                scope: ['https://www.googleapis.com/auth/userinfo.email']
+            }, googleLoginCallback);
+
+            setTimeout(function () {
+                $('.google-login-button').data('locked', false);
+            }, 1000);
+        });
+    }
+
+    function googleLoginCallback(authResult) {
+        if (authResult['access_token']) {
+            var url = '/authentication/login-google/access-token/-at-?msid=hef39l99m6b9ae5gj42mf7udf4&msname=msid';
+            url = url.replace('-at-', authResult['access_token']);
+
+            window.parent && window.parent.bridge && window.parent.bridge.event('formSubmit');
+            window.location.href = url;
+        }
+    }
+</script>
+        
+                </div>
+<div class="form-group form-group-type-img">
+                
+            <div class="vkontakte-login-wrapper">
+    <div class="vkontakte-login-button">
+		<img name="social&#x5B;vkontakte-login&#x5D;" id="vk-login-button" src="">		<span>VK</span>
+	</div>
+</div>
+
+<script type="text/javascript">
+    var newWindow, timer = null;
+
+    $('#vk-login-button').closest('.vkontakte-login-wrapper').on('click', function(e) {
+        if (newWindow && newWindow.closed == false) {
+            return;
+        }
+
+        if ($(this).data('locked')) {
+            return;
+        }
+
+        
+        $(this).data('locked', true);
+
+        // hack for FF, it is very slow and user still can catch a moment for click.
+        timer = setTimeout(function () {
+            $('#vk-login-button').closest('.vkontakte-login-wrapper').data('locked', false);
+        }, 3000);
+
+        newWindow = window.open('https://oauth.vk.com/authorize?display=popup&scope=4194304&redirect_uri=https%3A%2F%2Fmellon-t5.traviangames.com%2Fauthentication%2Flogin-vkontakte-helper%3Fmsid%3Dhef39l99m6b9ae5gj42mf7udf4%26msname%3Dmsid&response_type=code&v=5.25&client_id=4621153', 'vk', 'menubar=0,titlebar=0,height=200,width=200');
+    });
+    
+    function vkontakteWindowExecute(){
+        $('#vk-login-button').closest('.vkontakte-login-wrapper').data('locked', true);
+        newWindow.close();
+        newWindow = timer = null;
+
+        window.parent && window.parent.bridge && window.parent.bridge.event('formSubmit');
+        window.location.href='/authentication/login-vkontakte?msid=hef39l99m6b9ae5gj42mf7udf4&msname=msid';
+    }
+</script>
+        
+                </div>
+<div class="form-group form-group-type-div">
+                
+            <div >
+                <div class="login-or-separator"><div class="row">
+                    <div class="separator"><span class=""></span></div>
+                    <div class="separator-text"><span>or</span></div>
+                    <div class="separator"></div>
+                </div></div>
+                </div>        
+                </div>
+</fieldset><div class="form-group form-group-type-text">
+                                <label>or</label>
+            
+            <input type="text" name="email" class="form-control" placeholder="Email&#x20;address" data-placement="top" value="">        
+                </div>
+<div class="form-group form-group-type-password">
+                
+            <input type="password" name="password" class="form-control" placeholder="Password" data-placement="bottom" value="">        
+                </div>
+<div class="form-group form-group-type-submit">
+                
+            <input name="submit" type="submit" class="btn&#x20;btn-primary&#x20;tracking" value="Log&#x20;in" data-trackingeventname="mellon.click_on_login">        
+                </div>
+</form>
+<div class="login-extra">
+    <div class="login-extra-reset-password left">
+        <a href="/authentication/password-reset-request?msid=hef39l99m6b9ae5gj42mf7udf4&msname=msid">
+            Forgot password        </a>
+    </div>
+    <div>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</div>
+    <div class="login-extra-create-account right">
+        New player?        <a href="/registration/index?msid=hef39l99m6b9ae5gj42mf7udf4&msname=msid">
+            Sign up        </a>
+    </div>
+</div>
+
+<script type="text/javascript">
+    $('body').width('386px');
+
+    $(document).ready(function() {
+        var legend = $('.social-login legend');
+        legend.replaceWith($('<div class="form-group">' + legend[0].innerHTML + '</div>'));
+
+        if ($('.tk-sign-process .form-group-type-text .list-group').length) {
+            $('.list-group').insertBefore('input[name=email]');
+        }
+
+        $('input[name=email], input[name=password]').ajaxValidation({formName:'login'});
+    });
+
+</script>
+
+</div> <!-- /container -->
+
+        <!-- facebook layer -->
+        <div id="fb-root"></div>
+
+        <script type="text/javascript">
+//<!--
+$(function () {
+  if (!window.parent || !window.parent.bridge) { return; }
+  var bridge = window.parent.bridge;
+
+bridge.setCloseBtn(true);
+
+});
+//-->
+</script>    </body>
+</html>
