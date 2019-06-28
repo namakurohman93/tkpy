@@ -66,3 +66,30 @@ def send_farmlist(driver, listIds, villageId):
         'listIds': listIds,
         'villageId': villageId
     })
+
+
+def instant_finish(driver, queueType, villageId):
+    return driver.premiumFeature.finishNow({
+        'price': 0,
+        'queueType': queueType,
+        'villageId': villageId
+    })
+
+
+def upgrade_building(driver, buildingType, locationId, villageId):
+    return driver.building.upgrade({
+        'buildingType': buildingType,
+        'locationId': locationId,
+        'villageId': villageId
+    })
+
+
+def queue_building(
+        driver, buildingType, locationId,
+        villageId, reserveResources):
+    return driver.building.useMasterBuilder({
+        'buildingType': buildingType,
+        'locationId': locationId,
+        'villageId': villageId,
+        'reserveResources': reserveResources
+    })

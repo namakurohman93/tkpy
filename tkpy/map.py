@@ -1,33 +1,73 @@
 from math import sqrt
-from collections import namedtuple
+
+
+def cell_id(x, y):
+    return (536887296 + x) + (y * 32768)
+
+
+def reverse_id(vid):
+    binary = f'{vid:b}'
+    if len(binary) < 30:
+        binary = '0' + binary
+    xcord, ycord = binary[15:], binary[:15]
+    realx = int(xcord, 2) - 16384
+    realy = int(ycord, 2) - 16384
+    return realx, realy
+
+
+def distance(source, target):
+    """
+    :param source: x, y tuple of source coordinates
+    :param target: x, y tuple of target coordinates
+    """
+    return sqrt((source[0] - target[0])**2 + (source[1] - target[1])**2)
+
+
+regionIds = {
+    cell_id(x, y): [
+        cell_id(xx, yy) for xx in range(0+(x*7), 7+(x*7)) for yy in range(0+(y*7), 7+(y*7))
+    ] for x in range(-13, 14) for y in range(-13, 14)
+}
+
 
 class Map:
     def __init__(self, client):
         self.client = client
         self._raw = dict()
-        self.Player = namedtuple('Player', ['id', 'data'])
-        self.Kingdom = namedtuple('Kingdom', ['id', 'name'])
 
     def pull(self):
-        req_list = (
-            cell_id(x, y) for x in range(-13, 14) for y in range(-13, 14)
-        )
         r = self.client.map.getByRegionIds(
             params={
                 'regionIdCollection': {
-                    '1': list(req_list)
+                    '1': list(regionIds.keys())
                 }
             }
         )
         del r['response']['1']['reports']
         self._raw.update(r)
 
+    def _pull(self, region_id=[]):
+        ids = (x for x in list(range(1, len(region_id)//49 + 2)))
+        req_list = {
+            str(id): [
+                region_id.pop() for _ in range(49) if region_id
+            ] for id in ids
+        }
+        r = self.client.map.getByRegionIds({
+            'regionIdCollection': req_list
+        })
+        self._raw.update(r)
+
     @property
     def cell(self):
-        for region_id in self._raw['response']['1']['region']:
-            for cell in self._raw['response']['1']['region'][region_id]:
-                # yield cell
-                yield Cell(self.client, cell)
+        for c in self._raw['response']:
+            try:
+                for region_id in self._raw['response'][c]['region']:
+                    for cell in self._raw['response'][c]['region'][region_id]:
+                        # yield cell
+                        yield Cell(self.client, cell)
+            except:
+                continue
 
     @property
     def villages(self):
@@ -82,11 +122,12 @@ class Map:
 
     @property
     def kingdoms(self):
-        for x in self._raw['response']['1']['kingdom']:
-            yield self.Kingdom(
-                id=x,
-                name=self._raw['response']['1']['kingdom'][x]['tag']
-            )
+        for c in self._raw['response']:
+            try:
+                for x in self._raw['response'][c]['kingdom']:
+                    yield Kingdom(x, self._raw['response'][c]['kingdom'][x])
+            except:
+                continue
 
     def kingdom(self, name=None, id=None, default={}):
         for kingdom in self.kingdoms:
@@ -96,15 +137,19 @@ class Map:
 
     @property
     def players(self):
-        for x in self._raw['response']['1']['player']:
-            yield self.Player(
-                id=x,
-                data=self._raw['response']['1']['player'][x]
-            )
+        for c in self._raw['response']:
+            try:
+                for x in self._raw['response'][c]['player']:
+                    yield Player(
+                        self.client, x, self._raw['response'][c]['player'][x]
+                    )
+            except:
+                continue
+
 
     def player(self, name=None, id=None, default={}):
         for player in self.players:
-            if player.id == str(id) or player.data['name'] == name:
+            if player.id == str(id) or player.name == name:
                 return player
         return default
 
@@ -139,23 +184,60 @@ class Cell:
         return reverse_id(self.id)
 
 
-def cell_id(x, y):
-    return (536887296 + x) + (y * 32768)
+class Player:
+    def __init__(self, client, id, data):
+        self.client = client
+        self.id = id
+        self.data = data
+
+    def __getitem__(self, key):
+        try:
+            return self.data[key]
+        except:
+            raise
+
+    def __repr__(self):
+        return str(self.data)
+
+    def hero_equipment(self):
+        return self.client.cache.get({
+            'names': [f'Collection:HeroItem:{self.id}']
+        })['cache'][0]['data']['cache']
+
+    def details(self):
+        return self.client.cache.get({
+            'names': [f'Player:{self.id}']
+        })['cache'][0]['data']
+
+    @property
+    def name(self):
+        return self.data['name']
+
+    @property
+    def tribe_id(self):
+        return self.data['tribeId']
+
+    @property
+    def is_active(self):
+        if self.data['active'] == '1':
+            return True
+        return False
 
 
-def reverse_id(vid):
-    binary = f'{vid:b}'
-    if len(binary) < 30:
-        binary = '0' + binary
-    xcord, ycord = binary[15:], binary[:15]
-    realx = int(xcord, 2) - 16384
-    realy = int(ycord, 2) - 16384
-    return realx, realy
+class Kingdom:
+    def __init__(self, id, data):
+        self.id = id
+        self.data = data
 
+    def __getitem__(self, key):
+        try:
+            return self.data[key]
+        except:
+            raise
 
-def distance(source, target):
-    """
-    :param source: x, y tuple object of source coordinates
-    :param target: x, y tuple object of target coordinates
-    """
-    return sqrt((source[0] - target[0])**2 + (source[1] - target[1])**2)
+    def __repr__(self):
+        return str(self.data)
+
+    @property
+    def name(self):
+        return self.data['tag']

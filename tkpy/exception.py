@@ -20,3 +20,23 @@ class DriverNotFound(Exception):
 
 class VillageNotFound(Exception):
     """ Village not found """
+
+
+class BuildingSlotFull(Exception):
+    """ Building slot full """
+
+
+class FailedConstructBuilding(Exception):
+    """ Failed construct building """
+
+
+class QueueFull(Exception):
+    """ Building queue full """
+
+
+class WarehouseNotEnough(Exception):
+    """ Warehouse / granary not enough space """
+
+
+class BuildingAtMaxLevel(Exception):
+    """ Building at max level """

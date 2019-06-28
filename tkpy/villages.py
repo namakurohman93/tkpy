@@ -1,6 +1,10 @@
 from .utilities import send_troops, send_farmlist
 from .map import cell_id
-from .exception import VillageNotFound
+from .buildings import Buildings, BuildingQueue, ConstructionList
+from .exception import (
+    VillageNotFound, BuildingSlotFull, FailedConstructBuilding,
+    QueueFull, WarehouseNotEnough, BuildingAtMaxLevel
+)
 
 
 class Villages:
@@ -40,11 +44,19 @@ class Villages:
         for x in self.raw:
             self.item[x['name']] = Village(self.client, x)
 
+    def get_capital_village(self):
+        for village in self.dorps:
+            if village.isMainVillage:
+                return village
+
 
 class Village:
     def __init__(self, client, data):
         self.client = client
         self.data = data
+        self.buildings = Buildings(self.client, self.id)
+        self.buildingQueue = BuildingQueue(self.client, self.id)
+        self.warehouse = Warehouse(self.data)
 
     def __getitem__(self, key):
         try:
@@ -54,6 +66,12 @@ class Village:
 
     def __repr__(self):
         return str(self.data)
+
+    def pull(self):
+        r = self.client.cache.get({
+            'names': [f'Village:{self.id}']
+        })
+        self.data.update(r['cache'][0]['data'])
 
     @property
     def id(self):
@@ -67,6 +85,10 @@ class Village:
     def coordinate(self):
         x, y = self.data['coordinate']['x'], self.data['coordinate']['y']
         return int(x), int(y)
+
+    @property
+    def isMainVillage(self):
+        return self.data['isMainVillage']
 
     def units(self):
         r = self.client.cache.get({
@@ -83,25 +105,39 @@ class Village:
         # check amount of every units if units
         if units:
             for k in units:
-                if units[k] > int(troops.get(k, 0)):
+                if int(units[k]) == -1:
+                    units[k] = int(troops.get(k, 0))
+                if int(units[k]) > int(troops.get(k, 0)):
                     raise SyntaxError(
                         f'Not enough troops {k}'
                     )
-            if sum(units.values()) <= 0:
+            if sum(int(v) for v in units.values()) <= 0:
                 raise SyntaxError(
                     'Send at least 1 troops'
                 )
+            # check total amount of units if movementType 47 (siege)
+            if movementType == 47:
+                if sum(int(v) for v in units.values()) < 1000:
+                    raise SyntaxError(
+                        'Need at least 1000 troops'
+                    )
+                # check if ram exists
+                if '7' not in units:
+                    raise SyntaxError(
+                        'Need at least 1 ram for siege'
+                    )
         else:
-            # use all troops on village
-            if sum(int(v) for v in troops.values()) <= 0:
-                raise SyntaxError(
-                    f'There is no troops on {self.name} village'
-                )
+            # since it send all unit on village, first
             # set scout amount to 0
             if self.client.tribe_id in (1, 2):
                 troops['4'] = 0
             else:
                 troops['3'] = 0
+            # use all troops on village
+            if sum(int(v) for v in troops.values()) <= 0:
+                raise SyntaxError(
+                    f'There is no troops on {self.name} village'
+                )
         return send_troops(
             driver=self.client,
             destVillageId=target,
@@ -175,24 +211,7 @@ class Village:
         # TODO
         # add building target if cata in units and rally point level >= 5
         if not units:
-            raise SyntaxError(
-                'Set units first'
-            )
-        # set scout amount to 0
-        if self.client.tribe_id in (1, 2):
-            units['4'] = 0
-        else:
-            units['3'] = 0
-        # check if ram exists
-        if '7' not in units:
-            raise SyntaxError(
-                'Need at least 1 ram for siege'
-            )
-        # check total amount of units
-        if sum(units.values()) < 1000:
-            raise SyntaxError(
-                'Need at least 1000 troops'
-            )
+            raise SyntaxError('Set units first')
         return self._send_troops(
             x=x,
             y=y,
@@ -209,3 +228,183 @@ class Village:
             listIds=listIds,
             villageId=self.id
         )
+
+    def upgrade(self, building):
+        # update data with the newest one
+        self.pull()
+        self.buildings.pull()
+        self.buildingQueue.pull()
+        # step 1
+        # check building if exists or not
+        if self.buildings[building]:
+            b = self.buildings[building][0]
+            if b.isMaxLvl:
+                self._construct(building)
+            # step 2
+            # check resources on warehouse
+            for k, v in b.upgradeCost.items():
+                if self.warehouse[k] < v and self.warehouse.capacity[k] > v:
+                    # can't upgrade cause lack of resources
+                    # check building queue
+                    if self.buildingQueue.freeSlots['4'] > 0:
+                        # there is free queue
+                        return b.queues(reserveResources=False)
+                    else:
+                        # can't upgrade cause there is no queue
+                        raise QueueFull('Queue full')
+                if self.warehouse.capacity[k] < v:
+                    raise WarehouseNotEnough(
+                        f'Warehouse / granary capacity not enough for upgrade {building}'
+                    )
+            # step 3
+            # check building queue
+            # this is the most complicated parts, if tribe id is roman
+            # then we need to know if building is resources type
+            if self.client.tribe_id == 1:
+                # roman detected
+                # check building type
+                if int(b.id) < 5:
+                    # resources type detected
+                    # check slots for resources
+                    if self.buildingQueue.freeSlots['2'] > 0:
+                        # can upgrade
+                        return b.upgrade()
+                    else:
+                        # can't upgrade, check queue
+                        if self.buildingQueue.freeSlots['4'] > 0:
+                            # there is free queue
+                            return b.queues(reserveResources=True)
+                        else:
+                            # can't upgrade cause there is no queue
+                            raise QueueFull('Queue full')
+                else:
+                    # normal building type detected
+                    # check slots for resources
+                    if self.buildingQueue.freeSlots['1'] > 0:
+                        # can upgrade
+                        return b.upgrade()
+                    else:
+                        # can't upgrade, check queue
+                        if self.buildingQueue.freeSlots['4'] > 0:
+                            # there is free queue
+                            return b.queues(reserveResources=True)
+                        else:
+                            # can't upgrade cause there is no queue
+                            raise QueueFull('Queue full')
+            else:
+                # non roman
+                if self.buildingQueue.freeSlots['1'] > 0:
+                    # can upgrade
+                    return b.upgrade()
+                else:
+                    # can't upgrade, check queue
+                    if self.buildingQueue.freeSlots['4'] > 0:
+                        # there is free queue
+                        return b.queues(reserveResources=True)
+                    else:
+                        # can't upgrade cause there is no queue
+                        raise QueueFull('Queue full')
+        else:
+            # building didn't exists
+            # construct it
+            self._construct(building)
+
+    def _construct(self, building):
+        if self.buildings.freeSlots:
+            c = ConstructionList(
+                self.client, self.id, self.buildings.freeSlots[0]
+            )
+            c.pull()
+            b = c[building]
+            if b:
+                if b['buildable']:
+                    # construct it
+                    for k, v in b.upgradeCost.items():
+                        if self.warehouse[k] < v and self.warehouse.capacity[k] > v:
+                            # can't upgrade cause lack of resources
+                            # check building queue
+                            if self.buildingQueue.freeSlots['4'] > 0:
+                                # there is free queue
+                                return b.queues(reserveResources=False)
+                            else:
+                                # can't upgrade cause there is no queue
+                                raise QueueFull('Queue full')
+                        if self.warehouse.capacity[k] < v:
+                            raise WarehouseNotEnough(
+                                f'Warehouse / granary capacity not enough for construct {building}'
+                            )
+                    # check building queue
+                    if self.buildingQueue.freeSlots['1'] > 0:
+                        # can upgrade
+                        return b.upgrade()
+                    else:
+                        # can't upgrade, check queue
+                        if self.buildingQueue.freeSlots['4'] > 0:
+                            # there is free queue
+                            return b.queues(reserveResources=True)
+                        else:
+                            # can't upgrade cause there is no queue
+                            raise QueueFull('Queue full')
+                else:
+                    raise FailedConstructBuilding(
+                        f'Failed construct {building} cause lack of required buildings'
+                    )
+            else:
+                raise BuildingAtMaxLevel(
+                    f'{building} already at max level'
+                )
+        else:
+            raise BuildingSlotFull(
+                f'Building slot at {self.name} full'
+            )
+
+
+class Warehouse:
+    def __init__(self, data):
+        self.data = data
+        self.resType = {'wood': '1', 'clay': '2', 'iron': '3', 'crop': '4'}
+
+    @property
+    def storage(self):
+        return self.data['storage']
+
+    @property
+    def production(self):
+        return {k: int(v) for k, v in self.data['production'].items()}
+
+    @property
+    def capacity(self):
+        return {k: int(v) for k, v in self.data['storageCapacity'].items()}
+
+    @property
+    def wood(self):
+        return self._print_res('1')
+
+    @property
+    def clay(self):
+        return self._print_res('2')
+
+    @property
+    def iron(self):
+        return self._print_res('3')
+
+    @property
+    def crop(self):
+        return self._print_res('4')
+
+    def _print_res(self, key):
+        s = self.storage[key]
+        c = self.capacity[key]
+        p = self.production[key]
+        return f'{s}/{c} {p}'
+
+    def __getitem__(self, key):
+        if key in ('1', '2', '3', '4'):
+            return self.storage[key]
+        elif key in ('wood', 'clay', 'iron', 'crop'):
+            return self.storage[self.resType[key]]
+        else:
+            raise KeyError('The key is \'1\', \'2\', \'3\', \'4\' or \'wood\', \'clay\', \'iron\', \'crop\'')
+
+    def __repr__(self):
+        return f'wood: {self.wood}\nclay: {self.clay}\niron: {self.iron}\ncrop: {self.crop}'
