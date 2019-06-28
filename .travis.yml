@@ -4,7 +4,7 @@ python:
   - "3.6"
 install:
   - pip install -r requirements.txt
-  - pip install codecov
+  - pip install --user codecov
 script:
   - python -m unittest discover
 after_success:
