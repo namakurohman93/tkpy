@@ -1,0 +1,51 @@
+{
+    "cache": [
+        {
+            "name": "Collection:Avatar:",
+            "data": {
+                "cache": [
+                    {
+                        "name": "Avatar:123456",
+                        "data": {
+                            "userAccountIdentifier": "654321",
+                            "avatarIdentifier": "123456",
+                            "avatarName": "Mock 1",
+                            "consumersId": "111",
+                            "worldName": "COM93",
+                            "country": "en",
+                            "accountName": "Mock 1",
+                            "isBanned": false,
+                            "isSuspended": false,
+                            "suspensionTime": "0",
+                            "limitation": "0",
+                            "banReason": "0",
+                            "banPaymentProvider": ""
+                        }
+                    },
+                    {
+                        "name": "Avatar:4855995",
+                        "data": {
+                            "userAccountIdentifier": "654321",
+                            "avatarIdentifier": "654321",
+                            "avatarName": "Mock 2",
+                            "consumersId": "222",
+                            "worldName": "COM94",
+                            "country": "en",
+                            "accountName": "Mock 1",
+                            "isBanned": false,
+                            "isSuspended": false,
+                            "suspensionTime": "0",
+                            "limitation": "0",
+                            "banReason": "0",
+                            "banPaymentProvider": ""
+                        }
+                    }
+                ],
+                "operation": 1
+            }
+        }
+    ],
+    "time": "1560654011",
+    "serialNo": 18404,
+    "response": []
+}
