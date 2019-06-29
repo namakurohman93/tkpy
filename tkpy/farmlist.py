@@ -89,8 +89,8 @@ class FarmlistEntry:
         })
         self._update_data(r)
 
-    def toogle(self, villageId):
-        r = self.client.farmList.toogleEntry({
+    def toggle(self, villageId):
+        r = self.client.farmList.toggleEntry({
             'listId': self.id,
             'villageId': villageId
         })
