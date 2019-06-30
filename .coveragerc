@@ -3,3 +3,6 @@ source = tkpy
 
 [report]
 show_missing = True
+exclude_lines =
+  def __repr__
+  continue
