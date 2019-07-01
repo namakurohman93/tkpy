@@ -1,5 +1,6 @@
 [run]
 source = tkpy
+omit = tkpy/fixtures.py
 
 [report]
 show_missing = True
