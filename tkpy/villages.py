@@ -83,7 +83,7 @@ class Village:
 
     @property
     def coordinate(self):
-        x, y = self.data['coordinate']['x'], self.data['coordinate']['y']
+        x, y = self.data['coordinates']['x'], self.data['coordinates']['y']
         return int(x), int(y)
 
     @property
