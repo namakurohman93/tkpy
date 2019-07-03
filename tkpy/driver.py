@@ -3,10 +3,10 @@ import time
 import requests
 from urllib import parse
 from .exception import NotAuthenticated, AvatarNotFound
-from primordial.primordial.controllers.lobby import (
+from primordial.controllers.lobby import (
     achievements, cache, dual, gameworld, notification, player, sitter, login
 )
-from primordial.primordial.controllers.gameworld import (
+from primordial.controllers.gameworld import (
     player, farmList, logger, troops, village, cache, quest, error, auctions,
     hero, building, trade, ranking, kingdom, map, reports, society,
     premiumFeature, payment, kingdomTreaty, login
