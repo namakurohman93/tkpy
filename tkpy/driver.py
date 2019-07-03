@@ -195,8 +195,10 @@ class Gameworld:
         self.login = login.Login(post_handler=self.post)
 
     def is_authenticated(self):
-        if 'error' in self.troops.getMarkers():
-            raise NotAuthenticated()
+        try:
+            self.troops.getMarkers()
+        except:
+            raise
 
     def authenticate(self, gameworld_name, gameworld_id=None, avatar_id=None):
         self.client.cookies.set(
