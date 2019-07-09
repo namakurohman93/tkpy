@@ -115,6 +115,10 @@ class BuildingQueue:
 
     @property
     def usedSlots(self):
+        if self.tribe_id != 1:
+            if self.freeSlots['1'] == 0:
+                return [self.queues['1'][0]]
+            return []
         return [
             self.queues[x][0] for x in ('1', '2') if self.freeSlots[x] == 0
         ]
