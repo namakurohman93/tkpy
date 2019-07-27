@@ -98,6 +98,12 @@ class Village:
             if x['data']['villageId'] == str(self.id):
                 return x['data']['units']
 
+    def troops_movement(self):
+        r = self.client.cache.get({
+            'names': [f'Collection:Troops:moving:{self.id}']
+        })
+        return [x['data'] for x in r['cache'][0]['data']['cache']]
+
     def _send_troops(self, x, y, destVillageId, movementType, redeployHero,
             spyMission, units):
         target = destVillageId or cell_id(x, y)
@@ -234,129 +240,75 @@ class Village:
         self.pull()
         self.buildings.pull()
         self.buildingQueue.pull()
-        # step 1
-        # check building if exists or not
+
         if self.buildings[building]:
             b = self.buildings[building][0]
+
             if b.isMaxLvl:
-                self._construct(building)
-            # step 2
-            # check resources on warehouse
+                return self._construct(building)
+
             for k, v in b.upgradeCost.items():
                 if self.warehouse[k] < v and self.warehouse.capacity[k] > v:
-                    # can't upgrade cause lack of resources
-                    # check building queue
-                    if self.buildingQueue.freeSlots['4'] > 0:
-                        # there is free queue
-                        return b.queues(reserveResources=False)
-                    else:
-                        # can't upgrade cause there is no queue
-                        raise QueueFull('Queue full')
+                    return self._check_queue(reserveResources=False, b)
+
                 if self.warehouse.capacity[k] < v:
                     raise WarehouseNotEnough(
                         f'Warehouse / granary capacity not enough for upgrade {building}'
                     )
-            # step 3
-            # check building queue
-            # this is the most complicated parts, if tribe id is roman
-            # then we need to know if building is resources type
-            if self.client.tribe_id == 1:
-                # roman detected
-                # check building type
-                if int(b.id) < 5:
-                    # resources type detected
-                    # check slots for resources
-                    if self.buildingQueue.freeSlots['2'] > 0:
-                        # can upgrade
-                        return b.upgrade()
-                    else:
-                        # can't upgrade, check queue
-                        if self.buildingQueue.freeSlots['4'] > 0:
-                            # there is free queue
-                            return b.queues(reserveResources=True)
-                        else:
-                            # can't upgrade cause there is no queue
-                            raise QueueFull('Queue full')
-                else:
-                    # normal building type detected
-                    # check slots for resources
-                    if self.buildingQueue.freeSlots['1'] > 0:
-                        # can upgrade
-                        return b.upgrade()
-                    else:
-                        # can't upgrade, check queue
-                        if self.buildingQueue.freeSlots['4'] > 0:
-                            # there is free queue
-                            return b.queues(reserveResources=True)
-                        else:
-                            # can't upgrade cause there is no queue
-                            raise QueueFull('Queue full')
-            else:
-                # non roman
-                if self.buildingQueue.freeSlots['1'] > 0:
-                    # can upgrade
-                    return b.upgrade()
-                else:
-                    # can't upgrade, check queue
-                    if self.buildingQueue.freeSlots['4'] > 0:
-                        # there is free queue
-                        return b.queues(reserveResources=True)
-                    else:
-                        # can't upgrade cause there is no queue
-                        raise QueueFull('Queue full')
-        else:
-            # building didn't exists
-            # construct it
-            self._construct(building)
+
+            if self.client.tribe_id == 1 and int(b.id) < 5:
+                return self._upgrade(slot='2', b)
+
+            return self._upgrade(slot='1', b)
+
+        # building didn't exists
+        # construct it
+        return self._construct(building)
 
     def _construct(self, building):
         if self.buildings.freeSlots:
             c = ConstructionList(
-                self.client, self.id, self.buildings.freeSlots[0]
+                client=self.client,
+                villageId=self.id,
+                locationId=self.buildings.freeSlots[0]
             )
             c.pull()
+
             b = c[building]
+
             if b:
                 if b['buildable']:
                     # construct it
                     for k, v in b.upgradeCost.items():
                         if self.warehouse[k] < v and self.warehouse.capacity[k] > v:
-                            # can't upgrade cause lack of resources
-                            # check building queue
-                            if self.buildingQueue.freeSlots['4'] > 0:
-                                # there is free queue
-                                return b.queues(reserveResources=False)
-                            else:
-                                # can't upgrade cause there is no queue
-                                raise QueueFull('Queue full')
+                            return self._check_queue(reserveResources=False, b)
+
                         if self.warehouse.capacity[k] < v:
                             raise WarehouseNotEnough(
                                 f'Warehouse / granary capacity not enough for construct {building}'
                             )
-                    # check building queue
-                    if self.buildingQueue.freeSlots['1'] > 0:
-                        # can upgrade
-                        return b.upgrade()
-                    else:
-                        # can't upgrade, check queue
-                        if self.buildingQueue.freeSlots['4'] > 0:
-                            # there is free queue
-                            return b.queues(reserveResources=True)
-                        else:
-                            # can't upgrade cause there is no queue
-                            raise QueueFull('Queue full')
-                else:
-                    raise FailedConstructBuilding(
-                        f'Failed construct {building} cause lack of required buildings'
-                    )
-            else:
-                raise BuildingAtMaxLevel(
-                    f'{building} already at max level'
+
+                    return self._upgrade(slot='1', b)
+
+                raise FailedConstructBuilding(
+                    f'Failed construct {building} cause lack of required buildings'
                 )
-        else:
-            raise BuildingSlotFull(
-                f'Building slot at {self.name} full'
-            )
+
+            raise BuildingAtMaxLevel(f'{building} already at max level')
+
+        raise BuildingSlotFull(f'Building slot at {self.name} full')
+
+    def _upgrade(self, slot, b):
+        if self.buildingQueue.freeSlots[slot] > 0:
+            return b.upgrade()
+
+        return self._check_queue(reserveResources=True, b)
+
+    def _check_queue(self, reserveResources, b):
+        if self.buildingQueue.freeSlots['4'] > 0:
+            return b.queues(reserveResources)
+
+        raise QueueFull('Queue full')
 
 
 class Warehouse:
