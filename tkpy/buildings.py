@@ -114,12 +114,6 @@ class BuildingQueue:
         return self._raw['cache'][0]['data']['freeSlots']
 
     @property
-    def usedSlots(self):
-        return [
-            self.queues[x][0] for x in ('1', '2') if self.freeSlots[x] == 0
-        ]
-
-    @property
     def queues(self):
         return self._raw['cache'][0]['data']['queues']
 
