@@ -64,7 +64,6 @@ class TestBuildings(unittest.TestCase):
             bq.pull()
         self.assertEqual(bq.tribe_id, 2)
         self.assertEqual(bq.freeSlots, {'1':1, '2':1, '4':1})
-        self.assertEqual(len(bq.usedSlots), 0)
         self.assertEqual(bq.queues, {'1':[], '2':[], '4':[], '5':[]})
 
         with requests_mock.mock() as mock:

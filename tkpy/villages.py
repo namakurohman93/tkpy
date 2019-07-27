@@ -249,7 +249,7 @@ class Village:
 
             for k, v in b.upgradeCost.items():
                 if self.warehouse[k] < v and self.warehouse.capacity[k] > v:
-                    return self._check_queue(reserveResources=False, b)
+                    return self._check_queue(reserveResources=False, b=b)
 
                 if self.warehouse.capacity[k] < v:
                     raise WarehouseNotEnough(
@@ -257,9 +257,9 @@ class Village:
                     )
 
             if self.client.tribe_id == 1 and int(b.id) < 5:
-                return self._upgrade(slot='2', b)
+                return self._upgrade(slot='2', b=b)
 
-            return self._upgrade(slot='1', b)
+            return self._upgrade(slot='1', b=b)
 
         # building didn't exists
         # construct it
@@ -281,14 +281,14 @@ class Village:
                     # construct it
                     for k, v in b.upgradeCost.items():
                         if self.warehouse[k] < v and self.warehouse.capacity[k] > v:
-                            return self._check_queue(reserveResources=False, b)
+                            return self._check_queue(reserveResources=False, b=b)
 
                         if self.warehouse.capacity[k] < v:
                             raise WarehouseNotEnough(
                                 f'Warehouse / granary capacity not enough for construct {building}'
                             )
 
-                    return self._upgrade(slot='1', b)
+                    return self._upgrade(slot='1', b=b)
 
                 raise FailedConstructBuilding(
                     f'Failed construct {building} cause lack of required buildings'
@@ -302,7 +302,7 @@ class Village:
         if self.buildingQueue.freeSlots[slot] > 0:
             return b.upgrade()
 
-        return self._check_queue(reserveResources=True, b)
+        return self._check_queue(reserveResources=True, b=b)
 
     def _check_queue(self, reserveResources, b):
         if self.buildingQueue.freeSlots['4'] > 0:
