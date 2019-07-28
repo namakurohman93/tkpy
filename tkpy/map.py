@@ -35,6 +35,9 @@ class Map:
         self.client = client
         self._raw = dict()
 
+    def __repr__(self):
+        return str(type(self))
+
     def pull(self):
         r = self.client.map.getByRegionIds(
             params={
@@ -169,7 +172,8 @@ class Cell:
             raise
 
     def __repr__(self):
-        return str(self.data)
+        # return str(self.data)
+        return f'<{type(self).__name__}({self.data})>'
 
     def details(self):
         r = self.client.cache.get({'names':[f'MapDetails:{self.id}']})
@@ -189,6 +193,7 @@ class Player:
         self.client = client
         self.id = id
         self.data = data
+        self.data['playerId'] = id
 
     def __getitem__(self, key):
         try:
@@ -197,7 +202,8 @@ class Player:
             raise
 
     def __repr__(self):
-        return str(self.data)
+        # return str(self.data)
+        return f'<{type(self).__name__}({self.data})>'
 
     def hero_equipment(self):
         return self.client.cache.get({
@@ -228,6 +234,7 @@ class Kingdom:
     def __init__(self, id, data):
         self.id = id
         self.data = data
+        self.data['kingdomId'] = id
 
     def __getitem__(self, key):
         try:
@@ -236,7 +243,8 @@ class Kingdom:
             raise
 
     def __repr__(self):
-        return str(self.data)
+        # return str(self.data)
+        return f'<{type(self).__name__}({self.data})>'
 
     @property
     def name(self):
