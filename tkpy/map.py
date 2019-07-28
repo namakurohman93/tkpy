@@ -172,7 +172,6 @@ class Cell:
             raise
 
     def __repr__(self):
-        # return str(self.data)
         return f'<{type(self).__name__}({self.data})>'
 
     def details(self):
@@ -202,7 +201,6 @@ class Player:
             raise
 
     def __repr__(self):
-        # return str(self.data)
         return f'<{type(self).__name__}({self.data})>'
 
     def hero_equipment(self):
@@ -243,7 +241,6 @@ class Kingdom:
             raise
 
     def __repr__(self):
-        # return str(self.data)
         return f'<{type(self).__name__}({self.data})>'
 
     @property
