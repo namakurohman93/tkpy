@@ -5,7 +5,7 @@ python:
 install:
   - pip install -r dev-requirements.txt
 script:
-  - git clone https://github.com/didadadida93/primordial.git
+  - git clone https://github.com/lijok/primordial.git
   - cd primordial
   - python setup.py sdist --format=zip
   - cd dist
