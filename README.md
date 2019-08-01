@@ -81,13 +81,13 @@ unoccupied_oasis_list[0]
   > Finding specific cell through `Map.cell` property may cause `KeyError Exception`. To prevent this use `try except` clause.
   >
   > ```python
-  for cell in m.cell:
-      try:
-          village = cell['village']
-      except KeyError: # this cell didn't have village data
-          continue
-      ...
-  ```
+  > for cell in m.cell:
+  >     try:
+  >         village = cell['village']
+  >     except KeyError: # this cell didn't have village data
+  >         continue
+  >     ...
+  > ```
 
   * `Map` object also have property that filter cell data so it only give specific data.
 
