@@ -5,6 +5,12 @@ python:
 install:
   - pip install -r dev-requirements.txt
 script:
+  - git clone https://github.com/didadadida93/primordial.git
+  - cd primordial
+  - python setup.py sdist --format=zip
+  - cd dist
+  - pip install primordial-1.0.0.zip
+  - cd ../..
   - coverage run -m unittest discover
 after_success:
   - codecov
