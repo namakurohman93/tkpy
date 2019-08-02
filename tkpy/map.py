@@ -149,7 +149,6 @@ class Map:
             except:
                 continue
 
-
     def player(self, name=None, id=None, default={}):
         for player in self.players:
             if player.id == str(id) or player.name == name:

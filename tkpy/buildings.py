@@ -17,7 +17,7 @@ class Buildings:
         )
 
     def __repr__(self):
-        return str(self._raw)
+        return str(type(self))
 
     def pull(self):
         self._raw.update(
@@ -48,7 +48,7 @@ class Building:
             raise
 
     def __repr__(self):
-        return str(self.data)
+        return f'<{type(self).__name__}({self.data})>'
 
     @property
     def id(self):
@@ -144,7 +144,7 @@ class ConstructionList:
         return {}
 
     def __repr__(self):
-        return str(self._raw)
+        return str(type(self))
 
     def pull(self):
         self._raw.update(

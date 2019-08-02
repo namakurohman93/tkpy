@@ -14,6 +14,9 @@ class Farmlist:
         except:
             raise FarmListNotFound(f'{key}')
 
+    def __repr__(self):
+        return str(type(self))
+
     def pull(self):
         self._raw.update(
             self.client.cache.get({
@@ -52,7 +55,7 @@ class FarmlistEntry:
             raise
 
     def __repr__(self):
-        return str(self.data)
+        return f'<{type(self).__name__}({self.data})>'
 
     @property
     def name(self):
@@ -115,7 +118,7 @@ class EntryId:
         self.data = data
 
     def __repr__(self):
-        return str(self.data)
+        return f'<{type(self).__name__}({self.data})>'
 
     def __getitem__(self, key):
         try:

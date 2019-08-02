@@ -40,3 +40,7 @@ class WarehouseNotEnough(Exception):
 
 class BuildingAtMaxLevel(Exception):
     """ Building at max level """
+
+
+class TargetNotFound(Exception):
+    """ Target not found """

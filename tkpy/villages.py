@@ -3,7 +3,7 @@ from .map import cell_id
 from .buildings import Buildings, BuildingQueue, ConstructionList
 from .exception import (
     VillageNotFound, BuildingSlotFull, FailedConstructBuilding,
-    QueueFull, WarehouseNotEnough, BuildingAtMaxLevel
+    QueueFull, WarehouseNotEnough, BuildingAtMaxLevel, TargetNotFound
 )
 
 
@@ -65,7 +65,7 @@ class Village:
             raise
 
     def __repr__(self):
-        return str(self.data)
+        return f'<{type(self).__name__}({self.data})>'
 
     def pull(self):
         r = self.client.cache.get({
@@ -96,7 +96,7 @@ class Village:
         })
         for x in r['cache'][0]['data']['cache']:
             if x['data']['villageId'] == str(self.id):
-                return x['data']['units']
+                return x['data']['units'] or {}
 
     def troops_movement(self):
         r = self.client.cache.get({
@@ -144,7 +144,7 @@ class Village:
                 raise SyntaxError(
                     f'There is no troops on {self.name} village'
                 )
-        return send_troops(
+        r = send_troops(
             driver=self.client,
             destVillageId=target,
             movementType=movementType,
@@ -153,6 +153,9 @@ class Village:
             units=units or troops,
             villageId=self.id
         )
+        if 'errors' in r['response']:
+            raise TargetNotFound('make sure your target is oasis or village')
+        return r
 
     def attack(self, x=None, y=None, targetId=None, units=None):
         # TODO:
