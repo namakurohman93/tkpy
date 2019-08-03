@@ -1,19 +1,19 @@
-# tkpy
-[Travian: Kingdom](https://www.kingdoms.com) (TK) utilities for your need. It provide several object that mostly used on TK such as `Map`, `Villages`, `Notepad`, and `Farmlist`.
+---  
+# tkpy  
+[Travian: Kingdom](https://www.kingdoms.com) (TK) utilities for your need. It provide several object that mostly used on TK such as `Map`, `Villages`, `Notepad`, and `Farmlist`.  
+[![Python 3.6](https://img.shields.io/badge/python-3.6+-blue.svg)](https://www.python.org/downloads/release/python-367/) [![Build Status](https://travis-ci.org/didadadida93/tkpy.svg?branch=master)](https://travis-ci.org/didadadida93/tkpy) [![codecov](https://codecov.io/gh/didadadida93/tkpy/branch/master/graph/badge.svg)](https://codecov.io/gh/didadadida93/tkpy)  
+---  
+# Installation  
+>It is recommended to use [virtualenv](https://docs.python-guide.org/dev/virtualenvs/).  
 
-[![Python 3.6](https://img.shields.io/badge/python-3.6+-blue.svg)](https://www.python.org/downloads/release/python-367/) [![Build Status](https://travis-ci.org/didadadida93/tkpy.svg?branch=master)](https://travis-ci.org/didadadida93/tkpy) [![codecov](https://codecov.io/gh/didadadida93/tkpy/branch/master/graph/badge.svg)](https://codecov.io/gh/didadadida93/tkpy)
-
----
-## Installation
-1. install [primordial package](https://github.com/lijok/primordial)
-2. git clone [this repo](https://github.com/didadadida93/tkpy.git)
-3. change directory to tkpy
-4. run `pip3 install -r requirements.txt`
-5. enjoy
-
----
-## Basic usage
-tkpy need `Gameworld` object so it can get data from TK. Use `login` function for retrieve `Gameworld` object.
+Since `tkpy` depend on `primordial` package, first install [primordial package](https://github.com/lijok/primordial).  
+After that install `tkpy`.
+```sh
+(venv)$ pip install tkpy
+```  
+---  
+# Basic usage  
+`tkpy` need `Gameworld` object so it can get data from TK. Use `login` function for retrieve `Gameworld` object.  
 ```python
 from tkpy import login
 
@@ -41,10 +41,10 @@ unoccupied_oasis_list = [oasis for oasis in m.oasis if oasis['oasis']['oasisStat
 unoccupied_oasis_list[0]
 <Cell({'id': '535019499', 'landscape': '2755', 'owner': '0', 'oasis': {'bonus': {'1': 0, ...}, ...}...})>
 
-```
----
-## Usage
-1. #### Map  
+```  
+---  
+# Usage  
+## Map  
   * `Map` object provide you an easy way to access data from TK map by using `pull` method.
 
   ```python
@@ -113,10 +113,9 @@ unoccupied_oasis_list[0]
 
   # make a list of kingdoms data
   kingdoms = list(m.kingdoms)
-  ```
+  ```  
 ---
-
-2. #### Villages
+## Villages
   `Villages` is a dict like object that store `Village` object and accessing it use village name.  
   But first `Villages` object need to pull data from TK.
 
@@ -149,8 +148,8 @@ unoccupied_oasis_list[0]
   > As you already know, you can naming your village with same name _(like 'my village' and 'my village')_.  
   > The problem is `Villages` object can't access this 2 kind of `Village` object with same name,  
   > in result `Villages` object will randomly return `Village` object that have same name.  
----
-3. #### Farmlist
+---  
+## Farmlist
   `Farmlist` is a dict like object that store `FarmlistEntry` object and accessing it using farmlist name.  
   First `Farmlist` object need to pull data from TK.
   ```python
@@ -174,12 +173,12 @@ unoccupied_oasis_list[0]
   farmlist['Startup farm list'].add(villageId=537313245)
   farmlist['Startup farm list'].toggle(villageId=537313245)
   ```
-  > Side note for `Farmlist` object:
+  > Side note for `Farmlist` object:  
   > As you already know, you can naming your farmlist with same name _(like 'farmlist 1', and 'farmlist 1')_.  
   > The problem is `Farmlist` object can't access this 2 kind of `FarmlistEntry` object with same name,  
   > in result `Farmlist` object will randomly return `FarmlistEntry` object that have same name.
-
-4. #### Notepad
+---  
+## Notepad
   `Notepad` is an object that when instantiate will create a new notepad in game.  
   ```python
   from tkpy import Notepad
@@ -192,6 +191,6 @@ unoccupied_oasis_list[0]
   # careful, use message method will overwrite message that previously on notepad
   notepad.message('this message will overwrite with old one.')
   ```
-
-## Document
-Visit [tkpy wiki](https://github.com/didadadida93/tkpy/wiki) for more information about tkpy and all API document.
+---  
+# Document
+For documentation, visit [tkpy wiki](https://github.com/didadadida93/tkpy/wiki).

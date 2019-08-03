@@ -14,12 +14,14 @@ setuptools.setup(
     url='https://github.com/didadadida93/tkpy',
     author='https://github.com/didadadida93',
     author_email='didadadida93@gmail.com',
-    packages=setuptols.find_packages(
-        exclude=['*.tests', '*.tests.*', 'tests.*', 'tests']
-    ),
-    classifier=[
+    packages=['tkpy'],
+    install_requires=[
+        'requests',
+    ],
+    license='MIT',
+    classifiers=[
         'Programming Language :: Python :: 3.6',
         'Programming Language :: Python :: 3.7',
-        'License :: OSI Approved :: MIT',
+        'License :: OSI Approved :: MIT License',
     ],
 )
