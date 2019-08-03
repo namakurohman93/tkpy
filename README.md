@@ -2,7 +2,9 @@
 # tkpy
 
 [Travian: Kingdom](https://www.kingdoms.com) (TK) utilities for your need. It provide several object that mostly used on TK such as `Map`, `Villages`, `Notepad`, and `Farmlist`.  
+
 [![Python 3.6](https://img.shields.io/badge/python-3.6+-blue.svg)](https://www.python.org/downloads/release/python-367/) [![Build Status](https://travis-ci.org/didadadida93/tkpy.svg?branch=master)](https://travis-ci.org/didadadida93/tkpy) [![codecov](https://codecov.io/gh/didadadida93/tkpy/branch/master/graph/badge.svg)](https://codecov.io/gh/didadadida93/tkpy)  
+
 ---  
 # Installation  
 >It is recommended to use [virtualenv](https://docs.python-guide.org/dev/virtualenvs/).  
