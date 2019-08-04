@@ -10,8 +10,10 @@
 >It is recommended to use [virtualenv](https://docs.python-guide.org/dev/virtualenvs/).  
 
 Since `tkpy` depend on `primordial` package, first install [primordial package](https://github.com/lijok/primordial).  
-After that install `tkpy`.
+Then install `tkpy.`
 ```sh
+(venv)$ pip install git+https://github.com/lijok/primordial.git
+
 (venv)$ pip install tkpy
 ```  
 ---  
