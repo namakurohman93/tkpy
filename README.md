@@ -17,7 +17,7 @@ Then install `tkpy.`
 (venv)$ pip install tkpy
 ```  
 ---  
-# Basic usage  
+# Getting started  
 `tkpy` need `Gameworld` object so it can get data from TK. Use `login` function for retrieve `Gameworld` object.  
 ```python
 from tkpy import login
@@ -121,7 +121,7 @@ unoccupied_oasis_list[0]
   ```  
 ---
 ## Villages
-  `Villages` is a dict like object that store `Village` object and accessing it use village name.  
+  `Villages` object provide you an easy way to access every village that you have in game by using village name.  
   But first `Villages` object need to pull data from TK.
 
   ```python
@@ -152,10 +152,11 @@ unoccupied_oasis_list[0]
   > Side note for `Villages` object:  
   > As you already know, you can naming your village with same name _(like 'my village' and 'my village')_.  
   > The problem is `Villages` object can't access this 2 kind of `Village` object with same name,  
-  > in result `Villages` object will randomly return `Village` object that have same name.  
+  > in result `Villages` object will randomly return `Village` object that have same name.
+
 ---  
 ## Farmlist
-  `Farmlist` is a dict like object that store `FarmlistEntry` object and accessing it using farmlist name.  
+  `Farmlist` provide you an easy way to access in game farmlist by using farmlist name.  
   First `Farmlist` object need to pull data from TK.
   ```python
   from tkpy import Farmlist
@@ -182,6 +183,7 @@ unoccupied_oasis_list[0]
   > As you already know, you can naming your farmlist with same name _(like 'farmlist 1', and 'farmlist 1')_.  
   > The problem is `Farmlist` object can't access this 2 kind of `FarmlistEntry` object with same name,  
   > in result `Farmlist` object will randomly return `FarmlistEntry` object that have same name.
+
 ---  
 ## Notepad
   `Notepad` is an object that when instantiate will create a new notepad in game.  
