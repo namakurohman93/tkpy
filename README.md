@@ -13,7 +13,6 @@ Since `tkpy` depend on `primordial` package, first install [primordial package](
 Then install `tkpy.`
 ```sh
 (venv)$ pip install git+https://github.com/lijok/primordial.git
-
 (venv)$ pip install tkpy
 ```  
 ---  

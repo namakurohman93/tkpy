@@ -4,6 +4,19 @@ from .exception import BuildingAtMaxLevel
 
 
 class Buildings:
+    """ :class:`Buildings` is where building data of village is stored.
+    This class provide an easy way to access building data by using building name.
+    It return a :class:`list` of :class:`Building` and sorted based on their level.
+
+    Return: :class:`list`.
+
+    Usage:
+    > v = Villages(driver)
+    > v.pull()
+    > v['first village'].buildings.pull()
+    > v['first village'].buildings['main building']
+    > [<Building({"buildingType": "15", "villageId": "536461288", "locationId": "27",...})>]
+    """
     def __init__(self, client, villageId):
         self.client = client
         self.villageId = villageId
@@ -20,6 +33,7 @@ class Buildings:
         return str(type(self))
 
     def pull(self):
+        """ Pulling building data of this village from TK. """
         self._raw.update(
             self.client.cache.get({
                 'names': [f'Collection:Building:{self.villageId}']
@@ -28,10 +42,19 @@ class Buildings:
 
     @property
     def freeSlots(self):
+        """ :property:`freeSlots` is for check wheter there is a free slot or not
+        on this village for construct new building.
+
+        Return: :class:`list`.
+        """
         return [x['locationId'] for x in self.raw if x['buildingType'] == '0']
 
     @property
     def raw(self):
+        """ :property:`raw` is a generator function that yield raw building data.
+
+        Yield: :class:`dict`.
+        """
         for x in self._raw['cache'][0]['data']['cache']:
             yield x['data']
 
