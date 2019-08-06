@@ -4,6 +4,11 @@ import argparse
 
 
 def credential():
+    """ :func:`credential` is an argument parser for parsing credential.
+
+    Usage::
+        >>> email, password, gameworld, avatar = credential()
+    """
     parser = argparse.ArgumentParser(usage='python3 %(prog)s <email> <password> <gameworld> [--avatar]')
 
     parser.add_argument('email', metavar='email', type=str, help='your email', nargs=1)
@@ -23,6 +28,9 @@ def credential():
 
 
 def _login(email, password, gameworld, avatar):
+    """ :func:`_login` internal function for login to gameworld and return
+    :class:`Gameworld` object.
+    """
     lobby = Lobby()
     lobby.authenticate(email, password)
     client = lobby.get_gameworld(gameworld, avatar)
@@ -30,6 +38,9 @@ def _login(email, password, gameworld, avatar):
 
 
 def login(email, password, gameworld, avatar=None):
+    """ :func:`login` login interface that used sqlite for storing
+    :class:`Gameworld` object.
+    """
     db = CredentialDb(email, password, gameworld, avatar)
     try:
         driver = db.get()
