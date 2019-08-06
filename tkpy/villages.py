@@ -1,13 +1,29 @@
-from .utilities import send_troops, send_farmlist
+from .utilities import send_troops
+from .utilities import send_farmlist
 from .map import cell_id
-from .buildings import Buildings, BuildingQueue, ConstructionList
-from .exception import (
-    VillageNotFound, BuildingSlotFull, FailedConstructBuilding,
-    QueueFull, WarehouseNotEnough, BuildingAtMaxLevel, TargetNotFound
-)
+from .buildings import Buildings
+from .buildings import BuildingQueue
+from .buildings import ConstructionList
+from .exception import VillageNotFound
+from .exception import BuildingSlotFull
+from .exception import FailedConstructBuilding
+from .exception import QueueFull
+from .exception import WarehouseNotEnough
+from .exception import BuildingAtMaxLevel
+from .exception import TargetNotFound
 
 
 class Villages:
+    """ :class:`Villages` is where :class:`Village` object stored. This
+    class provide an easy way to access :class:`Village` object by using
+    'village' name.
+
+    Usage::
+        >>> v = Villages(driver)
+        >>> v.pull()
+        >>> v['my first village']
+        >>> <Village({'villageId': '537313245', 'playerId': '001', 'name': 'my first village',...})>
+    """
     def __init__(self, client):
         self.client = client
         self._raw = dict()
@@ -24,17 +40,26 @@ class Villages:
 
     @property
     def dorps(self):
-        """ return village object """
+        """ :property:`dorps` is a :func:`generator` that yield
+        :class:`Village` object.
+
+        yield: :class:`Village`
+        """
         for x in self.item:
             yield self.item[x]
 
     @property
     def raw(self):
-        """ return raw data """
+        """ :property:`raw` is a :func:`generator` that yield village
+        raw data.
+
+        yield: :class:`dict`
+        """
         for x in self._raw['cache'][0]['data']['cache']:
             yield x['data']
 
     def pull(self):
+        """ :meth:`pull` for pulling data from TK. """
         self._raw.update(
             self.client.cache.get(
                 {'names': ['Collection:Village:own']}
@@ -45,12 +70,19 @@ class Villages:
             self.item[x['name']] = Village(self.client, x)
 
     def get_capital_village(self):
+        """ :meth:`get_capital_village` for find capital village and return it.
+
+        return: :class:`Village`
+        """
         for village in self.dorps:
             if village.isMainVillage:
                 return village
 
 
 class Village:
+    """ :class:`Village` represent of village object. This class is where
+    village data stored.
+    """
     def __init__(self, client, data):
         self.client = client
         self.data = data
@@ -68,6 +100,7 @@ class Village:
         return f'<{type(self).__name__}({self.data})>'
 
     def pull(self):
+        """ :meth:`pull` for pulling this village data from TK. """
         r = self.client.cache.get({
             'names': [f'Village:{self.id}']
         })
@@ -75,22 +108,33 @@ class Village:
 
     @property
     def id(self):
+        """ :property:`id` return this village id. """
         return int(self.data['villageId'])
 
     @property
     def name(self):
+        """ :property:`name` return this village name. """
         return self.data['name']
 
     @property
     def coordinate(self):
+        """ :property:`coordinate` return this village coordinate. """
         x, y = self.data['coordinates']['x'], self.data['coordinates']['y']
         return int(x), int(y)
 
     @property
     def isMainVillage(self):
+        """ :property:`isMainVillage` return whether this village is capital
+        village or not.
+        """
         return self.data['isMainVillage']
 
     def units(self):
+        """ :meth:`units` send requests to TK for perceive units that
+        belong to this village.
+
+        return: :class:`dict`
+        """
         r = self.client.cache.get({
             'names': [f'Collection:Troops:stationary:{self.id}']
         })
@@ -99,6 +143,11 @@ class Village:
                 return x['data']['units'] or {}
 
     def troops_movement(self):
+        """ :meth:`troops_movement` send requests to TK for perceive
+        troops movement in and out of this village.
+
+        return: :class:`list`
+        """
         r = self.client.cache.get({
             'names': [f'Collection:Troops:moving:{self.id}']
         })
@@ -106,6 +155,21 @@ class Village:
 
     def _send_troops(self, x, y, destVillageId, movementType, redeployHero,
             spyMission, units):
+        """ :meth:`_send_troops` is real troops sender. It send a requests
+        to TK for sending troops to target.
+
+        :param x: - :class:`int` x coordinate of target.
+        :param y: - :class:`int` y coordinate of target.
+        :param destVillageId: - :class:`int` cell id of target.
+        :param movementType: - :class:`int` type of movement.
+        :param redeployHero: - :class:`boolean` it is used for moving hero's home
+                               to another account village.
+        :param spyMission: - :class:`str` choose mission, is it either
+                             'resources' or 'defend'
+        :param units: - :class:`dict` units dict that want to be sent.
+
+        return: :class:`dict`
+        """
         target = destVillageId or cell_id(x, y)
         troops = self.units()
         # check amount of every units if units
@@ -158,6 +222,15 @@ class Village:
         return r
 
     def attack(self, x=None, y=None, targetId=None, units=None):
+        """ :meth:`attack` send requests to TK for attacking target.
+
+        :param x: - :class:`int` (optional) value of x coordinate.
+        :param y: - :class:`int` (optional) value of y coordinate.
+        :param targetId: - :class:`int` (optional) cell id of target.
+        :param units: - :class:`units` (optional) units dict that want to sent.
+
+        return: :class:`dict`
+        """
         # TODO:
         # add building target when cata in units and rally point level >= 5
         return self._send_troops(
@@ -171,6 +244,15 @@ class Village:
         )
 
     def raid(self, x=None, y=None, targetId=None, units=None):
+        """ :meth:`raid` send requests to TK for raiding target.
+
+        :param x: - :class:`int` (optional) value of x coordinate.
+        :param y: - :class:`int` (optional) value of y coordinate.
+        :param targetId: - :class:`int` (optional) cell id of target.
+        :param units: - :class:`units` (optional) units dict that want to sent.
+
+        return: :class:`dict`
+        """
         return self._send_troops(
             x=x,
             y=y,
@@ -183,6 +265,17 @@ class Village:
 
     def defend(self, x=None, y=None, targetId=None, units=None,
             redeployHero=False):
+        """ :meth:`defend` send a requests to TK for defending target.
+
+        :param x: - :class:`int` (optional) value of x coordinate.
+        :param y: - :class:`int` (optional) value of y coordinate.
+        :param targetId: - :class:`int` (optional) cell id of target.
+        :param units: - :class:`units` (optional) units dict that want to sent.
+        :param redeployHero: - :class:`boolean` (optional) it used for changing
+                               hero's home. Default: False
+
+        return: :class:`dict`
+        """
         # TODO:
         # if redeployHero, check if hero in units
         # and check if target is one of village id in Village object
@@ -198,6 +291,18 @@ class Village:
 
     def spy(self, x=None, y=None, targetId=None, amount=0,
             mission='resources'):
+        """ :meth:`spy` send requests to TK for spying target.
+
+        :param x: - :class:`int` (optional) value of x coordinate.
+        :param y: - :class:`int` (optional) value of y coordinate.
+        :param targetId: - :class:`int` (optional) cell id of target.
+        :param amount: - :class:`int` (optional) amount of spy units that
+                         want to sent. Default: 0
+        :param mission: - :class:`str` (optional) type of spy mission,
+                          it is either `'resources'` `'defend'`. Default: 'resources'
+
+        return: :class:`dict`
+        """
         if mission not in ('resources', 'defence'):
             raise SyntaxError(
                 'choose mission between \'resources\' or \'defence\''
@@ -217,6 +322,15 @@ class Village:
         )
 
     def siege(self, x=None, y=None, targetId=None, units=None):
+        """ :meth:`siege` send a requests to TK for siege target.
+
+        :param x: - :class:`int` (optional) value of x coordinate.
+        :param y: - :class:`int` (optional) value of y coordinate.
+        :param targetId: - :class:`int` (optional) cell id of target.
+        :param units: - :class:`units` (optional) units dict that want to sent.
+
+        return: :class:`dict`
+        """
         # TODO
         # add building target if cata in units and rally point level >= 5
         if not units:
@@ -232,6 +346,12 @@ class Village:
         )
 
     def send_farmlist(self, listIds):
+        """ :meth:`send_farmlist` send requests to TK for send farmlist.
+
+        :param listIds: - :class:`list` list of farmlist id that want to sent.
+
+        return: :class:`dict`
+        """
         return send_farmlist(
             driver=self.client,
             listIds=listIds,
@@ -239,6 +359,12 @@ class Village:
         )
 
     def upgrade(self, building):
+        """ :meth:`upgrade` send requests to TK for upgrade building.
+
+        :param building: - :class:`str` building name that want to be ugpraded.
+
+        return: :class:`dict`
+        """
         # update data with the newest one
         self.pull()
         self.buildings.pull()
@@ -315,6 +441,7 @@ class Village:
 
 
 class Warehouse:
+    """ :class:`Warehouse` represent storage data so it can be read by human. """
     def __init__(self, data):
         self.data = data
         self.resType = {'wood': '1', 'clay': '2', 'iron': '3', 'crop': '4'}
