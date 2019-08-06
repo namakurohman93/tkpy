@@ -32,7 +32,7 @@ class Buildings:
         return str(type(self))
 
     def pull(self):
-        """ Pulling building data of this village from TK. """
+        """ :meth:`pull` for pulling building data of this village from TK. """
         self._raw.update(
             self.client.cache.get({
                 'names': [f'Collection:Building:{self.villageId}']
@@ -173,7 +173,7 @@ class BuildingQueue:
         self._raw = dict()
 
     def pull(self):
-        """ Pulling building queue data from TK of this village. """
+        """ :meth:`pull` for pulling building queue data from TK of this village. """
         self._raw.update(
             self.client.cache.get({
                 'names': [f'BuildingQueue:{self.villageId}']
@@ -256,7 +256,7 @@ class ConstructionList:
         return str(type(self))
 
     def pull(self):
-        """ Pulling construction list data from TK. """
+        """ :meth:`pull` for pulling construction list data from TK. """
         self._raw.update(
             self.client.building.getBuildingList({
                 'locationId': self.location,
