@@ -1,6 +1,9 @@
-from .driver import Lobby
-from .database import CredentialDb
+import os
+import hashlib
+import binascii
 import argparse
+from .driver import Lobby
+# from .database import CredentialDb
 
 
 def credential():
@@ -27,7 +30,8 @@ def credential():
     return email, password, gameworld, avatar
 
 
-def _login(email, password, gameworld, avatar):
+# def _login(email, password, gameworld, avatar):
+def login(email, password, gameworld, avatar):
     """ :func:`_login` internal function for login to gameworld and return
     :class:`Gameworld` object.
     """
@@ -37,70 +41,47 @@ def _login(email, password, gameworld, avatar):
     return client
 
 
-def login(email, password, gameworld, avatar=None):
-    """ :func:`login` login interface that used sqlite for storing
-    :class:`Gameworld` object.
-    """
-    db = CredentialDb(email, password, gameworld, avatar)
-    try:
-        driver = db.get()
-        try:
-            driver.is_authenticated()
-            driver.update_account()
-        except:
-            driver = _login(email, password, gameworld, avatar)
-            db.update(driver=driver)
-    except:
-        driver = _login(email, password, gameworld, avatar)
-        db.insert(driver=driver)
-    return driver
+# def login(email, password, gameworld, avatar=None):
+#     """ :func:`login` login interface that used sqlite for storing
+#     :class:`Gameworld` object.
+#     """
+#     db = CredentialDb(email, password, gameworld, avatar)
+#     try:
+#         driver = db.get()
+#         try:
+#             driver.is_authenticated()
+#             driver.update_account()
+#         except:
+#             driver = _login(email, password, gameworld, avatar)
+#             db.update(driver=driver)
+#     except:
+#         driver = _login(email, password, gameworld, avatar)
+#         db.insert(driver=driver)
+#     return driver
 
 
-def send_troops(driver, destVillageId, movementType, redeployHero, spyMission,
-        units, villageId):
-    return driver.troops.send({
-        # 'catapultTargets': [
-        #     99, # random
-        #     3
-        # ],
-        'destVillageId': destVillageId,
-        'movementType': movementType,
-        'redeployHero': redeployHero,
-        'spyMission': spyMission,
-        'units': units,
-        'villageId': villageId
-    })
+def hash_password(password):
+    """ Hash a password for storing. """
+    salt = hashlib.sha256(os.urandom(60)).hexdigest().encode('ascii')
+    pwdhash = hashlib.pbkdf2_hmac(
+        'sha512',
+        password.encode('utf-8'),
+        salt,
+        100000
+    )
+    pwdhash = binascii.hexlify(pwdhash)
+    return (salt + pwdhash).decode('ascii')
 
 
-def send_farmlist(driver, listIds, villageId):
-    return driver.troops.startFarmListRaid({
-        'listIds': listIds,
-        'villageId': villageId
-    })
-
-
-def instant_finish(driver, queueType, villageId):
-    return driver.premiumFeature.finishNow({
-        'price': 0,
-        'queueType': queueType,
-        'villageId': villageId
-    })
-
-
-def upgrade_building(driver, buildingType, locationId, villageId):
-    return driver.building.upgrade({
-        'buildingType': buildingType,
-        'locationId': locationId,
-        'villageId': villageId
-    })
-
-
-def queue_building(
-        driver, buildingType, locationId,
-        villageId, reserveResources):
-    return driver.building.useMasterBuilder({
-        'buildingType': buildingType,
-        'locationId': locationId,
-        'villageId': villageId,
-        'reserveResources': reserveResources
-    })
+def verify_password(stored_password, provided_password):
+    """ Verify a stored password against one provided by user. """
+    salt = stored_password[:64]
+    stored_password = stored_password[64:]
+    pwdhash = hashlib.pbkdf2_hmac(
+        'sha512',
+        provided_password.encode('utf-8'),
+        salt.encode('ascii'),
+        100000
+    )
+    pwdhash = binascii.hexlify(pwdhash).decode('ascii')
+    return pwdhash == stored_password
