@@ -1,4 +1,3 @@
-from .utilities import send_farmlist
 from .exception import FarmListNotFound
 
 
@@ -132,11 +131,10 @@ class FarmlistEntry:
 
         return: :class:`dict`
         """
-        return send_farmlist(
-            driver=self.client,
-            listIds=[self.id],
-            villageId=villageId
-        )
+        return self.client.troops.startFarmListRaid({
+            'listIds': [self.id],
+            'villageId': villageId
+        })
 
     def _update_data(self, r):
         for x in r['cache']:

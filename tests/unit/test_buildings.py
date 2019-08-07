@@ -62,7 +62,6 @@ class TestBuildings(unittest.TestCase):
             )
             bq = BuildingQueue(g, 536461288)
             bq.pull()
-        self.assertEqual(bq.tribe_id, 2)
         self.assertEqual(bq.freeSlots, {'1':1, '2':1, '4':1})
         self.assertEqual(bq.queues, {'1':[], '2':[], '4':[], '5':[]})
 
@@ -92,7 +91,9 @@ class TestBuildings(unittest.TestCase):
             c.pull()
         self.assertEqual(len(c.buildable), 4)
         self.assertEqual(len(c.notBuildable), 8)
-        self.assertEqual(c['cranny'], {})
+        # self.assertEqual(c['cranny'], {})
+        with self.assertRaises(KeyError):
+            c['cranny']
         self.assertFalse(c['iron foundry']['buildable'])
         self.assertTrue(c['smithy']['buildable'])
         with self.assertRaises(KeyError):

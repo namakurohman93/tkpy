@@ -1,5 +1,3 @@
-from .utilities import send_troops
-from .utilities import send_farmlist
 from .map import cell_id
 from .buildings import Buildings
 from .buildings import BuildingQueue
@@ -208,15 +206,18 @@ class Village:
                 raise SyntaxError(
                     f'There is no troops on {self.name} village'
                 )
-        r = send_troops(
-            driver=self.client,
-            destVillageId=target,
-            movementType=movementType,
-            redeployHero=redeployHero,
-            spyMission=spyMission,
-            units=units or troops,
-            villageId=self.id
-        )
+        r = self.client.troops.send({
+            # 'catapultTargets': [
+            #     99, # random
+            #     3,
+            # ],
+            'destVillageId': target,
+            'movementType': movementType,
+            'redeployHero': redeployHero,
+            'spyMission': spyMission,
+            'units': units or troops,
+            'villageId': self.id
+        })
         if 'errors' in r['response']:
             raise TargetNotFound('make sure your target is oasis or village')
         return r
@@ -352,11 +353,10 @@ class Village:
 
         return: :class:`dict`
         """
-        return send_farmlist(
-            driver=self.client,
-            listIds=listIds,
-            villageId=self.id
-        )
+        return self.client.troops.startFarmListRaid({
+            'listIds': listIds,
+            'villageId': self.id
+        })
 
     def upgrade(self, building):
         """ :meth:`upgrade` send requests to TK for upgrade building.
@@ -403,9 +403,11 @@ class Village:
             )
             c.pull()
 
-            b = c[building]
-
-            if b:
+            try:
+                b = c[building]
+            except:
+                raise BuildingAtMaxLevel(f'{building} already at max level')
+            else:
                 if b['buildable']:
                     # construct it
                     for k, v in b.upgradeCost.items():
@@ -422,8 +424,6 @@ class Village:
                 raise FailedConstructBuilding(
                     f'Failed construct {building} cause lack of required buildings'
                 )
-
-            raise BuildingAtMaxLevel(f'{building} already at max level')
 
         raise BuildingSlotFull(f'Building slot at {self.name} full')
 

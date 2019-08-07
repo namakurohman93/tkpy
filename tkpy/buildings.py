@@ -1,6 +1,3 @@
-from .utilities import instant_finish
-from .utilities import upgrade_building
-from .utilities import queue_building
 from .fixtures import buildingDict
 
 
@@ -132,12 +129,11 @@ class Building:
 
         return: :class:`dict`
         """
-        return upgrade_building(
-            driver=self.client,
-            buildingType=self.id,
-            locationId=self.location,
-            villageId=self.villageId
-        )
+        return self.client.building.upgrade({
+            'buildingType': self.id,
+            'locationId': self.location,
+            'villageId': self.villageId
+        })
 
     def queues(self, reserveResources):
         """ :meth:`queues` for add this building to queues.
@@ -146,13 +142,12 @@ class Building:
 
         return: :class:`dict`
         """
-        return queue_building(
-            driver=self.client,
-            buildingType=self.id,
-            locationId=self.location,
-            villageId=self.villageId,
-            reserveResources=reserveResources
-        )
+        return self.client.building.useMasterBuilder({
+            'buildingType': self.id,
+            'locationId': self.location,
+            'villageId': self.villageId,
+            'reserveResources': reserveResources
+        })
 
 
 class BuildingQueue:
@@ -208,11 +203,11 @@ class BuildingQueue:
 
         return: :class:`dict`
         """
-        return instant_finish(
-            driver=self.client,
-            queueType=queueType,
-            villageId=self.villageId
-        )
+        return self.client.premiumFeature.finishNow({
+            'price': 0,
+            'queueType': queueType,
+            'villageId': self.villageId
+        })
 
 
 class ConstructionList:
