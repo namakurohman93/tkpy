@@ -73,19 +73,19 @@ def verify_password(stored_password, provided_password):
     return pwdhash == stored_password
 
 
-def get_data_from_db(query, params):
+def retrieve_data(query, params):
     with get_db() as db:
         return db.execute(query, params).fetchone()
 
 
-def insert_data_to_db(query, params):
+def commit_query(query, params):
     with get_db() as db:
         db.execute(query, params)
         db.commit()
 
 
 def get_user_id(email, password):
-    user = get_data_from_db(
+    user = retrieve_data(
         'SELECT * FROM user WHERE email = ?',
         (email,)
     )
@@ -102,7 +102,7 @@ def get_user_id(email, password):
 def add_user(email, password):
     user_id = uuid.uuid4().hex
 
-    insert_data_to_db(
+    commit_query(
         'INSERT INTO user (id, email, password) VALUES (?, ?, ?)',
         (user_id, email, hash_password(password))
     )
@@ -111,7 +111,7 @@ def add_user(email, password):
 
 
 def get_driver_id(user_id, gameworld, avatar):
-    driver = get_data_from_db(
+    driver = retrieve_data(
         'SELECT g.id FROM gameworld g JOIN user u ON g.user_id = u.id WHERE user_id = ? AND avatar = ? AND game_world = ?',
         (user_id, avatar or '?', gameworld)
     )
@@ -123,21 +123,21 @@ def get_driver_id(user_id, gameworld, avatar):
 
 
 def insert_driver(user_id, driver, gameworld, avatar):
-    insert_data_to_db(
+    commit_query(
         'INSERT INTO gameworld (id, user_id, driver, avatar, game_world) VALUES (?, ?, ?, ?, ?)',
         (uuid.uuid4().hex, user_id, pickle.dumps(driver), avatar or '?', gameworld)
     )
 
 
 def update_driver(driver_id, driver):
-    insert_data_to_db(
+    commit_query(
         'UPDATE gameworld SET driver = ? WHERE id = ?',
         (pickle.dumps(driver), driver_id)
     )
 
 
 def get_driver(driver_id):
-    driver = get_data_from_db(
+    driver = retrieve_data(
         'SELECT driver FROM gameworld WHERE id = ?',
         (driver_id,)
     )
@@ -164,7 +164,7 @@ def _login(email, password, gameworld, avatar=None):
         except NotAuthenticated:
             driver = login(email, password, gameworld, avatar)
             update_driver(driver_id, driver)
-            
+
         else:
             driver.update_account()
 
