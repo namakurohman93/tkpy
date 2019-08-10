@@ -61,6 +61,9 @@ class TestVillages(unittest.TestCase):
         with open('./tests/unit/fixtures/send_troops_raw_failed.json', 'r') as f:
             send_troops_raw_failed = json.load(f)
 
+        with open('./tests/unit/fixtures/raw_troops_movement.json', 'r') as f:
+            troops_movement_raw = json.load(f)
+
         with requests_mock.mock() as mock:
             mock.register_uri(
                 'POST',
@@ -89,6 +92,15 @@ class TestVillages(unittest.TestCase):
         self.assertEqual(v1.name, '001')
         self.assertEqual(v1.coordinate, (-24, -13))
         self.assertTrue(v1.isMainVillage)
+
+        with requests_mock.mock() as mock:
+            mock.register_uri(
+                'POST',
+                'https://com93.kingdoms.com/api/',
+                json=troops_movement_raw
+            )
+            r = v['001'].troops_movement()
+            self.assertEqual(r, [])
 
         with requests_mock.mock() as mock:
             mock.register_uri(
