@@ -26,7 +26,6 @@ setuptools.setup(
     },
     install_requires=[
         'requests',
-        'primordial @ git+https://github.com/lijok/primordial.git@master',
     ],
     license=about['__license__'],
     classifiers=[

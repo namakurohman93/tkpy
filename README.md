@@ -7,14 +7,15 @@
 
 ---  
 # Installation  
->It is recommended to use [virtualenv](https://docs.python-guide.org/dev/virtualenvs/).  
+>It is recommended to use [virtualenv](https://docs.python-guide.org/dev/virtualenvs/).
 
-Since `tkpy` depend on `primordial` package, first install [primordial package](https://github.com/lijok/primordial).  
-Then install `tkpy.`
+Since `tkpy` depend on `primordial` package, first install [primordial package](https://github.com/lijok/primordial).
+
 ```sh
 (venv)$ pip install git+https://github.com/lijok/primordial.git
 (venv)$ pip install tkpy
-```  
+```
+
 ---  
 # Getting started  
 `tkpy` need `Gameworld` object so it can get data from TK. Use `login` function for retrieve `Gameworld` object.  
