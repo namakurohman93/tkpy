@@ -1,13 +1,27 @@
-from .utilities import send_troops, send_farmlist
 from .map import cell_id
-from .buildings import Buildings, BuildingQueue, ConstructionList
-from .exception import (
-    VillageNotFound, BuildingSlotFull, FailedConstructBuilding,
-    QueueFull, WarehouseNotEnough, BuildingAtMaxLevel
-)
+from .buildings import Buildings
+from .buildings import BuildingQueue
+from .buildings import ConstructionList
+from .exception import VillageNotFound
+from .exception import BuildingSlotFull
+from .exception import FailedConstructBuilding
+from .exception import QueueFull
+from .exception import WarehouseNotEnough
+from .exception import BuildingAtMaxLevel
+from .exception import TargetNotFound
 
 
 class Villages:
+    """ :class:`Villages` is where :class:`Village` object stored. This
+    class provide an easy way to access :class:`Village` object by using
+    'village' name.
+
+    Usage::
+        >>> v = Villages(driver)
+        >>> v.pull()
+        >>> v['my first village']
+        >>> <Village({'villageId': '537313245', 'playerId': '001', 'name': 'my first village',...})>
+    """
     def __init__(self, client):
         self.client = client
         self._raw = dict()
@@ -24,17 +38,26 @@ class Villages:
 
     @property
     def dorps(self):
-        """ return village object """
+        """ :property:`dorps` is a :func:`generator` that yield
+        :class:`Village` object.
+
+        yield: :class:`Village`
+        """
         for x in self.item:
             yield self.item[x]
 
     @property
     def raw(self):
-        """ return raw data """
+        """ :property:`raw` is a :func:`generator` that yield village
+        raw data.
+
+        yield: :class:`dict`
+        """
         for x in self._raw['cache'][0]['data']['cache']:
             yield x['data']
 
     def pull(self):
+        """ :meth:`pull` for pulling data from TK. """
         self._raw.update(
             self.client.cache.get(
                 {'names': ['Collection:Village:own']}
@@ -45,12 +68,19 @@ class Villages:
             self.item[x['name']] = Village(self.client, x)
 
     def get_capital_village(self):
+        """ :meth:`get_capital_village` for find capital village and return it.
+
+        return: :class:`Village`
+        """
         for village in self.dorps:
             if village.isMainVillage:
                 return village
 
 
 class Village:
+    """ :class:`Village` represent of village object. This class is where
+    village data stored.
+    """
     def __init__(self, client, data):
         self.client = client
         self.data = data
@@ -65,9 +95,10 @@ class Village:
             raise
 
     def __repr__(self):
-        return str(self.data)
+        return f'<{type(self).__name__}({self.data})>'
 
     def pull(self):
+        """ :meth:`pull` for pulling this village data from TK. """
         r = self.client.cache.get({
             'names': [f'Village:{self.id}']
         })
@@ -75,31 +106,68 @@ class Village:
 
     @property
     def id(self):
+        """ :property:`id` return this village id. """
         return int(self.data['villageId'])
 
     @property
     def name(self):
+        """ :property:`name` return this village name. """
         return self.data['name']
 
     @property
     def coordinate(self):
+        """ :property:`coordinate` return this village coordinate. """
         x, y = self.data['coordinates']['x'], self.data['coordinates']['y']
         return int(x), int(y)
 
     @property
     def isMainVillage(self):
+        """ :property:`isMainVillage` return whether this village is capital
+        village or not.
+        """
         return self.data['isMainVillage']
 
     def units(self):
+        """ :meth:`units` send requests to TK for perceive units that
+        belong to this village.
+
+        return: :class:`dict`
+        """
         r = self.client.cache.get({
             'names': [f'Collection:Troops:stationary:{self.id}']
         })
         for x in r['cache'][0]['data']['cache']:
             if x['data']['villageId'] == str(self.id):
-                return x['data']['units']
+                return x['data']['units'] or {}
+
+    def troops_movement(self):
+        """ :meth:`troops_movement` send requests to TK for perceive
+        troops movement in and out of this village.
+
+        return: :class:`list`
+        """
+        r = self.client.cache.get({
+            'names': [f'Collection:Troops:moving:{self.id}']
+        })
+        return [x['data'] for x in r['cache'][0]['data']['cache']]
 
     def _send_troops(self, x, y, destVillageId, movementType, redeployHero,
             spyMission, units):
+        """ :meth:`_send_troops` is real troops sender. It send a requests
+        to TK for sending troops to target.
+
+        :param x: - :class:`int` x coordinate of target.
+        :param y: - :class:`int` y coordinate of target.
+        :param destVillageId: - :class:`int` cell id of target.
+        :param movementType: - :class:`int` type of movement.
+        :param redeployHero: - :class:`boolean` it is used for moving hero's home
+                               to another account village.
+        :param spyMission: - :class:`str` choose mission, is it either
+                             'resources' or 'defend'
+        :param units: - :class:`dict` units dict that want to be sent.
+
+        return: :class:`dict`
+        """
         target = destVillageId or cell_id(x, y)
         troops = self.units()
         # check amount of every units if units
@@ -138,17 +206,32 @@ class Village:
                 raise SyntaxError(
                     f'There is no troops on {self.name} village'
                 )
-        return send_troops(
-            driver=self.client,
-            destVillageId=target,
-            movementType=movementType,
-            redeployHero=redeployHero,
-            spyMission=spyMission,
-            units=units or troops,
-            villageId=self.id
-        )
+        r = self.client.troops.send({
+            # 'catapultTargets': [
+            #     99, # random
+            #     3,
+            # ],
+            'destVillageId': target,
+            'movementType': movementType,
+            'redeployHero': redeployHero,
+            'spyMission': spyMission,
+            'units': units or troops,
+            'villageId': self.id
+        })
+        if 'errors' in r['response']:
+            raise TargetNotFound('make sure your target is oasis or village')
+        return r
 
     def attack(self, x=None, y=None, targetId=None, units=None):
+        """ :meth:`attack` send requests to TK for attacking target.
+
+        :param x: - :class:`int` (optional) value of x coordinate.
+        :param y: - :class:`int` (optional) value of y coordinate.
+        :param targetId: - :class:`int` (optional) cell id of target.
+        :param units: - :class:`units` (optional) units dict that want to sent.
+
+        return: :class:`dict`
+        """
         # TODO:
         # add building target when cata in units and rally point level >= 5
         return self._send_troops(
@@ -162,6 +245,15 @@ class Village:
         )
 
     def raid(self, x=None, y=None, targetId=None, units=None):
+        """ :meth:`raid` send requests to TK for raiding target.
+
+        :param x: - :class:`int` (optional) value of x coordinate.
+        :param y: - :class:`int` (optional) value of y coordinate.
+        :param targetId: - :class:`int` (optional) cell id of target.
+        :param units: - :class:`units` (optional) units dict that want to sent.
+
+        return: :class:`dict`
+        """
         return self._send_troops(
             x=x,
             y=y,
@@ -174,6 +266,17 @@ class Village:
 
     def defend(self, x=None, y=None, targetId=None, units=None,
             redeployHero=False):
+        """ :meth:`defend` send a requests to TK for defending target.
+
+        :param x: - :class:`int` (optional) value of x coordinate.
+        :param y: - :class:`int` (optional) value of y coordinate.
+        :param targetId: - :class:`int` (optional) cell id of target.
+        :param units: - :class:`units` (optional) units dict that want to sent.
+        :param redeployHero: - :class:`boolean` (optional) it used for changing
+                               hero's home. Default: False
+
+        return: :class:`dict`
+        """
         # TODO:
         # if redeployHero, check if hero in units
         # and check if target is one of village id in Village object
@@ -189,6 +292,18 @@ class Village:
 
     def spy(self, x=None, y=None, targetId=None, amount=0,
             mission='resources'):
+        """ :meth:`spy` send requests to TK for spying target.
+
+        :param x: - :class:`int` (optional) value of x coordinate.
+        :param y: - :class:`int` (optional) value of y coordinate.
+        :param targetId: - :class:`int` (optional) cell id of target.
+        :param amount: - :class:`int` (optional) amount of spy units that
+                         want to sent. Default: 0
+        :param mission: - :class:`str` (optional) type of spy mission,
+                          it is either `'resources'` `'defend'`. Default: 'resources'
+
+        return: :class:`dict`
+        """
         if mission not in ('resources', 'defence'):
             raise SyntaxError(
                 'choose mission between \'resources\' or \'defence\''
@@ -208,6 +323,15 @@ class Village:
         )
 
     def siege(self, x=None, y=None, targetId=None, units=None):
+        """ :meth:`siege` send a requests to TK for siege target.
+
+        :param x: - :class:`int` (optional) value of x coordinate.
+        :param y: - :class:`int` (optional) value of y coordinate.
+        :param targetId: - :class:`int` (optional) cell id of target.
+        :param units: - :class:`units` (optional) units dict that want to sent.
+
+        return: :class:`dict`
+        """
         # TODO
         # add building target if cata in units and rally point level >= 5
         if not units:
@@ -223,143 +347,101 @@ class Village:
         )
 
     def send_farmlist(self, listIds):
-        return send_farmlist(
-            driver=self.client,
-            listIds=listIds,
-            villageId=self.id
-        )
+        """ :meth:`send_farmlist` send requests to TK for send farmlist.
+
+        :param listIds: - :class:`list` list of farmlist id that want to sent.
+
+        return: :class:`dict`
+        """
+        return self.client.troops.startFarmListRaid({
+            'listIds': listIds,
+            'villageId': self.id
+        })
 
     def upgrade(self, building):
+        """ :meth:`upgrade` send requests to TK for upgrade building.
+
+        :param building: - :class:`str` building name that want to be ugpraded.
+
+        return: :class:`dict`
+        """
         # update data with the newest one
         self.pull()
         self.buildings.pull()
         self.buildingQueue.pull()
-        # step 1
-        # check building if exists or not
+
         if self.buildings[building]:
             b = self.buildings[building][0]
+
             if b.isMaxLvl:
-                self._construct(building)
-            # step 2
-            # check resources on warehouse
+                return self._construct(building)
+
             for k, v in b.upgradeCost.items():
                 if self.warehouse[k] < v and self.warehouse.capacity[k] > v:
-                    # can't upgrade cause lack of resources
-                    # check building queue
-                    if self.buildingQueue.freeSlots['4'] > 0:
-                        # there is free queue
-                        return b.queues(reserveResources=False)
-                    else:
-                        # can't upgrade cause there is no queue
-                        raise QueueFull('Queue full')
+                    return self._check_queue(reserveResources=False, b=b)
+
                 if self.warehouse.capacity[k] < v:
                     raise WarehouseNotEnough(
                         f'Warehouse / granary capacity not enough for upgrade {building}'
                     )
-            # step 3
-            # check building queue
-            # this is the most complicated parts, if tribe id is roman
-            # then we need to know if building is resources type
-            if self.client.tribe_id == 1:
-                # roman detected
-                # check building type
-                if int(b.id) < 5:
-                    # resources type detected
-                    # check slots for resources
-                    if self.buildingQueue.freeSlots['2'] > 0:
-                        # can upgrade
-                        return b.upgrade()
-                    else:
-                        # can't upgrade, check queue
-                        if self.buildingQueue.freeSlots['4'] > 0:
-                            # there is free queue
-                            return b.queues(reserveResources=True)
-                        else:
-                            # can't upgrade cause there is no queue
-                            raise QueueFull('Queue full')
-                else:
-                    # normal building type detected
-                    # check slots for resources
-                    if self.buildingQueue.freeSlots['1'] > 0:
-                        # can upgrade
-                        return b.upgrade()
-                    else:
-                        # can't upgrade, check queue
-                        if self.buildingQueue.freeSlots['4'] > 0:
-                            # there is free queue
-                            return b.queues(reserveResources=True)
-                        else:
-                            # can't upgrade cause there is no queue
-                            raise QueueFull('Queue full')
-            else:
-                # non roman
-                if self.buildingQueue.freeSlots['1'] > 0:
-                    # can upgrade
-                    return b.upgrade()
-                else:
-                    # can't upgrade, check queue
-                    if self.buildingQueue.freeSlots['4'] > 0:
-                        # there is free queue
-                        return b.queues(reserveResources=True)
-                    else:
-                        # can't upgrade cause there is no queue
-                        raise QueueFull('Queue full')
-        else:
-            # building didn't exists
-            # construct it
-            self._construct(building)
+
+            if self.client.tribe_id == 1 and int(b.id) < 5:
+                return self._upgrade(slot='2', b=b)
+
+            return self._upgrade(slot='1', b=b)
+
+        # building didn't exists
+        # construct it
+        return self._construct(building)
 
     def _construct(self, building):
         if self.buildings.freeSlots:
             c = ConstructionList(
-                self.client, self.id, self.buildings.freeSlots[0]
+                client=self.client,
+                villageId=self.id,
+                locationId=self.buildings.freeSlots[0]
             )
             c.pull()
-            b = c[building]
-            if b:
+
+            try:
+                b = c[building]
+            except:
+                raise BuildingAtMaxLevel(f'{building} already at max level')
+            else:
                 if b['buildable']:
                     # construct it
                     for k, v in b.upgradeCost.items():
                         if self.warehouse[k] < v and self.warehouse.capacity[k] > v:
-                            # can't upgrade cause lack of resources
-                            # check building queue
-                            if self.buildingQueue.freeSlots['4'] > 0:
-                                # there is free queue
-                                return b.queues(reserveResources=False)
-                            else:
-                                # can't upgrade cause there is no queue
-                                raise QueueFull('Queue full')
+                            return self._check_queue(reserveResources=False, b=b)
+
                         if self.warehouse.capacity[k] < v:
                             raise WarehouseNotEnough(
                                 f'Warehouse / granary capacity not enough for construct {building}'
                             )
-                    # check building queue
-                    if self.buildingQueue.freeSlots['1'] > 0:
-                        # can upgrade
-                        return b.upgrade()
-                    else:
-                        # can't upgrade, check queue
-                        if self.buildingQueue.freeSlots['4'] > 0:
-                            # there is free queue
-                            return b.queues(reserveResources=True)
-                        else:
-                            # can't upgrade cause there is no queue
-                            raise QueueFull('Queue full')
-                else:
-                    raise FailedConstructBuilding(
-                        f'Failed construct {building} cause lack of required buildings'
-                    )
-            else:
-                raise BuildingAtMaxLevel(
-                    f'{building} already at max level'
+
+                    return self._upgrade(slot='1', b=b)
+
+                raise FailedConstructBuilding(
+                    f'Failed construct {building} cause lack of required buildings'
                 )
-        else:
-            raise BuildingSlotFull(
-                f'Building slot at {self.name} full'
-            )
+
+        raise BuildingSlotFull(f'Building slot at {self.name} full')
+
+    def _upgrade(self, slot, b):
+        if self.buildingQueue.freeSlots[slot] > 0:
+            return b.upgrade()
+
+        return self._check_queue(reserveResources=True, b=b)
+
+    def _check_queue(self, reserveResources, b):
+        if self.buildingQueue.freeSlots['4'] > 0:
+            return b.queues(reserveResources)
+
+        raise QueueFull('Queue full')
 
 
 class Warehouse:
+    """ :class:`Warehouse` represent storage data so it can be read by human. """
     def __init__(self, data):
         self.data = data
         self.resType = {'wood': '1', 'clay': '2', 'iron': '3', 'crop': '4'}

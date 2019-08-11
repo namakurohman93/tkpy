@@ -3,15 +3,9 @@ sudo: false
 python:
   - "3.6"
 install:
-  - pip install -r requirements.txt
-  - pip install codecov
+  - pip install -r requirements-dev.txt
+  - pip install git+https://github.com/lijok/primordial.git
 script:
-  - git clone https://github.com/didadadida93/primordial.git
-  - cd primordial
-  - python setup.py sdist --format=zip
-  - cd dist
-  - pip install primordial-1.0.0.zip
-  - cd ../..
   - coverage run -m unittest discover
 after_success:
   - codecov

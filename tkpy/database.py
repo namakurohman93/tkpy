@@ -1,63 +1,26 @@
-import os
-import pickle
 import sqlite3
-from .exception import DriverNotFound
+import pathlib
+import contextlib
 
-BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+
+BASE_DIR = pathlib.Path(__file__).resolve().parent
 
 
-class CredentialDb:
-    def __init__(self, email, password, gameworld, avatar=None):
-        self.path = os.path.join(BASE_DIR, 'credential.db')
-        self.email = email
-        self.password = password
-        self.gameworld = gameworld
-        self.avatar = avatar or 'empty'
-        if not os.path.isfile(self.path):
-            self._create_database()
+@contextlib.contextmanager
+def get_db():
+    db = sqlite3.connect(
+        BASE_DIR / 'tkpy-credential.sqlite',
+        detect_types=sqlite3.PARSE_DECLTYPES
+    )
+    db.row_factory = sqlite3.Row
+    try:
+        yield db
+    finally:
+        db.close()
 
-    def _create_database(self):
-        con = sqlite3.connect(self.path)
-        cur = con.cursor()
-        cur.execute('''CREATE TABLE credential
-            (email text, password text, gameworld text, driver BLOB, avatar text)'''
-        )
-        con.commit()
-        con.close()
 
-    def get(self):
-        con = sqlite3.connect(self.path)
-        cur = con.cursor()
-        cur.execute(
-            '''SELECT driver FROM credential WHERE email=? AND password=? AND
-            gameworld=? AND avatar=?''',
-            (self.email, self.password, self.gameworld, self.avatar)
-        )
-        pickled = cur.fetchone()
-        con.close()
-        if pickled:
-            return pickle.loads(*pickled)
-        raise DriverNotFound()
-
-    def update(self, driver):
-        pickled = pickle.dumps(driver)
-        con = sqlite3.connect(self.path)
-        cur = con.cursor()
-        cur.execute(
-            '''UPDATE credential SET driver=?
-            WHERE email=? AND password=? AND gameworld=? AND avatar=?''',
-            (pickled, self.email, self.password, self.gameworld, self.avatar)
-        )
-        con.commit()
-        con.close()
-
-    def insert(self, driver):
-        pickled = pickle.dumps(driver)
-        con = sqlite3.connect(self.path)
-        cur = con.cursor()
-        cur.execute(
-            '''INSERT INTO credential VALUES (?, ?, ?, ?, ?)''',
-            (self.email, self.password, self.gameworld, pickled, self.avatar)
-        )
-        con.commit()
-        con.close()
+def init_db():
+    if not (BASE_DIR / 'tkpy-credential.sqlite').is_file():
+        with get_db() as db:
+            with open(BASE_DIR / 'schema.sql', 'r') as f:
+                db.executescript(f.read())

@@ -6,6 +6,7 @@ from tkpy.exception import BuildingSlotFull
 from tkpy.exception import BuildingAtMaxLevel
 from tkpy.exception import FailedConstructBuilding
 from tkpy.exception import NotAuthenticated
+from tkpy.exception import TargetNotFound
 import unittest
 import requests_mock
 import pickle
@@ -54,6 +55,15 @@ class TestVillages(unittest.TestCase):
         with open('./tests/unit/fixtures/construction_list_raw.json', 'r') as f:
             construction_list_raw = json.load(f)
 
+        with open('./tests/unit/fixtures/send_troops_raw.json', 'r') as f:
+            send_troops_raw = json.load(f)
+
+        with open('./tests/unit/fixtures/send_troops_raw_failed.json', 'r') as f:
+            send_troops_raw_failed = json.load(f)
+
+        with open('./tests/unit/fixtures/raw_troops_movement.json', 'r') as f:
+            troops_movement_raw = json.load(f)
+
         with requests_mock.mock() as mock:
             mock.register_uri(
                 'POST',
@@ -87,6 +97,15 @@ class TestVillages(unittest.TestCase):
             mock.register_uri(
                 'POST',
                 'https://com93.kingdoms.com/api/',
+                json=troops_movement_raw
+            )
+            r = v['001'].troops_movement()
+            self.assertEqual(r, [])
+
+        with requests_mock.mock() as mock:
+            mock.register_uri(
+                'POST',
+                'https://com93.kingdoms.com/api/',
                 json=village_units_raw
             )
             r = v1.units()
@@ -98,11 +117,11 @@ class TestVillages(unittest.TestCase):
                 'https://com93.kingdoms.com/api/',
                 [
                     {'json': village_units_raw},
-                    {'json': {'mock': 'mocked'}}
+                    {'json': send_troops_raw}
                 ]
             )
             r = v1.attack(1, 1)
-            self.assertEqual(r, {'mock': 'mocked'})
+            self.assertEqual(r, send_troops_raw)
 
         with requests_mock.mock() as mock:
             mock.register_uri(
@@ -110,12 +129,12 @@ class TestVillages(unittest.TestCase):
                 'https://com93.kingdoms.com/api/',
                 [
                     {'json': village_units_raw},
-                    {'json': {'mock': 'mocked'}}
+                    {'json': send_troops_raw}
                 ]
             )
             v1.client.accountDetails['tribeId'] = 3
             r = v1._send_troops(x=1, y=1, destVillageId=None, movementType=3, redeployHero=False, spyMission='resources', units=None)
-            self.assertEqual(r, {'mock': 'mocked'})
+            self.assertEqual(r, send_troops_raw)
 
         with requests_mock.mock() as mock:
             village_units_raw['cache'][0]['data']['cache'][0]['data']['units'] = {'1': '122', '2': '14', '3': '10', '4': '1', '11': '1'}
@@ -124,11 +143,11 @@ class TestVillages(unittest.TestCase):
                 'https://com93.kingdoms.com/api/',
                 [
                     {'json': village_units_raw},
-                    {'json': {'mock': 'mocked'}}
+                    {'json': send_troops_raw}
                 ]
             )
             r = v1.spy(1, 1, amount=1)
-            self.assertEqual(r, {'mock': 'mocked'})
+            self.assertEqual(r, send_troops_raw)
 
         v1.client.accountDetails['tribeId'] = 2
         with requests_mock.mock() as mock:
@@ -137,11 +156,11 @@ class TestVillages(unittest.TestCase):
                 'https://com93.kingdoms.com/api/',
                 [
                     {'json': village_units_raw},
-                    {'json': {'mock': 'mocked'}}
+                    {'json': send_troops_raw}
                 ]
             )
             r = v1.attack(1, 1, units={'1': -1})
-            self.assertEqual(r, {'mock': 'mocked'})
+            self.assertEqual(r, send_troops_raw)
 
         with requests_mock.mock() as mock:
             mock.register_uri(
@@ -149,7 +168,7 @@ class TestVillages(unittest.TestCase):
                 'https://com93.kingdoms.com/api/',
                 [
                     {'json': village_units_raw},
-                    {'json': {'mock': 'mocked'}}
+                    {'json': send_troops_raw}
                 ]
             )
             with self.assertRaises(SyntaxError):
@@ -161,7 +180,7 @@ class TestVillages(unittest.TestCase):
                 'https://com93.kingdoms.com/api/',
                 [
                     {'json': village_units_raw},
-                    {'json': {'mock': 'mocked'}}
+                    {'json': send_troops_raw}
                 ]
             )
             with self.assertRaises(SyntaxError):
@@ -173,11 +192,11 @@ class TestVillages(unittest.TestCase):
                 'https://com93.kingdoms.com/api/',
                 [
                     {'json': village_units_raw},
-                    {'json': {'mock': 'mocked'}}
+                    {'json': send_troops_raw}
                 ]
             )
             r = v1.raid(1, 1)
-            self.assertEqual(r, {'mock': 'mocked'})
+            self.assertEqual(r, send_troops_raw)
 
         with requests_mock.mock() as mock:
             mock.register_uri(
@@ -185,11 +204,11 @@ class TestVillages(unittest.TestCase):
                 'https://com93.kingdoms.com/api/',
                 [
                     {'json': village_units_raw},
-                    {'json': {'mock': 'mocked'}}
+                    {'json': send_troops_raw}
                 ]
             )
             r = v1.defend(1, 1)
-            self.assertEqual(r, {'mock': 'mocked'})
+            self.assertEqual(r, send_troops_raw)
 
         with requests_mock.mock() as mock:
             mock.register_uri(
@@ -197,11 +216,11 @@ class TestVillages(unittest.TestCase):
                 'https://com93.kingdoms.com/api/',
                 [
                     {'json': village_units_raw},
-                    {'json': {'mock': 'mocked'}}
+                    {'json': send_troops_raw}
                 ]
             )
             r = v1.spy(1, 1, amount=1)
-            self.assertEqual(r, {'mock': 'mocked'})
+            self.assertEqual(r, send_troops_raw)
 
         with requests_mock.mock() as mock:
             mock.register_uri(
@@ -209,7 +228,7 @@ class TestVillages(unittest.TestCase):
                 'https://com93.kingdoms.com/api/',
                 [
                     {'json': village_units_raw},
-                    {'json': {'mock': 'mocked'}}
+                    {'json': send_troops_raw}
                 ]
             )
             with self.assertRaises(SyntaxError):
@@ -222,11 +241,11 @@ class TestVillages(unittest.TestCase):
                 'https://com93.kingdoms.com/api/',
                 [
                     {'json': village_units_raw},
-                    {'json': {'mock': 'mocked'}}
+                    {'json': send_troops_raw}
                 ]
             )
             r = v1.siege(1, 1, units={'1':1000, '7':1})
-            self.assertEqual(r, {'mock': 'mocked'})
+            self.assertEqual(r, send_troops_raw)
 
         with requests_mock.mock() as mock:
             village_units_raw['cache'][0]['data']['cache'][0]['data']['units'] = {'1': '1000', '7': '1'}
@@ -235,7 +254,7 @@ class TestVillages(unittest.TestCase):
                 'https://com93.kingdoms.com/api/',
                 [
                     {'json': village_units_raw},
-                    {'json': {'mock': 'mocked'}}
+                    {'json': send_troops_raw}
                 ]
             )
             with self.assertRaises(SyntaxError):
@@ -248,7 +267,7 @@ class TestVillages(unittest.TestCase):
                 'https://com93.kingdoms.com/api/',
                 [
                     {'json': village_units_raw},
-                    {'json': {'mock': 'mocked'}}
+                    {'json': send_troops_raw}
                 ]
             )
             with self.assertRaises(SyntaxError):
@@ -261,7 +280,7 @@ class TestVillages(unittest.TestCase):
                 'https://com93.kingdoms.com/api/',
                 [
                     {'json': village_units_raw},
-                    {'json': {'mock': 'mocked'}}
+                    {'json': send_troops_raw}
                 ]
             )
             with self.assertRaises(SyntaxError):
@@ -274,10 +293,23 @@ class TestVillages(unittest.TestCase):
                 'https://com93.kingdoms.com/api/',
                 [
                     {'json': village_units_raw},
-                    {'json': {'mock': 'mocked'}}
+                    {'json': send_troops_raw}
                 ]
             )
             with self.assertRaises(SyntaxError):
+                v1.attack(1, 1)
+
+        with requests_mock.mock() as mock:
+            village_units_raw['cache'][0]['data']['cache'][0]['data']['units'] = {'1': '111', '7': '111'}
+            mock.register_uri(
+                'POST',
+                'https://com93.kingdoms.com/api/',
+                [
+                    {'json': village_units_raw},
+                    {'json': send_troops_raw_failed},
+                ]
+            )
+            with self.assertRaises(TargetNotFound):
                 v1.attack(1, 1)
 
         with requests_mock.mock() as mock:
