@@ -3,7 +3,7 @@
 
 [Travian: Kingdom](https://www.kingdoms.com) (TK) utilities for your need. It provide several object that mostly used on TK such as `Map`, `Villages`, `Notepad`, and `Farmlist`.  
 
-[![Python 3.6](https://img.shields.io/badge/python-3.6+-blue.svg)](https://www.python.org/downloads/release/python-367/) [![Build Status](https://travis-ci.org/didadadida93/tkpy.svg?branch=master)](https://travis-ci.org/didadadida93/tkpy) [![codecov](https://codecov.io/gh/didadadida93/tkpy/branch/master/graph/badge.svg)](https://codecov.io/gh/didadadida93/tkpy)  
+[![PyPI version](https://badge.fury.io/py/tkpy.svg)](https://pypi.org/project/tkpy/) [![Python 3.6](https://img.shields.io/badge/python-3.6+-blue.svg)](https://www.python.org/downloads/release/python-367/) [![Build Status](https://travis-ci.org/didadadida93/tkpy.svg?branch=master)](https://travis-ci.org/didadadida93/tkpy) [![codecov](https://codecov.io/gh/didadadida93/tkpy/branch/master/graph/badge.svg)](https://codecov.io/gh/didadadida93/tkpy)  
 
 ---  
 # Installation  
@@ -200,6 +200,19 @@ unoccupied_oasis_list[0]
   # careful, use message method will overwrite message that previously on notepad
   notepad.message('this message will overwrite with old one.')
   ```
+
+---
+# Development
+For those who interest on this repo, you can fork and make your feature.
+
+```sh
+(venv)$ git clone https://github.com/didadadida93/tkpy.git
+(venv)$ cd tkpy
+(venv)$ pip install git+https://github.com/lijok/primordial.git
+(venv)$ pip install -r requirements-dev.txt
+(venv)$ python -m unittest discover
+```
+
 ---  
 # Document
 For documentation, visit [tkpy wiki](https://github.com/didadadida93/tkpy/wiki).
