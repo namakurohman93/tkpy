@@ -27,8 +27,12 @@ setuptools.setup(
     install_requires=[
         'requests',
     ],
+    entry_points={
+        'console_scripts': ['tkpy-init=tkpy.database:init_db'],
+    },
     license=about['__license__'],
     classifiers=[
+        'Development Status :: 1 - Planning',
         'Programming Language :: Python :: 3.6',
         'Programming Language :: Python :: 3.7',
         'License :: OSI Approved :: MIT License',

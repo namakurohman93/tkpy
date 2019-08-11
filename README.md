@@ -9,11 +9,13 @@
 # Installation  
 >It is recommended to use [virtualenv](https://docs.python-guide.org/dev/virtualenvs/).
 
-Since `tkpy` depend on `primordial` package, first install [primordial package](https://github.com/lijok/primordial).
+Since `tkpy` depend on `primordial` package, first install [primordial package](https://github.com/lijok/primordial).  
+After that, run `tkpy-init` for create database that will be used for storing `Gameworld` object.
 
 ```sh
 (venv)$ pip install git+https://github.com/lijok/primordial.git
 (venv)$ pip install tkpy
+(venv)$ tkpy-init
 ```
 
 ---  
