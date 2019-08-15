@@ -10,8 +10,14 @@
 Class model for tkpy
 """
 
+import dataclasses
+
 
 class ImmutableDict(dict):
+    """ :class:`ImmutableDict` is an object that inherit from built-in
+    :class:`dict` but didn't implement item assignment.
+    """
+
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
@@ -23,48 +29,81 @@ class ImmutableDict(dict):
         raise KeyError(f"{name}")
 
 
-class Dataclass:
+@dataclasses.dataclass(frozen=True)
+class ImmutableDataclass:
+    """ :class:`ImmutableDataclass` is a slotted class that simply cant
+    reassign attribute and cant add new attribute.
+    Furthemore, data of this class is stored on :attr:`data` and it
+    has :class:`ImmutableDict` type.
+    Data can be accessed using key, or for simplicity sake, can be accessed
+    as an 'attribute' too.
+
+    Usage:
+        >>> foo = ImmutableDataclass(data={'a':'a', 'b':'b', 'c':'c'})
+        >>> foo.data
+        {'a': 'a', 'b': 'b', 'c': 'c'}
+        >>> foo.data = 'z'
+        Traceback (most recent call last):
+          File "<stdin>", line 1, in <module>
+          File "<string>", line 3, in __setattr__
+        dataclasses.FrozenInstanceError: cannot assign to field 'data'
+        >>> foo.z = 'z'
+        Traceback (most recent call last):
+          File "<stdin>", line 1, in <module>
+          File "<string>", line 3, in __setattr__
+        dataclasses.FrozenInstanceError: cannot assign to field 'z'
+        >>> foo.data['a']
+        'a'
+        >>> foo.data['a'] = 'z'
+        Traceback (most recent call last):
+          File "<stdin>", line 1, in <module>
+          File "/tkpy/models.py", line 27, in __setitem__
+            f"'{type(self).__name__}' object does not implement item assignment"
+        TypeError: 'ImmutableDict' object does not implement item assignment
+        >>> foo['a']
+        'a'
+        >>> foo.a
+        'a'
+        >>> dir(foo)
+        ['a', 'b', 'c', 'data']
+        >>> foo
+        <ImmutableDataclass({'a': 'a', 'b': 'b', 'c': 'c'})>
+        >>>
+    """
+
     __slots__ = ["data"]
+    data: dict
 
-    def __init__(self, data):
-        self.data = ImmutableDict(data)
-
-    def __repr__(self):
-        return f"{type(self).__name__}({self.data})"
-
-    def __getitem__(self, name):
-        return self.__getattribute__("data")[name]
+    def __post_init__(self):
+        object.__setattr__(self, "data", ImmutableDict(self.data))
 
     def __getattr__(self, name):
         if name in self.__getattribute__("data").keys():
             return self.__getattribute__("data")[name]
-        raise AttributeError(
-            f"'{type(self).__name__}' object has no attribute '{name}'"
-        )
+        self.__getattribute__(name)
 
-    def __setattr__(self, name, value):
-        if name in self.__getattribute__("__slots__"):
-            try:
-                self.__getattribute__(name)
-            except:
-                super().__setattr__(name, value)
-            else:
-                raise AttributeError(f"can't set attribute '{name}'")
-        elif name in self.keys():
-            raise AttributeError(f"can't set attribute '{name}'")
-        else:
-            raise AttributeError(
-                f"'{type(self).__name__}' object has no attribute '{name}'"
-            )
+    def __getitem__(self, name):
+        try:
+            return self.__getattribute__("data")[name]
+        except:
+            raise
 
-    def __contains__(self, key):
-        return self.__getattribute__("data").__contains__(key)
+    def __setitem__(self, name, value):
+        try:
+            self.__getattribute__("data")[name] = value
+        except:
+            raise
 
     def __dir__(self):
         return [
-            *filter(lambda d: d.startswith("_") is False, super().__dir__()),
+            *filter(
+                lambda d: d.startswith("_") is False, object.__dir__(self)
+            ),
             *self.__getattribute__("data").keys(),
         ]
 
-    def keys(self):
-        return self.__getattribute__("data").keys()
+    def __contains__(self, keys):
+        return self.__getattribute__("data").__contains__(keys)
+
+    def __repr__(self):
+        return f"<{type(self).__name__}({self.data})>"
