@@ -1,4 +1,8 @@
-from math import sqrt
+import math
+import dataclasses
+from typing import Any
+
+from .models import ImmutableDataclass
 
 
 def cell_id(x, y):
@@ -21,9 +25,9 @@ def reverse_id(vid):
 
     return: :class:`tuple`
     """
-    binary = f'{vid:b}'
+    binary = f"{vid:b}"
     if len(binary) < 30:
-        binary = '0' + binary
+        binary = "0" + binary
     xcord, ycord = binary[15:], binary[:15]
     realx = int(xcord, 2) - 16384
     realy = int(ycord, 2) - 16384
@@ -38,13 +42,19 @@ def distance(source, target):
 
     return: :class:`float`
     """
-    return sqrt((source[0] - target[0])**2 + (source[1] - target[1])**2)
+    return math.sqrt(
+        (source[0] - target[0]) ** 2 + (source[1] - target[1]) ** 2
+    )
 
 
 regionIds = {
     cell_id(x, y): [
-        cell_id(xx, yy) for xx in range(0+(x*7), 7+(x*7)) for yy in range(0+(y*7), 7+(y*7))
-    ] for x in range(-13, 14) for y in range(-13, 14)
+        cell_id(xx, yy)
+        for xx in range(0 + (x * 7), 7 + (x * 7))
+        for yy in range(0 + (y * 7), 7 + (y * 7))
+    ]
+    for x in range(-13, 14)
+    for y in range(-13, 14)
 }
 
 
@@ -62,6 +72,7 @@ class Map:
         <Cell({'id': '536887296', 'landscape': '9013', 'owner': '0'})>
         >>> villages = list(m.villages)
     """
+
     def __init__(self, client):
         self.client = client
         self._raw = dict()
@@ -72,13 +83,9 @@ class Map:
     def pull(self):
         """ :meth:`pull` for pulling map data from TK. """
         r = self.client.map.getByRegionIds(
-            params={
-                'regionIdCollection': {
-                    '1': list(regionIds.keys())
-                }
-            }
+            params={"regionIdCollection": {"1": list(regionIds.keys())}}
         )
-        del r['response']['1']['reports']
+        del r["response"]["1"]["reports"]
         self._raw.update(r)
 
     def _pull(self, region_id=[]):
@@ -89,15 +96,12 @@ class Map:
         :param region_id: - :class:`list` (optional) list of region id
                             that want to requested to TK. Default: []
         """
-        ids = (x for x in list(range(1, len(region_id)//49 + 2)))
+        ids = (x for x in list(range(1, len(region_id) // 49 + 2)))
         req_list = {
-            str(id): [
-                region_id.pop() for _ in range(49) if region_id
-            ] for id in ids
+            str(id): [region_id.pop() for _ in range(49) if region_id]
+            for id in ids
         }
-        r = self.client.map.getByRegionIds({
-            'regionIdCollection': req_list
-        })
+        r = self.client.map.getByRegionIds({"regionIdCollection": req_list})
         self._raw.update(r)
 
     @property
@@ -107,12 +111,12 @@ class Map:
 
         yield: :class:`Cell`
         """
-        for c in self._raw['response']:
+        for c in self._raw["response"]:
             try:
-                for region_id in self._raw['response'][c]['region']:
-                    for cell in self._raw['response'][c]['region'][region_id]:
+                for region_id in self._raw["response"][c]["region"]:
+                    for cell in self._raw["response"][c]["region"][region_id]:
                         # yield cell
-                        yield Cell(self.client, cell)
+                        yield Cell(client=self.client, data=cell)
             except:
                 continue
 
@@ -124,7 +128,7 @@ class Map:
         yield: :class:`Cell`
         """
         for cell in self.cell:
-            if 'village' in cell:
+            if "village" in cell:
                 yield cell
             else:
                 continue
@@ -137,7 +141,7 @@ class Map:
         yield: :class:`Cell`
         """
         for cell in self.cell:
-            if 'village' not in cell and 'resType' in cell:
+            if "village" not in cell and "resType" in cell:
                 yield cell
             else:
                 continue
@@ -150,7 +154,7 @@ class Map:
         yield: :class:`Cell`
         """
         for cell in self.cell:
-            if 'oasis' in cell:
+            if "oasis" in cell:
                 yield cell
             else:
                 continue
@@ -163,7 +167,7 @@ class Map:
         yield: :class:`Cell`
         """
         for cell in self.cell:
-            if 'oasis' not in cell and 'resType' not in cell:
+            if "oasis" not in cell and "resType" not in cell:
                 yield cell
             else:
                 continue
@@ -180,7 +184,7 @@ class Map:
         return: :class:`Cell`
         """
         for village in self.villages:
-            if village['id'] == str(id) or village['village']['name'] == name:
+            if village["id"] == str(id) or village["village"]["name"] == name:
                 return village
         return default
 
@@ -196,7 +200,7 @@ class Map:
         return: :class:`Cell`
         """
         for cell in self.cell:
-            if cell['id'] == str(cell_id(x, y)):
+            if cell["id"] == str(cell_id(x, y)):
                 return cell
         return default
 
@@ -211,7 +215,7 @@ class Map:
         return: :class:`Cell`
         """
         for cell in self.cell:
-            if cell['id'] == str(id):
+            if cell["id"] == str(id):
                 return cell
         return default
 
@@ -222,10 +226,12 @@ class Map:
 
         yield: :class:`Kingdom`
         """
-        for c in self._raw['response']:
+        for c in self._raw["response"]:
             try:
-                for x in self._raw['response'][c]['kingdom']:
-                    yield Kingdom(x, self._raw['response'][c]['kingdom'][x])
+                for x in self._raw["response"][c]["kingdom"]:
+                    yield Kingdom(
+                        id=x, data=self._raw["response"][c]["kingdom"][x]
+                    )
             except:
                 continue
 
@@ -252,11 +258,13 @@ class Map:
 
         yield: :class:`Player`
         """
-        for c in self._raw['response']:
+        for c in self._raw["response"]:
             try:
-                for x in self._raw['response'][c]['player']:
+                for x in self._raw["response"][c]["player"]:
                     yield Player(
-                        self.client, x, self._raw['response'][c]['player'][x]
+                        id=x,
+                        client=self.client,
+                        data=self._raw["response"][c]["player"][x],
                     )
             except:
                 continue
@@ -278,25 +286,15 @@ class Map:
         return default
 
 
-class Cell:
+@dataclasses.dataclass(frozen=True, repr=False)
+class Cell(ImmutableDataclass):
     """ :class:`Cell` is a class that represent cell object. This class
     is where cell data stored.
     """
-    def __init__(self, client, data):
-        self.client = client
-        self.data = data
 
-    def __contains__(self, item):
-        return self.data.__contains__(item)
-
-    def __getitem__(self, key):
-        try:
-            return self.data[key]
-        except:
-            raise
-
-    def __repr__(self):
-        return f'<{type(self).__name__}({self.data})>'
+    __slots__ = ["data", "client"]
+    client: Any
+    data: dict
 
     def details(self):
         """ :meth:`details` send requests to TK for perceive more details
@@ -304,38 +302,25 @@ class Cell:
 
         return: :class:`dict`
         """
-        r = self.client.cache.get({'names':[f'MapDetails:{self.id}']})
-        return r['cache'][0]['data']
-
-    @property
-    def id(self):
-        """ :property:`id` return this cell id. """
-        return int(self.data['id'])
+        r = self.client.cache.get({"names": [f"MapDetails:{self.id}"]})
+        return r["cache"][0]["data"]
 
     @property
     def coordinate(self):
         """ :property:`coordinate` return this cell coordinate. """
-        return reverse_id(self.id)
+        return reverse_id(int(self.id))
 
 
-class Player:
+@dataclasses.dataclass(frozen=True, repr=False)
+class Player(ImmutableDataclass):
     """ :class:`Player` is represent of player object. This class is where
     player data stored.
     """
-    def __init__(self, client, id, data):
-        self.client = client
-        self.id = id
-        self.data = data
-        self.data['playerId'] = id
 
-    def __getitem__(self, key):
-        try:
-            return self.data[key]
-        except:
-            raise
-
-    def __repr__(self):
-        return f'<{type(self).__name__}({self.data})>'
+    __slots__ = ["data", "client", "id"]
+    client: Any
+    data: dict
+    id: int
 
     def hero_equipment(self):
         """ :meth:`hero_equipment` send requests to TK for perceive
@@ -343,9 +328,9 @@ class Player:
 
         return: :class:`dict`
         """
-        return self.client.cache.get({
-            'names': [f'Collection:HeroItem:{self.id}']
-        })['cache'][0]['data']['cache']
+        return self.client.cache.get(
+            {"names": [f"Collection:HeroItem:{self.id}"]}
+        )["cache"][0]["data"]["cache"]
 
     def details(self):
         """ :meth:`details` send requests to Tk for perceive this player
@@ -353,19 +338,9 @@ class Player:
 
         return: :class:`dict`
         """
-        return self.client.cache.get({
-            'names': [f'Player:{self.id}']
-        })['cache'][0]['data']
-
-    @property
-    def name(self):
-        """ :property:`name` return this player name. """
-        return self.data['name']
-
-    @property
-    def tribe_id(self):
-        """ :property:`tribe_id` return this player tribe id. """
-        return self.data['tribeId']
+        return self.client.cache.get({"names": [f"Player:{self.id}"]})[
+            "cache"
+        ][0]["data"]
 
     @property
     def is_active(self):
@@ -373,30 +348,22 @@ class Player:
 
         return: :class:`boolean`
         """
-        if self.data['active'] == '1':
+        if self.data["active"] == "1":
             return True
         return False
 
 
-class Kingdom:
+@dataclasses.dataclass(frozen=True, repr=False)
+class Kingdom(ImmutableDataclass):
     """ :class:`Kingdom` represent of kingdom object. This class is where
     kingdom data stored.
     """
-    def __init__(self, id, data):
-        self.id = id
-        self.data = data
-        self.data['kingdomId'] = id
 
-    def __getitem__(self, key):
-        try:
-            return self.data[key]
-        except:
-            raise
-
-    def __repr__(self):
-        return f'<{type(self).__name__}({self.data})>'
+    __slots__ = ["data", "id"]
+    data: dict
+    id: int
 
     @property
     def name(self):
         """ :property:`name` return this kingdom name. """
-        return self.data['tag']
+        return self.data["tag"]
