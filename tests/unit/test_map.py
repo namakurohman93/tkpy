@@ -1,18 +1,11 @@
 from tkpy.map import cell_id
-from tkpy.map import distance
 from tkpy.map import reverse_id
 from tkpy.map import Map
+from tkpy.map import Point
 import requests_mock
 import unittest
 import pickle
 import json
-
-
-class TestDistance(unittest.TestCase):
-
-    def testing_distance_function(self):
-        self.assertEqual(distance((0,0), (0,3)), 3)
-        self.assertNotEqual(distance((0,0), (0,3)), 4)
 
 
 class TestCellId(unittest.TestCase):
@@ -28,6 +21,25 @@ class TestReverseId(unittest.TestCase):
         self.assertEqual(reverse_id(536920064), (0, 1))
         self.assertNotEqual(reverse_id(536920064), (0, 0))
         self.assertEqual(reverse_id(cell_id(0, -99)), (0, -99))
+
+
+class TestPoint(unittest.TestCase):
+
+    def testing_point(self):
+        p1 = Point(0, 0)
+        p2 = Point(0, 1)
+        p3 = Point.from_cell_id(cell_id(0, 0))
+        d1 = p1 >> p2
+        d2 = (0, 1) >> p1
+        d3 = {'x': 0, 'y': 1} >> p1
+
+        self.assertEqual(p1.id, p3.id)
+        self.assertEqual(d1, 1)
+        self.assertEqual(p1.distance_to(0, 1), d1)
+        self.assertEqual(d2, 1)
+        self.assertEqual(d3, 1)
+        with self.assertRaises(TypeError):
+            'mock' >> p1
 
 
 class TestMap(unittest.TestCase):
@@ -63,8 +75,8 @@ class TestMap(unittest.TestCase):
             )
             self.assertEqual(m.coordinate(0, 0).details()['resType'], '11115')
 
-        self.assertEqual(m.coordinate(0, 0).id, cell_id(0, 0))
-        self.assertEqual(m.coordinate(0, 0).coordinate, (0, 0))
+        self.assertEqual(m.coordinate(0, 0).id, str(cell_id(0, 0)))
+        self.assertEqual(m.coordinate(0, 0).coordinate.x, 0)
         self.assertEqual(m.coordinate(0, 0)['id'], str(cell_id(0, 0)))
         self.assertTrue('id' in m.coordinate(0, 0))
 
@@ -75,6 +87,7 @@ class TestMap(unittest.TestCase):
 
         self.assertEqual(m.village('village not found?'), {})
         self.assertEqual(m.village(id=cell_id(-24, -13))['id'], str(cell_id(-24, -13)))
+        self.assertEqual(m.village(id=cell_id(-24, -13)).coordinate.x, -24)
 
         self.assertEqual(m.coordinate(-111111, 111111), {})
         self.assertEqual(m.coordinate(0, 0)['id'], str(cell_id(0, 0)))
@@ -82,7 +95,7 @@ class TestMap(unittest.TestCase):
             m.coordinate(0, 0)['asdf']
 
         self.assertEqual(m.tile(123), {})
-        self.assertEqual(m.tile(cell_id(0, 0)).id, cell_id(0, 0))
+        self.assertEqual(m.tile(cell_id(0, 0)).id, str(cell_id(0, 0)))
 
         self.assertEqual(len(list(m.kingdoms)), 161)
         self.assertEqual(len(list(m.players)), 1624)
@@ -98,7 +111,7 @@ class TestMap(unittest.TestCase):
         self.assertEqual(m.player('Punisher').id, '119')
         self.assertEqual(m.player('Punisher').name, 'Punisher')
         self.assertEqual(m.player('Punisher')['name'], 'Punisher')
-        self.assertEqual(m.player('Punisher').tribe_id, '1')
+        self.assertEqual(m.player('Punisher').tribeId, '1')
         self.assertTrue(m.player('Punisher').is_active)
         self.assertFalse(m.player('Mustafa').is_active)
         with self.assertRaises(KeyError):

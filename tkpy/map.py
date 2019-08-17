@@ -357,8 +357,11 @@ class Cell(ImmutableDataclass):
 
     @property
     def coordinate(self):
-        """ :property:`coordinate` return this cell coordinate. """
-        return reverse_id(int(self.id))
+        """ :property:`coordinate` return this cell coordinate.
+
+        return: :class:`Point`
+        """
+        return Point.from_cell_id(self.id)
 
 
 @dataclasses.dataclass(frozen=True, repr=False)

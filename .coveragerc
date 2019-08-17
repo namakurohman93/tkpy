@@ -7,3 +7,4 @@ show_missing = True
 exclude_lines =
   def __repr__
   continue
+  def __dir__
