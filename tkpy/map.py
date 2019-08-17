@@ -352,8 +352,9 @@ class Cell(ImmutableDataclass):
 
         return: :class:`dict`
         """
-        r = self.client.cache.get({"names": [f"MapDetails:{self.id}"]})
-        return r["cache"][0]["data"]
+        return self.client.cache.get(
+            {"names": [f"MapDetails:{self.id}"]}
+        )["cache"][0]["data"]
 
     @property
     def coordinate(self):
@@ -390,9 +391,9 @@ class Player(ImmutableDataclass):
 
         return: :class:`dict`
         """
-        return self.client.cache.get({"names": [f"Player:{self.id}"]})[
-            "cache"
-        ][0]["data"]
+        return self.client.cache.get(
+            {"names": [f"Player:{self.id}"]}
+        )["cache"][0]["data"]
 
     @property
     def is_active(self):
