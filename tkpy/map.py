@@ -66,7 +66,8 @@ class Point:
         >>> c1 >> {'x': 0, 'y': 1}
         1.0
     """
-    __slots__ = ['x', 'y']
+
+    __slots__ = ["x", "y"]
     x: int
     y: int
 
@@ -79,11 +80,13 @@ class Point:
         elif isinstance(other, (tuple, list)):
             return self.distance_to(other[0], other[1])
         elif isinstance(other, dict):
-            return self.distance_to(other['x'], other['y'])
-        raise TypeError(f"unsupported operand type(s) for >>: '{type(self).__name__}' and '{type(other)}'")
+            return self.distance_to(other["x"], other["y"])
+        raise TypeError(
+            f"unsupported operand type(s) for >>: '{type(self).__name__}' and '{type(other)}'"
+        )
 
     def __dir__(self):
-        return [d for d in object.__dir__(self) if not d.startswith('_')]
+        return [d for d in object.__dir__(self) if not d.startswith("_")]
 
     @classmethod
     def from_cell_id(cls, id):
@@ -103,9 +106,7 @@ class Point:
 
         return :class:`float`
         """
-        return math.sqrt(
-            pow(self.x - x, 2) + pow(self.y - y, 2)
-        )
+        return math.sqrt(pow(self.x - x, 2) + pow(self.y - y, 2))
 
 
 class Map:
