@@ -34,19 +34,6 @@ def reverse_id(vid):
     return realx, realy
 
 
-def distance(source, target):
-    """ :func:`distance` for calculating distance between point.
-
-    :param source: x, y tuple of source coordinates
-    :param target: x, y tuple of target coordinates
-
-    return: :class:`float`
-    """
-    return math.sqrt(
-        (source[0] - target[0]) ** 2 + (source[1] - target[1]) ** 2
-    )
-
-
 regionIds = {
     cell_id(x, y): [
         cell_id(xx, yy)
@@ -56,6 +43,69 @@ regionIds = {
     for x in range(-13, 14)
     for y in range(-13, 14)
 }
+
+
+@dataclasses.dataclass(frozen=True)
+class Point:
+    """ :class:`Point` is a class that provide an easy way to organize
+    coordinate.
+    In addition, it can calculate the distance between :class:`Point`.
+    And it accept :class:`list`, :class:`tupel` and :class:`dict`.
+
+    Usage:
+        >>> c1 = Point(0, 0)
+        >>> c2 = Point(0, 1)
+        >>> c1
+        Point(x=0, y=0)
+        >>> c1 >> c2
+        1.0
+        >>> c1 >> (0, 1)
+        1.0
+        >>> c1 >> [0, 1]
+        1.0
+        >>> c1 >> {'x': 0, 'y': 1}
+        1.0
+    """
+    __slots__ = ['x', 'y']
+    x: int
+    y: int
+
+    def __rrshift__(self, other):
+        return self.__rshift__(other)
+
+    def __rshift__(self, other):
+        if isinstance(other, Point):
+            return self.distance_to(other.x, other.y)
+        elif isinstance(other, (tuple, list)):
+            return self.distance_to(other[0], other[1])
+        elif isinstance(other, dict):
+            return self.distance_to(other['x'], other['y'])
+        raise TypeError(f"unsupported operand type(s) for >>: '{type(self).__name__}' and '{type(other)}'")
+
+    def __dir__(self):
+        return [d for d in object.__dir__(self) if not d.startswith('_')]
+
+    @classmethod
+    def from_cell_id(cls, id):
+        """ :meth:`from_cell_id` instantiate :class:`Point` using cell id
+        as argument.
+
+        return: :class:`Point`
+        """
+        return cls(*reverse_id(int(id)))
+
+    @property
+    def id(self):
+        return cell_id(self.x, self.y)
+
+    def distance_to(self, x, y):
+        """ Calculate distance between two points.
+
+        return :class:`float`
+        """
+        return math.sqrt(
+            pow(self.x - x, 2) + pow(self.y - y, 2)
+        )
 
 
 class Map:
@@ -292,9 +342,8 @@ class Cell(ImmutableDataclass):
     is where cell data stored.
     """
 
-    __slots__ = ["data", "client"]
+    __slots__ = ["client"]
     client: Any
-    data: dict
 
     def details(self):
         """ :meth:`details` send requests to TK for perceive more details
@@ -317,9 +366,8 @@ class Player(ImmutableDataclass):
     player data stored.
     """
 
-    __slots__ = ["data", "client", "id"]
+    __slots__ = ["client", "id"]
     client: Any
-    data: dict
     id: int
 
     def hero_equipment(self):
@@ -359,8 +407,7 @@ class Kingdom(ImmutableDataclass):
     kingdom data stored.
     """
 
-    __slots__ = ["data", "id"]
-    data: dict
+    __slots__ = ["id"]
     id: int
 
     @property
