@@ -260,7 +260,7 @@ class Map:
         return: :class:`Cell`
         """
         try:
-            return self.hash_table[cell_id(x, y)]
+            return self._cell[cell_id(x, y)]
         except:
             return default
 
@@ -275,7 +275,7 @@ class Map:
         return: :class:`Cell`
         """
         try:
-            return self.hash_table[int(id)]
+            return self._cell[int(id)]
         except:
             return default
 
