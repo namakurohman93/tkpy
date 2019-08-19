@@ -349,8 +349,8 @@ class _Storage:
     def insert(self, id, name, item):
         """ :meth:`insert` for add and update items.
 
-        :param id: - :class:`Any` id of item.
-        :param name: - :class:`Any` name of item.
+        :param id: - :class:`int` id of item.
+        :param name: - :class:`str` name of item.
         :param item: - :class:`Any` item that want to be stored.
         """
         self.item[int(id)] = item
@@ -360,8 +360,8 @@ class _Storage:
         """ :meth:`get` for get item using id or name keys of items.
         If no match found, it will return `default` value.
 
-        :param id: - :class:`Any` id of item.
-        :param name: - :class:`Any` name of item.
+        :param id: - :class:`int` id of item.
+        :param name: - :class:`str` name of item.
         :param default: - :class:`dict` return value of no match item
                           found. Default: {}
 
