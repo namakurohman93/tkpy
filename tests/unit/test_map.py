@@ -44,34 +44,42 @@ class TestPoint(unittest.TestCase):
 
 class TestMap(unittest.TestCase):
 
-    def testing_map(self):
+    def setUp(self):
         with open('./tests/unit/fixtures/pickled_driver.py', 'rb') as f:
-            g = pickle.load(f)
+            self.g = pickle.load(f)
 
         with open('./tests/unit/fixtures/map_raw.json', 'r') as f:
-            fixtures_map = json.load(f)
+            self.fixtures_map = json.load(f)
 
         with open('./tests/unit/fixtures/map_raw2.json', 'r') as f:
-            fixtures_map2 = json.load(f)
+            self.fixtures_map2 = json.load(f)
 
         with open('./tests/unit/fixtures/cell_details.json', 'r') as f:
-            cell_details = json.load(f)
+            self.cell_details = json.load(f)
+
+        with open('./tests/unit/fixtures/hero_equipment.json', 'r') as f:
+            self.hero_equipment = json.load(f)
+
+        with open('./tests/unit/fixtures/player_details.json', 'r') as f:
+            self.player_details = json.load(f)
+
+    def testing_map(self):
 
         with requests_mock.mock() as mock:
             mock.register_uri(
                 'POST',
                 'https://com93.kingdoms.com/api/',
-                json=fixtures_map
+                json=self.fixtures_map
             )
 
-            m = Map(g)
+            m = Map(self.g)
             m.pull()
 
         with requests_mock.mock() as mock:
             mock.register_uri(
                 'POST',
                 'https://com93.kingdoms.com/api/',
-                json=cell_details
+                json=self.cell_details
             )
             self.assertEqual(m.coordinate(0, 0).details()['resType'], '11115')
 
@@ -84,10 +92,6 @@ class TestMap(unittest.TestCase):
         self.assertEqual(len(list(m.tiles)), 5815)
         self.assertEqual(len(list(m.oasis)), 1226)
         self.assertEqual(len(list(m.wilderness)), 26305)
-
-        self.assertEqual(m.village('village not found?'), {})
-        self.assertEqual(m.village(id=cell_id(-24, -13))['id'], str(cell_id(-24, -13)))
-        self.assertEqual(m.village(id=cell_id(-24, -13)).coordinate.x, -24)
 
         self.assertEqual(m.coordinate(-111111, 111111), {})
         self.assertEqual(m.coordinate(0, 0)['id'], str(cell_id(0, 0)))
@@ -109,6 +113,8 @@ class TestMap(unittest.TestCase):
 
         self.assertEqual(m.player('player not found'), {})
         self.assertEqual(m.player('Punisher').id, '119')
+        self.assertEqual(m.player(id=119).id, '119')
+        self.assertEqual(m.player(), {})
         self.assertEqual(m.player('Punisher').name, 'Punisher')
         self.assertEqual(m.player('Punisher')['name'], 'Punisher')
         self.assertEqual(m.player('Punisher').tribeId, '1')
@@ -117,25 +123,19 @@ class TestMap(unittest.TestCase):
         with self.assertRaises(KeyError):
             m.player('Punisher')['adsf']
 
-        with open('./tests/unit/fixtures/hero_equipment.json', 'r') as f:
-            hero_equipment = json.load(f)
-
         with requests_mock.mock() as mock:
             mock.register_uri(
                 'POST',
                 'https://com93.kingdoms.com/api/',
-                json=hero_equipment
+                json=self.hero_equipment
             )
             self.assertEqual(m.player('Punisher').hero_equipment()[0]['name'], 'HeroItem:20922')
 
-        with open('./tests/unit/fixtures/player_details.json', 'r') as f:
-            player_details = json.load(f)
-
         with requests_mock.mock() as mock:
             mock.register_uri(
                 'POST',
                 'https://com93.kingdoms.com/api/',
-                json=player_details
+                json=self.player_details
             )
             self.assertEqual(m.player('Punisher').details()['name'], 'Punisher')
 
@@ -143,11 +143,11 @@ class TestMap(unittest.TestCase):
             mock.register_uri(
                 'POST',
                 'https://com93.kingdoms.com/api/',
-                json=fixtures_map2
+                json=self.fixtures_map2
             )
 
-            m = Map(g)
-            m._pull([536461299])
+            m = Map(self.g)
+            m.pull([536461299])
 
 
 if __name__ == '__main__':
