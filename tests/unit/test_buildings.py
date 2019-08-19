@@ -9,30 +9,37 @@ import json
 
 class TestBuildings(unittest.TestCase):
 
-    def testing_buildings(self):
+    def setUp(self):
         with open('./tests/unit/fixtures/pickled_driver.py', 'rb') as f:
-            g = pickle.load(f)
+            self.g = pickle.load(f)
 
         with open('./tests/unit/fixtures/buildings_raw.json', 'r') as f:
-            buildings_raw = json.load(f)
+            self.buildings_raw = json.load(f)
 
+        with open('./tests/unit/fixtures/building_queue_raw.json', 'r') as f:
+            self.building_queue_raw = json.load(f)
+
+        with open('./tests/unit/fixtures/construction_list_raw.json', 'r') as f:
+            self.construction_list_raw = json.load(f)
+
+    def testing_buildings(self):
         with requests_mock.mock() as mock:
             mock.register_uri(
                 'POST',
                 'https://com93.kingdoms.com/api/',
-                json=buildings_raw
+                json=self.buildings_raw
             )
-            b = Buildings(g, 536461288)
+            b = Buildings(self.g, 536461288)
             b.pull()
         self.assertEqual(len(b['crop']), 6)
         self.assertEqual(len(b.freeSlots), 8)
         self.assertEqual(len(list(b.raw)), 40)
-        self.assertEqual(b['crop'][0].id, '4')
+        self.assertEqual(b['crop'][0].buildingType, '4')
         self.assertEqual(b['crop'][0]['buildingType'], '4')
-        self.assertEqual(b['crop'][0].location, '2')
-        self.assertEqual(b['crop'][0].lvl, 6)
+        self.assertEqual(b['crop'][0].locationId, '2')
+        self.assertEqual(b['crop'][0].lvl, '6')
         self.assertFalse(b['crop'][0].isMaxLvl)
-        self.assertEqual(b['crop'][0].upgradeCost, {'1': 1625, '2': 1950, '3': 1845, '4': 0})
+        self.assertEqual(b['crop'][0].upgradeCosts, {'1': 1625, '2': 1950, '3': 1845, '4': 0})
         with self.assertRaises(KeyError):
             b['crop'][0]['KeyError']
 
@@ -48,19 +55,13 @@ class TestBuildings(unittest.TestCase):
                 self.assertEqual(r, {'mock': 'mocked'})
 
     def testing_building_queue(self):
-        with open('./tests/unit/fixtures/pickled_driver.py', 'rb') as f:
-            g = pickle.load(f)
-
-        with open('./tests/unit/fixtures/building_queue_raw.json', 'r') as f:
-            building_queue_raw = json.load(f)
-
         with requests_mock.mock() as mock:
             mock.register_uri(
                 'POST',
                 'https://com93.kingdoms.com/api/',
-                json=building_queue_raw
+                json=self.building_queue_raw
             )
-            bq = BuildingQueue(g, 536461288)
+            bq = BuildingQueue(self.g, 536461288)
             bq.pull()
         self.assertEqual(bq.freeSlots, {'1':1, '2':1, '4':1})
         self.assertEqual(bq.queues, {'1':[], '2':[], '4':[], '5':[]})
@@ -75,19 +76,13 @@ class TestBuildings(unittest.TestCase):
             self.assertEqual(r, {'mock': 'mocked'})
 
     def testing_construction_list(self):
-        with open('./tests/unit/fixtures/pickled_driver.py', 'rb') as f:
-            g = pickle.load(f)
-
-        with open('./tests/unit/fixtures/construction_list_raw.json', 'r') as f:
-            construction_list_raw = json.load(f)
-
         with requests_mock.mock() as mock:
             mock.register_uri(
                 'POST',
                 'https://com93.kingdoms.com/api/',
-                json=construction_list_raw
+                json=self.construction_list_raw
             )
-            c = ConstructionList(g, 536461288, '39')
+            c = ConstructionList(self.g, 536461288, '39')
             c.pull()
         self.assertEqual(len(c.buildable), 4)
         self.assertEqual(len(c.notBuildable), 8)
