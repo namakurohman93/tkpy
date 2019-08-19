@@ -126,34 +126,65 @@ class Map:
 
     def __init__(self, client):
         self.client = client
-        self._raw = dict()
+        self._cell = dict()
+        self._players = Players()
+        self._kingdoms = dict()
 
     def __repr__(self):
-        return str(type(self))
+        return f"<{type(self).__name__}(cell={len(self._cell)}, player={len(self._players.item)}, kingdom={len(self._kingdoms)})>"
 
-    def pull(self):
-        """ :meth:`pull` for pulling map data from TK. """
-        r = self.client.map.getByRegionIds(
-            params={"regionIdCollection": {"1": list(regionIds.keys())}}
-        )
-        del r["response"]["1"]["reports"]
-        self._raw.update(r)
+    def __dir__(self):
+        return [*filter(lambda d: d.startswith('_'), dir(Map))]
 
-    def _pull(self, region_id=[]):
-        """ :meth:`_pull` developed new pull method. It will pull specific
-        region data from TK. But the problem is the user need to know how
-        TK map work.
+    def _create_index(self, response):
+        for c in response:
+            try:
+                for region_id in response[c]['region']:
+                    for cell in response[c]['region'][region_id]:
+                        self._cell[int(cell['id'])] = Cell(
+                            client=self.client,
+                            data=cell
+                        )
+                for player_id in response[c]['player']:
+                    player = Player(
+                        id=player_id,
+                        client=self.client,
+                        data=response[c]['player'][player_id]
+                    )
+                    name = response[c]['player'][player_id]['name']
+                    self._players.insert(
+                        player_id=player_id,
+                        player_name=name,
+                        player=player
+                    )
+                for kingdom_id in response[c]['kingdom']:
+                    self._kingdoms[int(kingdom_id)] = Kingdom(
+                        id=kingdom_id,
+                        data=response[c]['kingdom'][kingdom_id]
+                    )
+            except:
+                continue
+
+    def pull(self, region_id=[]):
+        """ :meth:`pull` for pulling map data from TK. If `region_id`
+        specified, it will pull specific region data from TK.
 
         :param region_id: - :class:`list` (optional) list of region id
                             that want to requested to TK. Default: []
         """
-        ids = (x for x in list(range(1, len(region_id) // 49 + 2)))
-        req_list = {
-            str(id): [region_id.pop() for _ in range(49) if region_id]
-            for id in ids
-        }
-        r = self.client.map.getByRegionIds({"regionIdCollection": req_list})
-        self._raw.update(r)
+        if region_id:
+            ids = (x for x in list(range(1, len(region_id) // 49 + 2)))
+            req_list = {
+                str(id): [region_id.pop() for _ in range(49) if region_id]
+                for id in ids
+            }
+        else:
+            req_list = {'1': list(regionIds.keys())}
+
+        r = self.client.map.getByRegionIds({
+            'regionIdCollection': req_list
+        })
+        self._create_index(r['response'])
 
     @property
     def cell(self):
@@ -162,14 +193,8 @@ class Map:
 
         yield: :class:`Cell`
         """
-        for c in self._raw["response"]:
-            try:
-                for region_id in self._raw["response"][c]["region"]:
-                    for cell in self._raw["response"][c]["region"][region_id]:
-                        # yield cell
-                        yield Cell(client=self.client, data=cell)
-            except:
-                continue
+        for cell in self._cell.values():
+            yield cell
 
     @property
     def villages(self):
@@ -223,22 +248,6 @@ class Map:
             else:
                 continue
 
-    def village(self, name=None, id=None, default={}):
-        """ :meth:`village` is used for find specific :cell:`Cell` object
-        that have village data on it based on village name or id.
-
-        :param name: - :class:`str` village name.
-        :param id: - :class:`int` village id.
-        :param default: - :class:`dict` (optional) default value if :cell:`Cell` object
-                          didn't found. Default: {}.
-
-        return: :class:`Cell`
-        """
-        for village in self.villages:
-            if village["id"] == str(id) or village["village"]["name"] == name:
-                return village
-        return default
-
     def coordinate(self, x, y, default={}):
         """ :meth:`coordinate` is used for find specific :cell:`Cell` object
         based on cell's coordinate.
@@ -250,10 +259,10 @@ class Map:
 
         return: :class:`Cell`
         """
-        for cell in self.cell:
-            if cell["id"] == str(cell_id(x, y)):
-                return cell
-        return default
+        try:
+            return self.hash_table[cell_id(x, y)]
+        except:
+            return default
 
     def tile(self, id, default={}):
         """ :meth:`tile` is used for find specific :cell:`Cell` object
@@ -265,10 +274,10 @@ class Map:
 
         return: :class:`Cell`
         """
-        for cell in self.cell:
-            if cell["id"] == str(id):
-                return cell
-        return default
+        try:
+            return self.hash_table[int(id)]
+        except:
+            return default
 
     @property
     def kingdoms(self):
@@ -277,64 +286,52 @@ class Map:
 
         yield: :class:`Kingdom`
         """
-        for c in self._raw["response"]:
-            try:
-                for x in self._raw["response"][c]["kingdom"]:
-                    yield Kingdom(
-                        id=x, data=self._raw["response"][c]["kingdom"][x]
-                    )
-            except:
-                continue
-
-    def kingdom(self, name=None, id=None, default={}):
-        """ :meth:`kingdom` is used for find :class:`Kingdom` object
-        using name or id of kingdom.
-
-        :param name: - :class:`str` kingdom's name.
-        :param id: - :class:`int` kingdom's id.
-        :param default: - :class:`dict` (optional) default value when
-                          :class:`Kingdom` object not found. Default: {}
-
-        return: :class:`Kingdom`
-        """
-        for kingdom in self.kingdoms:
-            if kingdom.id == str(id) or kingdom.name == name:
-                return kingdom
-        return default
+        for kingdom in self._kingdoms.values():
+            yield kingdom
 
     @property
     def players(self):
         """ :property:`players` is a :func:`generator` that yield
         :class:`Player` object.
-
         yield: :class:`Player`
         """
-        for c in self._raw["response"]:
-            try:
-                for x in self._raw["response"][c]["player"]:
-                    yield Player(
-                        id=x,
-                        client=self.client,
-                        data=self._raw["response"][c]["player"][x],
-                    )
-            except:
-                continue
+        for player in self._players.item.values():
+            yield player
 
     def player(self, name=None, id=None, default={}):
         """ :meth:`player` is used for find :class:`Player` object
         used player name or id.
 
-        :param name: - :class:`str` player's name.
         :param id: - :class:`int` player's id.
         :param default: - :class:`dict` (optional) default value when
                           :class:`Player` object not found. Default: {}
 
         return: :class:`Player`
         """
-        for player in self.players:
-            if player.id == str(id) or player.name == name:
-                return player
-        return default
+        return self._players.get(
+            player_name=name, player_id=id, default=default
+        )
+
+
+class Players:
+    def __init__(self):
+        self.item = dict()
+        self.players_name = dict()
+
+    def insert(self, player_id, player_name, player):
+        self.item[player_id] = player
+        self.players_name[player_name] = self.item[player_id]
+
+    def get(self, player_id=None, player_name=None, default={}):
+        try:
+            if player_id:
+                return self.item[player_id]
+            elif player_name:
+                return self.players_name[player_name]
+            else:
+                return default
+        except:
+            return default
 
 
 @dataclasses.dataclass(frozen=True, repr=False)
