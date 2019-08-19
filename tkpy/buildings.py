@@ -39,9 +39,9 @@ class Buildings:
     def pull(self):
         """ :meth:`pull` for pulling building data of this village from TK. """
         self._raw.update(
-            self.client.cache.get(
-                {"names": [f"Collection:Building:{self.villageId}"]}
-            )
+            self.client.cache.get({
+                "names": [f"Collection:Building:{self.villageId}"]
+            })
         )
 
     @property
@@ -89,26 +89,22 @@ class Building(ImmutableDataclass):
 
         return: :class:`dict`
         """
-        return self.client.building.upgrade(
-            {
-                "buildingType": self.buildingType,
-                "locationId": self.locationId,
-                "villageId": self.villageId,
-            }
-        )
+        return self.client.building.upgrade({
+            "buildingType": self.buildingType,
+            "locationId": self.locationId,
+            "villageId": self.villageId,
+        })
 
     def queues(self, reserveResources):
         """ :meth:`upgrade` for upgrade this building.
 
         return: :class:`dict`
         """
-        return self.client.building.upgrade(
-            {
-                "buildingType": self.buildingType,
-                "locationId": self.locationId,
-                "villageId": self.villageId,
-            }
-        )
+        return self.client.building.upgrade({
+            "buildingType": self.buildingType,
+            "locationId": self.locationId,
+            "villageId": self.villageId,
+        })
 
 
 class BuildingQueue:
@@ -132,9 +128,9 @@ class BuildingQueue:
     def pull(self):
         """ :meth:`pull` for pulling building queue data from TK of this village. """
         self._raw.update(
-            self.client.cache.get(
-                {"names": [f"BuildingQueue:{self.villageId}"]}
-            )
+            self.client.cache.get({
+                "names": [f"BuildingQueue:{self.villageId}"]
+            })
         )
 
     @property
@@ -165,9 +161,11 @@ class BuildingQueue:
 
         return: :class:`dict`
         """
-        return self.client.premiumFeature.finishNow(
-            {"price": 0, "queueType": queueType, "villageId": self.villageId}
-        )
+        return self.client.premiumFeature.finishNow({
+            "price": 0,
+            "queueType": queueType,
+            "villageId": self.villageId,
+        })
 
 
 class ConstructionList:
@@ -214,9 +212,9 @@ class ConstructionList:
     def pull(self):
         """ :meth:`pull` for pulling construction list data from TK. """
         self._raw.update(
-            self.client.building.getBuildingList(
-                {"locationId": self.location, "villageId": self.villageId}
-            )
+            self.client.building.getBuildingList({
+                "locationId": self.location, "villageId": self.villageId
+            })
         )
 
     @property
