@@ -134,38 +134,37 @@ class Map:
         return f"<{type(self).__name__}(cell={len(self._cell)}, player={len(self._players.item)}, kingdom={len(self._kingdoms)})>"
 
     def __dir__(self):
-        return [*filter(lambda d: d.startswith('_'), dir(Map))]
+        return [*filter(lambda d: d.startswith("_"), dir(Map))]
 
     def _create_index(self, response):
         for c in response:
             try:
                 # storing cell
-                for region_id in response[c]['region']:
-                    for cell in response[c]['region'][region_id]:
-                        self._cell[int(cell['id'])] = Cell(
-                            client=self.client,
-                            data=cell
+                for region_id in response[c]["region"]:
+                    for cell in response[c]["region"][region_id]:
+                        self._cell[int(cell["id"])] = Cell(
+                            client=self.client, data=cell
                         )
                 # storing player
-                for player_id in response[c]['player']:
+                for player_id in response[c]["player"]:
                     self._players.insert(
                         id=player_id,
-                        name=response[c]['player'][player_id]['name'],
+                        name=response[c]["player"][player_id]["name"],
                         item=Player(
                             id=player_id,
                             client=self.client,
-                            data=response[c]['player'][player_id]
-                        )
+                            data=response[c]["player"][player_id],
+                        ),
                     )
                 # storing kingdom
-                for kingdom_id in response[c]['kingdom']:
+                for kingdom_id in response[c]["kingdom"]:
                     self._kingdoms.insert(
                         id=kingdom_id,
-                        name=response[c]['kingdom'][kingdom_id]['tag'],
+                        name=response[c]["kingdom"][kingdom_id]["tag"],
                         item=Kingdom(
                             id=kingdom_id,
-                            data=response[c]['kingdom'][kingdom_id]
-                        )
+                            data=response[c]["kingdom"][kingdom_id],
+                        ),
                     )
             except:
                 continue
@@ -184,12 +183,12 @@ class Map:
                 for id in ids
             }
         else:
-            req_list = {'1': list(regionIds.keys())}
+            req_list = {"1": list(regionIds.keys())}
 
         r = self.client.map.getByRegionIds({
-            'regionIdCollection': req_list
+            "regionIdCollection": req_list
         })
-        self._create_index(r['response'])
+        self._create_index(r["response"])
 
     @property
     def cell(self):
@@ -342,6 +341,7 @@ class _Storage:
         'bar'
         >>>
     """
+
     def __init__(self):
         self.item = dict()
         self.item_name = dict()
@@ -393,9 +393,9 @@ class Cell(ImmutableDataclass):
 
         return: :class:`dict`
         """
-        return self.client.cache.get(
-            {"names": [f"MapDetails:{self.id}"]}
-        )["cache"][0]["data"]
+        return self.client.cache.get({
+            "names": [f"MapDetails:{self.id}"]
+        })["cache"][0]["data"]
 
     @property
     def coordinate(self):
@@ -432,9 +432,9 @@ class Player(ImmutableDataclass):
 
         return: :class:`dict`
         """
-        return self.client.cache.get(
-            {"names": [f"Player:{self.id}"]}
-        )["cache"][0]["data"]
+        return self.client.cache.get({
+            "names": [f"Player:{self.id}"]
+        })["cache"][0]["data"]
 
     @property
     def is_active(self):
