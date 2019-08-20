@@ -121,21 +121,21 @@ class BuildingQueue(ImmutableDataclass):
         {'1': 1, '2': 1, '4': 2, '5': 1}
     """
 
-    __slots__ = ['client', 'villageId']
+    __slots__ = ["client", "villageId"]
     client: Any
     villageId: int
 
     def __init__(self, client, villageId, data={}):
         super().__init__(data)
-        object.__setattr__(self, 'client', client)
-        object.__setattr__(self, 'villageId', villageId)
+        object.__setattr__(self, "client", client)
+        object.__setattr__(self, "villageId", villageId)
 
     def pull(self):
         """ :meth:`pull` for pulling building queue data from TK of this village. """
         self.data.update(
             self.client.cache.get({
-                'names': [f'BuildingQueue:{self.villageId}']
-            })['cache'][0]['data']
+                "names": [f"BuildingQueue:{self.villageId}"]
+            })["cache"][0]["data"]
         )
 
     def finish_now(self, queueType):
@@ -149,9 +149,9 @@ class BuildingQueue(ImmutableDataclass):
         return: :class:`dict`
         """
         return self.client.premiumFeature.finishNow({
-            'price': 0,
-            'queueType': queueType,
-            'villageId': self.villageId,
+            "price": 0,
+            "queueType": queueType,
+            "villageId": self.villageId,
         })
 
 
