@@ -107,7 +107,8 @@ class Building(ImmutableDataclass):
         })
 
 
-class BuildingQueue:
+@dataclasses.dataclass(frozen=True, repr=False)
+class BuildingQueue(ImmutableDataclass):
     """ :class:`BuildingQueue` represent building queue of TK. This class
     is where building queue data is stored. The idea of this class is just
     to make access data of building queue easier.
@@ -120,38 +121,24 @@ class BuildingQueue:
         {'1': 1, '2': 1, '4': 2, '5': 1}
     """
 
-    def __init__(self, client, villageId):
-        self.client = client
-        self.villageId = villageId
-        self._raw = dict()
+    __slots__ = ['client', 'villageId']
+    client: Any
+    villageId: int
+
+    def __init__(self, client, villageId, data={}):
+        super().__init__(data)
+        object.__setattr__(self, 'client', client)
+        object.__setattr__(self, 'villageId', villageId)
 
     def pull(self):
         """ :meth:`pull` for pulling building queue data from TK of this village. """
-        self._raw.update(
+        self.data.update(
             self.client.cache.get({
-                "names": [f"BuildingQueue:{self.villageId}"]
-            })
+                'names': [f'BuildingQueue:{self.villageId}']
+            })['cache'][0]['data']
         )
 
-    @property
-    def freeSlots(self):
-        """ :property:`freeSlots` return :class:`dict` that consist of
-        building queue slot status.
-
-        return: :class:`dict`
-        """
-        return self._raw["cache"][0]["data"]["freeSlots"]
-
-    @property
-    def queues(self):
-        """ :property:`queues` return :class:`dict` that consist the data
-        of building on building queue slot.
-
-        return: :class:`dict`
-        """
-        return self._raw["cache"][0]["data"]["queues"]
-
-    def finishNow(self, queueType):
+    def finish_now(self, queueType):
         """ :meth:`finishNow` is for instant finish building that upgrade
         progress time is less than 5 minutes.
 
@@ -162,9 +149,9 @@ class BuildingQueue:
         return: :class:`dict`
         """
         return self.client.premiumFeature.finishNow({
-            "price": 0,
-            "queueType": queueType,
-            "villageId": self.villageId,
+            'price': 0,
+            'queueType': queueType,
+            'villageId': self.villageId,
         })
 
 

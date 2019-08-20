@@ -72,7 +72,7 @@ class TestBuildings(unittest.TestCase):
                 'https://com93.kingdoms.com/api/',
                 json={'mock': 'mocked'}
             )
-            r = bq.finishNow(2)
+            r = bq.finish_now(2)
             self.assertEqual(r, {'mock': 'mocked'})
 
     def testing_construction_list(self):
