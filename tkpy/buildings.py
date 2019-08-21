@@ -100,10 +100,11 @@ class Building(ImmutableDataclass):
 
         return: :class:`dict`
         """
-        return self.client.building.upgrade({
+        return self.client.building.useMasterBuilder({
             "buildingType": self.buildingType,
             "locationId": self.locationId,
             "villageId": self.villageId,
+            "reserveResources": reserveResources,
         })
 
 
