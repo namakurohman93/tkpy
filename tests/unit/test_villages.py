@@ -76,6 +76,9 @@ class TestVillage(unittest.TestCase):
         with open('./tests/unit/fixtures/building_queue_raw.json', 'r') as f:
             self.building_queue_raw = json.load(f)
 
+        with open('./tests/unit/fixtures/construction_list_raw.json', 'r') as f:
+            self.construction_list_raw = json.load(f)
+
         self.village = Village(
             client=self.g,
             data=self.village_raw['cache'][0]['data']
@@ -88,7 +91,7 @@ class TestVillage(unittest.TestCase):
             func(*args, **kwargs)
             self.assertFail()
         except Exception as e:
-            self.assertTrue(e.__class__ == exc)
+            self.assertEqual(e.__class__, exc)
             self.assertEqual(e.msg, msg)
 
     def testing_village_attribute(self):
@@ -160,6 +163,69 @@ class TestVillage(unittest.TestCase):
             r = self.village.attack(1, 1)
         self.assertEqual(r, self.send_troops_raw)
 
+    def testing_village_attack_raise_there_is_no_troops_on_village_syntax_error(self):
+        self.village_units_raw['cache'][0]['data']['cache'][0]['data']['units'] = {}
+        with requests_mock.mock() as mock:
+            mock.register_uri(
+                'POST',
+                self.url,
+                [
+                    {'json': self.cell_details2},
+                    {'json': self.village_units_raw},
+                ]
+            )
+            self.assertRaisesMessage(
+                SyntaxError,
+                'There is no troops on 001 village',
+                self.village.attack, 1, 1, None, None
+            )
+
+    def testing_village_attack_use_all_troops(self):
+        with requests_mock.mock() as mock:
+            mock.register_uri(
+                'POST',
+                self.url,
+                [
+                    {'json': self.cell_details2},
+                    {'json': self.village_units_raw},
+                    {'json': self.send_troops_raw},
+                ]
+            )
+            r = self.village.attack(1, 1, units={'1':-1, '2':-1, '3':-1, '4':-1, '5':-1, '6':-1, '7':-1, '8':-1, '9':-1, '10':-1, '11':-1})
+        self.assertEqual(r, self.send_troops_raw)
+
+    def testing_village_attack_raise_not_enough_troops_syntax_error(self):
+        with requests_mock.mock() as mock:
+            mock.register_uri(
+                'POST',
+                self.url,
+                [
+                    {'json': self.cell_details2},
+                    {'json': self.village_units_raw},
+                ]
+            )
+            self.assertRaisesMessage(
+                SyntaxError,
+                'Not enough troops 1',
+                self.village.attack, 1, 1, None, {'1': 10000000}
+            )
+
+    def testing_village_attack_raise_send_at_least_1_troop_syntax_error(self):
+        with requests_mock.mock() as mock:
+            mock.register_uri(
+                'POST',
+                self.url,
+                [
+                    {'json': self.cell_details2},
+                    {'json': self.village_units_raw},
+                ]
+            )
+            self.assertRaisesMessage(
+                SyntaxError,
+                'Send at least 1 troops',
+                self.village.attack, 1, 1, None, {'1':0, '2':0}
+            )
+
     def testing_village_raid(self):
         with requests_mock.mock() as mock:
             mock.register_uri(
@@ -202,7 +268,23 @@ class TestVillage(unittest.TestCase):
             r = self.village.spy(1, 1, amount=1)
         self.assertEqual(r, self.send_troops_raw)
 
-    def testing_village_siege_but_failed(self):
+    def testing_village_spy_raise_choose_mission_between_resources_or_defence_syntax_error(self):
+        with requests_mock.mock() as mock:
+            mock.register_uri(
+                'POST',
+                self.url,
+                [
+                    {'json': self.cell_details2},
+                    {'json': self.village_units_raw},
+                ]
+            )
+            self.assertRaisesMessage(
+                SyntaxError,
+                "choose mission between 'resources' or 'defence'",
+                self.village.spy, 1, 1, None, 1, 'error'
+            )
+
+    def testing_village_siege_raise_set_unit_first_syntax_error(self):
         with requests_mock.mock() as mock:
             mock.register_uri(
                 'POST',
@@ -213,12 +295,44 @@ class TestVillage(unittest.TestCase):
                     {'json': self.send_troops_raw},
                 ]
             )
-            # with self.assertRaises(SyntaxError):
-                # r = self.village.siege(1, 1)
             self.assertRaisesMessage(
                 SyntaxError,
                 'Set units first',
                 self.village.siege, 1, 1, None, None
+            )
+
+    def testing_village_siege_raise_need_at_least_1000_troops_syntax_error(self):
+        self.village_units_raw['cache'][0]['data']['cache'][0]['data']['units']['7'] = 1
+        with requests_mock.mock() as mock:
+            mock.register_uri(
+                'POST',
+                self.url,
+                [
+                    {'json': self.cell_details2},
+                    {'json': self.village_units_raw},
+                ]
+            )
+            self.assertRaisesMessage(
+                SyntaxError,
+                'Need at least 1000 troops',
+                self.village.siege, 1, 1, None, {'1': 1, '7': 1}
+            )
+
+    def testing_village_siege_raise_need_at_least_1_ram_for_siege_syntax_error(self):
+        self.village_units_raw['cache'][0]['data']['cache'][0]['data']['units']['1'] = 1000
+        with requests_mock.mock() as mock:
+            mock.register_uri(
+                'POST',
+                self.url,
+                [
+                    {'json': self.cell_details2},
+                    {'json': self.village_units_raw},
+                ]
+            )
+            self.assertRaisesMessage(
+                SyntaxError,
+                'Need at least 1 ram for siege',
+                self.village.siege, 1, 1, None, {'1': 1000}
             )
 
     def testing_village_send_farmlist(self):
@@ -232,6 +346,8 @@ class TestVillage(unittest.TestCase):
         self.assertEqual(r, {'mock': 'mocked'})
 
     def testing_village_upgrade(self):
+        # this upgrade building goes to queues cause there is not enough
+        # resources but queue slot has free slot
         with requests_mock.mock() as mock:
             mock.register_uri(
                 'POST',
@@ -245,6 +361,229 @@ class TestVillage(unittest.TestCase):
             )
             r = self.village.upgrade('main building')
         self.assertEqual(r, {'mock': 'mocked'})
+
+    def testing_village_upgrade_again(self):
+        # this upgrade building goes to upgrade slot cause now it
+        # have enough resources
+        self.buildings_raw['cache'][0]['data']['cache'][0]['data']['upgradeCosts'] = {'1': 0, '2': 0, '3': 0, '4': 0}
+        with requests_mock.mock() as mock:
+            mock.register_uri(
+                'POST',
+                self.url,
+                [
+                    {'json': self.village_raw},
+                    {'json': self.buildings_raw},
+                    {'json': self.building_queue_raw},
+                    {'json': {'mock': 'mocked'}},
+                ]
+            )
+            r = self.village.upgrade('main building')
+        self.assertEqual(r, {'mock': 'mocked'})
+
+    def testing_village_upgrade_again_but_building_go_to_queue_slot(self):
+        # this upgrade building goes to upgrade slot cause now it
+        # have enough resources, but it didn't go to upgrade slot
+        # cause upgrade slot currently being used by other building,
+        # so this building goes to queue slot
+        self.buildings_raw['cache'][0]['data']['cache'][0]['data']['upgradeCosts'] = {'1': 0, '2': 0, '3': 0, '4': 0}
+        self.building_queue_raw['cache'][0]['data']['freeSlots']['1'] = 0
+        with requests_mock.mock() as mock:
+            mock.register_uri(
+                'POST',
+                self.url,
+                [
+                    {'json': self.village_raw},
+                    {'json': self.buildings_raw},
+                    {'json': self.building_queue_raw},
+                    {'json': {'mock': 'mocked'}},
+                ]
+            )
+            r = self.village.upgrade('main building')
+        self.assertEqual(r, {'mock': 'mocked'})
+
+    def testing_village_upgrade_with_building_at_max_level(self):
+        self.buildings_raw['cache'][0]['data']['cache'][0]['data']['isMaxLvl'] = True
+        with requests_mock.mock() as mock:
+            mock.register_uri(
+                'POST',
+                self.url,
+                [
+                    {'json': self.village_raw},
+                    {'json': self.buildings_raw},
+                    {'json': self.building_queue_raw},
+                ]
+            )
+            with self.assertRaises(BuildingAtMaxLevel):
+                self.village.upgrade('main building')
+
+    def testing_village_ugprade_building_but_raise_queue_full_exception(self):
+        self.building_queue_raw['cache'][0]['data']['freeSlots']['4'] = 0
+        with requests_mock.mock() as mock:
+            mock.register_uri(
+                'POST',
+                self.url,
+                [
+                    {'json': self.village_raw},
+                    {'json': self.buildings_raw},
+                    {'json': self.building_queue_raw},
+                ]
+            )
+            with self.assertRaises(QueueFull):
+                self.village.upgrade('main building')
+
+    def testing_village_upgrade_that_didnt_exists(self):
+        # it mean :meth:`Village._construct` will be called
+        # and this call will add building to queue slot
+        with requests_mock.mock() as mock:
+            mock.register_uri(
+                'POST',
+                self.url,
+                [
+                    {'json': self.village_raw},
+                    {'json': self.buildings_raw},
+                    {'json': self.building_queue_raw},
+                    {'json': self.construction_list_raw},
+                    {'json': {'mock': 'mocked'}},
+                ]
+            )
+            r = self.village.upgrade('smithy')
+        self.assertEqual(r, {'mock': 'mocked'})
+
+    def testing_village_upgrade_that_didnt_exists_again(self):
+        # it mean :meth:`Village._construct` will be called
+        # this time it will add building to upgrade slot cause now it
+        # have enough resources
+        self.construction_list_raw['response']['buildings']['buildable'][0]['upgradeCosts'] = {'1': 0, '2': 0, '3': 0, '4': 0}
+        with requests_mock.mock() as mock:
+            mock.register_uri(
+                'POST',
+                self.url,
+                [
+                    {'json': self.village_raw},
+                    {'json': self.buildings_raw},
+                    {'json': self.building_queue_raw},
+                    {'json': self.construction_list_raw},
+                    {'json': {'mock': 'mocked'}},
+                ]
+            )
+            r = self.village.upgrade('smithy')
+        self.assertEqual(r, {'mock': 'mocked'})
+
+    def testing_village_upgrade_that_didnt_exists_but_raise_warehouse_not_enough_exception(self):
+        # it mean :meth:`Village._construct` will be called
+        self.construction_list_raw['response']['buildings']['buildable'][0]['upgradeCosts']['1'] = 9999999
+        with requests_mock.mock() as mock:
+            mock.register_uri(
+                'POST',
+                self.url,
+                [
+                    {'json': self.village_raw},
+                    {'json': self.buildings_raw},
+                    {'json': self.building_queue_raw},
+                    {'json': self.construction_list_raw},
+                ]
+            )
+            with self.assertRaises(WarehouseNotEnough):
+                self.village.upgrade('smithy')
+
+    def testing_village_upgrade_that_didnt_exists_but_raise_failed_construct_building_exception(self):
+        # it mean :meth:`Village._construct` will be called
+        with requests_mock.mock() as mock:
+            mock.register_uri(
+                'POST',
+                self.url,
+                [
+                    {'json': self.village_raw},
+                    {'json': self.buildings_raw},
+                    {'json': self.building_queue_raw},
+                    {'json': self.construction_list_raw},
+                ]
+            )
+            with self.assertRaises(FailedConstructBuilding):
+                self.village.upgrade('trade office')
+
+    def testing_village_upgrade_that_didnt_exists_but_raise_building_slot_full_exception(self):
+        # it mean :meth:`Village._construct` will be called
+        for x in self.buildings_raw['cache'][0]['data']['cache']:
+            x['data']['buildingType'] = '1'
+        with requests_mock.mock() as mock:
+            mock.register_uri(
+                'POST',
+                self.url,
+                [
+                    {'json': self.village_raw},
+                    {'json': self.buildings_raw},
+                    {'json': self.building_queue_raw},
+                    {'json': self.construction_list_raw},
+                ]
+            )
+            with self.assertRaises(BuildingSlotFull):
+                self.village.upgrade('smithy')
+
+    def testing_village_upgrade_raises_warehouse_not_enough_exception(self):
+        self.buildings_raw['cache'][0]['data']['cache'][0]['data']['upgradeCosts']['1'] = 9999999
+        with requests_mock.mock() as mock:
+            mock.register_uri(
+                'POST',
+                self.url,
+                [
+                    {'json': self.village_raw},
+                    {'json': self.buildings_raw},
+                    {'json': self.building_queue_raw},
+                ]
+            )
+            with self.assertRaises(WarehouseNotEnough):
+                self.village.upgrade('main building')
+
+    def testing_village_upgrade_tribe_roman_building_type_resources(self):
+        self.g.accountDetails['tribeId'] = 1
+        for x in self.buildings_raw['cache'][0]['data']['cache']:
+            if x['data']['buildingType'] == '1':
+                x['data']['upgradeCosts'] = {'1': 0, '2': 0, '3': 0, '4': 0}
+        with requests_mock.mock() as mock:
+            mock.register_uri(
+                'POST',
+                self.url,
+                [
+                    {'json': self.village_raw},
+                    {'json': self.buildings_raw},
+                    {'json': self.building_queue_raw},
+                    {'json': {'mock': 'mocked'}},
+                ]
+            )
+            r = self.village.upgrade('wood')
+        self.assertEqual(r, {'mock': 'mocked'})
+
+    def testing_village_attack_with_different_tribe(self):
+        self.g.accountDetails['tribeId'] = 3
+        with requests_mock.mock() as mock:
+            mock.register_uri(
+                'POST',
+                self.url,
+                [
+                    {'json': self.cell_details2},
+                    {'json': self.village_units_raw},
+                    {'json': self.send_troops_raw},
+                ]
+            )
+            r = self.village.attack(1, 1)
+        self.assertEqual(r, self.send_troops_raw)
+
+    def testing_village_spy_with_different_tribe(self):
+        self.village_units_raw['cache'][0]['data']['cache'][0]['data']['units']['3'] = 1
+        self.g.accountDetails['tribeId'] = 3
+        with requests_mock.mock() as mock:
+            mock.register_uri(
+                'POST',
+                self.url,
+                [
+                    {'json': self.cell_details2},
+                    {'json': self.village_units_raw},
+                    {'json': self.send_troops_raw},
+                ]
+            )
+            r = self.village.spy(1, 1, amount=1)
+        self.assertEqual(r, self.send_troops_raw)
 
     def testing_village_warehouse(self):
         self.assertEqual(self.village.warehouse.storage, {"1": 260.78677256557, "2": 200.1046366545, "3": 194.46890847656, "4": 180.21246008591})
