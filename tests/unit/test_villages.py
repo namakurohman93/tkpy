@@ -260,7 +260,5 @@ class TestVillage(unittest.TestCase):
             self.village.warehouse['key error']
 
 
-
-
 if __name__ == '__main__':
     unittest.run()
