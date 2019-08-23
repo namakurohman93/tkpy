@@ -1,3 +1,4 @@
+from tkpy.villages import Village
 from tkpy.villages import Villages
 from tkpy.exception import VillageNotFound
 from tkpy.exception import WarehouseNotEnough
@@ -15,801 +16,251 @@ import json
 
 class TestVillages(unittest.TestCase):
 
+    def setUp(self):
+        with open('tests/unit/fixtures/pickled_driver.py', 'rb') as f:
+            self.g = pickle.load(f)
+
+        with open('tests/unit/fixtures/villages_raw.json', 'r') as f:
+            self.villages_raw = json.load(f)
+
+        self.url = 'https://com93.kingdoms.com/api/'
+
     def testing_villages(self):
-        with open('./tests/unit/fixtures/pickled_driver.py', 'rb') as f:
-            g = pickle.load(f)
-
-        with open('./tests/unit/fixtures/villages_raw.json', 'r') as f:
-            villages_raw = json.load(f)
-
         with requests_mock.mock() as mock:
             mock.register_uri(
                 'POST',
-                'https://com93.kingdoms.com/api/',
-                json=villages_raw
+                self.url,
+                json=self.villages_raw
             )
-            v = Villages(g)
+            v = Villages(self.g)
             v.pull()
+
         self.assertEqual(v['001'].name, '001')
-        self.assertEqual(len(list(x for x in v)), 2)
         self.assertEqual(len(list(v.dorps)), 2)
-        self.assertEqual(len(list(v.raw)), 2)
         v_capital = v.get_capital_village()
         self.assertEqual(v_capital.name, '001')
         with self.assertRaises(VillageNotFound):
             v['villages not found']
 
-    def testing_village(self):
-        with open('./tests/unit/fixtures/pickled_driver.py', 'rb') as f:
-            g = pickle.load(f)
 
-        with open('./tests/unit/fixtures/villages_raw.json', 'r') as f:
-            villages_raw = json.load(f)
+class TestVillage(unittest.TestCase):
+
+    def setUp(self):
+        with open('tests/unit/fixtures/pickled_driver.py', 'rb') as f:
+            self.g = pickle.load(f)
 
         with open('./tests/unit/fixtures/village_raw.json', 'r') as f:
-            village_raw = json.load(f)
+            self.village_raw = json.load(f)
 
         with open('./tests/unit/fixtures/village_units_raw.json', 'r') as f:
-            village_units_raw = json.load(f)
+            self.village_units_raw = json.load(f)
 
         with open('./tests/unit/fixtures/construction_list_raw.json', 'r') as f:
-            construction_list_raw = json.load(f)
+            self.construction_list_raw = json.load(f)
 
         with open('./tests/unit/fixtures/send_troops_raw.json', 'r') as f:
-            send_troops_raw = json.load(f)
-
-        with open('./tests/unit/fixtures/send_troops_raw_failed.json', 'r') as f:
-            send_troops_raw_failed = json.load(f)
+            self.send_troops_raw = json.load(f)
 
         with open('./tests/unit/fixtures/raw_troops_movement.json', 'r') as f:
-            troops_movement_raw = json.load(f)
+            self.troops_movement_raw = json.load(f)
 
+        with open('./tests/unit/fixtures/cell_details.json', 'r') as f:
+            self.cell_details = json.load(f)
+
+        with open('./tests/unit/fixtures/cell_details2.json', 'r') as f:
+            self.cell_details2 = json.load(f)
+
+        with open('./tests/unit/fixtures/buildings_raw.json', 'r') as f:
+            self.buildings_raw = json.load(f)
+
+        with open('./tests/unit/fixtures/building_queue_raw.json', 'r') as f:
+            self.building_queue_raw = json.load(f)
+
+        self.village = Village(
+            client=self.g,
+            data=self.village_raw['cache'][0]['data']
+        )
+
+        self.url = 'https://com93.kingdoms.com/api/'
+
+    def assertRaisesMessage(self, exc, msg, func, *args, **kwargs):
+        try:
+            func(*args, **kwargs)
+            self.assertFail()
+        except Exception as e:
+            self.assertTrue(e.__class__ == exc)
+            self.assertEqual(e.msg, msg)
+
+    def testing_village_attribute(self):
+        v = Village(
+            client=self.g,
+            data=self.village_raw['cache'][0]['data']
+        )
+        self.assertEqual(v.name, '001')
+        self.assertEqual(v.villageId, '536461288')
+        self.assertEqual(v.coordinates, {'x': '-24', 'y': '-13'})
+        self.assertTrue(v.isMainVillage)
+        self.assertFalse(v.isTown)
+
+    def testing_village_pull(self):
         with requests_mock.mock() as mock:
             mock.register_uri(
                 'POST',
-                'https://com93.kingdoms.com/api/',
-                json=villages_raw
+                self.url,
+                json=self.village_raw
             )
-            v = Villages(g)
-            v.pull()
-        v1 = v['001']
-        self.assertEqual(v1.id, 536461288)
-        self.assertEqual(v1.name, '001')
-        self.assertEqual(v1['name'], '001')
-        self.assertEqual(v1.coordinate, (-24, -13))
-        self.assertTrue(v1.isMainVillage)
-        with self.assertRaises(KeyError):
-            v1['key error']
+            self.village.pull()
+        self.assertEqual(self.village.name, '001')
+        self.assertEqual(self.village.villageId, '536461288')
+        self.assertEqual(self.village.coordinates, {'x': '-24', 'y': '-13'})
+        self.assertTrue(self.village.isMainVillage)
+        self.assertFalse(self.village.isTown)
 
+    def testing_village_units(self):
         with requests_mock.mock() as mock:
             mock.register_uri(
                 'POST',
-                'https://com93.kingdoms.com/api/',
-                json=village_raw
+                self.url,
+                json=self.village_units_raw
             )
-            v['001'].pull()
-        self.assertEqual(v1.id, 536461288)
-        self.assertEqual(v1.name, '001')
-        self.assertEqual(v1.coordinate, (-24, -13))
-        self.assertTrue(v1.isMainVillage)
+            r = self.village.units()
+        self.assertEqual(r, {'1': '122', '2': '14', '4': '1', '11': '1'})
 
+    def testing_village_troops_movement(self):
         with requests_mock.mock() as mock:
             mock.register_uri(
                 'POST',
-                'https://com93.kingdoms.com/api/',
-                json=troops_movement_raw
+                self.url,
+                json=self.troops_movement_raw
             )
-            r = v['001'].troops_movement()
-            self.assertEqual(r, [])
+            r = self.village.troops_movement()
+        self.assertEqual(r, [])
 
+    def testing_village_attack_raised_target_not_found(self):
         with requests_mock.mock() as mock:
             mock.register_uri(
                 'POST',
-                'https://com93.kingdoms.com/api/',
-                json=village_units_raw
-            )
-            r = v1.units()
-            self.assertEqual(r, {'1': '122', '2': '14', '4': '1', '11': '1'})
-
-        with requests_mock.mock() as mock:
-            mock.register_uri(
-                'POST',
-                'https://com93.kingdoms.com/api/',
-                [
-                    {'json': village_units_raw},
-                    {'json': send_troops_raw}
-                ]
-            )
-            r = v1.attack(1, 1)
-            self.assertEqual(r, send_troops_raw)
-
-        with requests_mock.mock() as mock:
-            mock.register_uri(
-                'POST',
-                'https://com93.kingdoms.com/api/',
-                [
-                    {'json': village_units_raw},
-                    {'json': send_troops_raw}
-                ]
-            )
-            v1.client.accountDetails['tribeId'] = 3
-            r = v1._send_troops(x=1, y=1, destVillageId=None, movementType=3, redeployHero=False, spyMission='resources', units=None)
-            self.assertEqual(r, send_troops_raw)
-
-        with requests_mock.mock() as mock:
-            village_units_raw['cache'][0]['data']['cache'][0]['data']['units'] = {'1': '122', '2': '14', '3': '10', '4': '1', '11': '1'}
-            mock.register_uri(
-                'POST',
-                'https://com93.kingdoms.com/api/',
-                [
-                    {'json': village_units_raw},
-                    {'json': send_troops_raw}
-                ]
-            )
-            r = v1.spy(1, 1, amount=1)
-            self.assertEqual(r, send_troops_raw)
-
-        v1.client.accountDetails['tribeId'] = 2
-        with requests_mock.mock() as mock:
-            mock.register_uri(
-                'POST',
-                'https://com93.kingdoms.com/api/',
-                [
-                    {'json': village_units_raw},
-                    {'json': send_troops_raw}
-                ]
-            )
-            r = v1.attack(1, 1, units={'1': -1})
-            self.assertEqual(r, send_troops_raw)
-
-        with requests_mock.mock() as mock:
-            mock.register_uri(
-                'POST',
-                'https://com93.kingdoms.com/api/',
-                [
-                    {'json': village_units_raw},
-                    {'json': send_troops_raw}
-                ]
-            )
-            with self.assertRaises(SyntaxError):
-                v1.attack(1, 1, units={'1': 123})
-
-        with requests_mock.mock() as mock:
-            mock.register_uri(
-                'POST',
-                'https://com93.kingdoms.com/api/',
-                [
-                    {'json': village_units_raw},
-                    {'json': send_troops_raw}
-                ]
-            )
-            with self.assertRaises(SyntaxError):
-                v1.attack(1, 1, units={'1': 0})
-
-        with requests_mock.mock() as mock:
-            mock.register_uri(
-                'POST',
-                'https://com93.kingdoms.com/api/',
-                [
-                    {'json': village_units_raw},
-                    {'json': send_troops_raw}
-                ]
-            )
-            r = v1.raid(1, 1)
-            self.assertEqual(r, send_troops_raw)
-
-        with requests_mock.mock() as mock:
-            mock.register_uri(
-                'POST',
-                'https://com93.kingdoms.com/api/',
-                [
-                    {'json': village_units_raw},
-                    {'json': send_troops_raw}
-                ]
-            )
-            r = v1.defend(1, 1)
-            self.assertEqual(r, send_troops_raw)
-
-        with requests_mock.mock() as mock:
-            mock.register_uri(
-                'POST',
-                'https://com93.kingdoms.com/api/',
-                [
-                    {'json': village_units_raw},
-                    {'json': send_troops_raw}
-                ]
-            )
-            r = v1.spy(1, 1, amount=1)
-            self.assertEqual(r, send_troops_raw)
-
-        with requests_mock.mock() as mock:
-            mock.register_uri(
-                'POST',
-                'https://com93.kingdoms.com/api/',
-                [
-                    {'json': village_units_raw},
-                    {'json': send_troops_raw}
-                ]
-            )
-            with self.assertRaises(SyntaxError):
-                v1.spy(1, 1, amount=1, mission='error')
-
-        with requests_mock.mock() as mock:
-            village_units_raw['cache'][0]['data']['cache'][0]['data']['units'] = {'1': '1000', '7': '1'}
-            mock.register_uri(
-                'POST',
-                'https://com93.kingdoms.com/api/',
-                [
-                    {'json': village_units_raw},
-                    {'json': send_troops_raw}
-                ]
-            )
-            r = v1.siege(1, 1, units={'1':1000, '7':1})
-            self.assertEqual(r, send_troops_raw)
-
-        with requests_mock.mock() as mock:
-            village_units_raw['cache'][0]['data']['cache'][0]['data']['units'] = {'1': '1000', '7': '1'}
-            mock.register_uri(
-                'POST',
-                'https://com93.kingdoms.com/api/',
-                [
-                    {'json': village_units_raw},
-                    {'json': send_troops_raw}
-                ]
-            )
-            with self.assertRaises(SyntaxError):
-                v1.siege(1, 1, units={'1':1, '7':1})
-
-        with requests_mock.mock() as mock:
-            village_units_raw['cache'][0]['data']['cache'][0]['data']['units'] = {'1': '1000', '7': '1'}
-            mock.register_uri(
-                'POST',
-                'https://com93.kingdoms.com/api/',
-                [
-                    {'json': village_units_raw},
-                    {'json': send_troops_raw}
-                ]
-            )
-            with self.assertRaises(SyntaxError):
-                v1.siege(1, 1)
-
-        with requests_mock.mock() as mock:
-            village_units_raw['cache'][0]['data']['cache'][0]['data']['units'] = {'1': '1000', '7': '1'}
-            mock.register_uri(
-                'POST',
-                'https://com93.kingdoms.com/api/',
-                [
-                    {'json': village_units_raw},
-                    {'json': send_troops_raw}
-                ]
-            )
-            with self.assertRaises(SyntaxError):
-                v1.siege(1, 1, units={'1':1000})
-
-        with requests_mock.mock() as mock:
-            village_units_raw['cache'][0]['data']['cache'][0]['data']['units'] = {'1': '0', '7': '0'}
-            mock.register_uri(
-                'POST',
-                'https://com93.kingdoms.com/api/',
-                [
-                    {'json': village_units_raw},
-                    {'json': send_troops_raw}
-                ]
-            )
-            with self.assertRaises(SyntaxError):
-                v1.attack(1, 1)
-
-        with requests_mock.mock() as mock:
-            village_units_raw['cache'][0]['data']['cache'][0]['data']['units'] = {'1': '111', '7': '111'}
-            mock.register_uri(
-                'POST',
-                'https://com93.kingdoms.com/api/',
-                [
-                    {'json': village_units_raw},
-                    {'json': send_troops_raw_failed},
-                ]
+                self.url,
+                json=self.cell_details
             )
             with self.assertRaises(TargetNotFound):
-                v1.attack(1, 1)
+                r = self.village.attack(0, 0)
 
+    def testing_village_attack(self):
         with requests_mock.mock() as mock:
             mock.register_uri(
                 'POST',
-                'https://com93.kingdoms.com/api/',
+                self.url,
+                [
+                    {'json': self.cell_details2},
+                    {'json': self.village_units_raw},
+                    {'json': self.send_troops_raw},
+                ]
+            )
+            r = self.village.attack(1, 1)
+        self.assertEqual(r, self.send_troops_raw)
+
+    def testing_village_raid(self):
+        with requests_mock.mock() as mock:
+            mock.register_uri(
+                'POST',
+                self.url,
+                [
+                    {'json': self.cell_details2},
+                    {'json': self.village_units_raw},
+                    {'json': self.send_troops_raw},
+                ]
+            )
+            r = self.village.raid(1, 1)
+        self.assertEqual(r, self.send_troops_raw)
+
+    def testing_village_defend(self):
+        with requests_mock.mock() as mock:
+            mock.register_uri(
+                'POST',
+                self.url,
+                [
+                    {'json': self.cell_details2},
+                    {'json': self.village_units_raw},
+                    {'json': self.send_troops_raw},
+                ]
+            )
+            r = self.village.defend(1, 1)
+        self.assertEqual(r, self.send_troops_raw)
+
+    def testing_village_spy(self):
+        with requests_mock.mock() as mock:
+            mock.register_uri(
+                'POST',
+                self.url,
+                [
+                    {'json': self.cell_details2},
+                    {'json': self.village_units_raw},
+                    {'json': self.send_troops_raw},
+                ]
+            )
+            r = self.village.spy(1, 1, amount=1)
+        self.assertEqual(r, self.send_troops_raw)
+
+    def testing_village_siege_but_failed(self):
+        with requests_mock.mock() as mock:
+            mock.register_uri(
+                'POST',
+                self.url,
+                [
+                    {'json': self.cell_details2},
+                    {'json': self.village_units_raw},
+                    {'json': self.send_troops_raw},
+                ]
+            )
+            # with self.assertRaises(SyntaxError):
+                # r = self.village.siege(1, 1)
+            self.assertRaisesMessage(
+                SyntaxError,
+                'Set units first',
+                self.village.siege, 1, 1, None, None
+            )
+
+    def testing_village_send_farmlist(self):
+        with requests_mock.mock() as mock:
+            mock.register_uri(
+                'POST',
+                self.url,
                 json={'mock': 'mocked'}
             )
-            r = v1.send_farmlist([123])
-            self.assertEqual(r, {'mock': 'mocked'})
+            r = self.village.send_farmlist([123])
+        self.assertEqual(r, {'mock': 'mocked'})
 
-        with open('./tests/unit/fixtures/buildings_raw.json', 'r') as f:
-            buildings_raw = json.load(f)
-
-        with open('./tests/unit/fixtures/building_queue_raw.json', 'r') as f:
-            building_queue_raw = json.load(f)
-
+    def testing_village_upgrade(self):
         with requests_mock.mock() as mock:
             mock.register_uri(
                 'POST',
-                'https://com93.kingdoms.com/api/',
+                self.url,
                 [
-                    {'json':village_raw},
-                    {'json':buildings_raw},
-                    {'json':building_queue_raw},
-                    {'json':{'mock': 'mocked'}}
+                    {'json': self.village_raw},
+                    {'json': self.buildings_raw},
+                    {'json': self.building_queue_raw},
+                    {'json': {'mock': 'mocked'}},
                 ]
             )
-            r = v1.upgrade('main building')
-            self.assertEqual(r, {'mock': 'mocked'})
+            r = self.village.upgrade('main building')
+        self.assertEqual(r, {'mock': 'mocked'})
 
-        buildings_raw['cache'][0]['data']['cache'][0]['data']['upgradeCosts']['1'] = 9999999
-        with requests_mock.mock() as mock:
-            mock.register_uri(
-                'POST',
-                'https://com93.kingdoms.com/api/',
-                [
-                    {'json':village_raw},
-                    {'json':buildings_raw},
-                    {'json':building_queue_raw},
-                    {'json':{'mock': 'mocked'}}
-                ]
-            )
-            with self.assertRaises(WarehouseNotEnough):
-                v1.upgrade('main building')
+    def testing_village_warehouse(self):
+        self.assertEqual(self.village.warehouse.storage, {"1": 260.78677256557, "2": 200.1046366545, "3": 194.46890847656, "4": 180.21246008591})
+        self.assertEqual(self.village.warehouse.production, {"1": 1290, "2": 990, "3": 960, "4": 890})
+        self.assertEqual(self.village.warehouse.capacity, {"1": 22500, "2": 22500, "3": 22500, "4": 15000})
+        self.assertEqual(self.village.warehouse.wood, '260.78677256557/22500 1290')
+        self.assertEqual(self.village.warehouse.clay, '200.1046366545/22500 990')
+        self.assertEqual(self.village.warehouse.iron, '194.46890847656/22500 960')
+        self.assertEqual(self.village.warehouse.crop, '180.21246008591/15000 890')
+        self.assertEqual(self.village.warehouse['1'], 260.78677256557)
+        self.assertEqual(self.village.warehouse['wood'], 260.78677256557)
+        with self.assertRaises(KeyError):
+            self.village.warehouse['key error']
 
-        buildings_raw['cache'][0]['data']['cache'][0]['data']['upgradeCosts']['1'] = 1210
-        building_queue_raw['cache'][0]['data']['freeSlots']['4'] = 0
-        with requests_mock.mock() as mock:
-            mock.register_uri(
-                'POST',
-                'https://com93.kingdoms.com/api/',
-                [
-                    {'json':village_raw},
-                    {'json':buildings_raw},
-                    {'json':building_queue_raw},
-                    {'json':{'mock': 'mocked'}}
-                ]
-            )
-            with self.assertRaises(QueueFull):
-                v1.upgrade('main building')
 
-        buildings_raw['cache'][0]['data']['cache'][0]['data']['upgradeCosts'] = {'1': 0, '2': 0, '3': 0, '4': 0}
-        with requests_mock.mock() as mock:
-            mock.register_uri(
-                'POST',
-                'https://com93.kingdoms.com/api/',
-                [
-                    {'json':village_raw},
-                    {'json':buildings_raw},
-                    {'json':building_queue_raw},
-                    {'json':{'mock': 'mocked'}}
-                ]
-            )
-            r = v1.upgrade('main building')
-            self.assertEqual(r, {'mock': 'mocked'})
 
-        building_queue_raw['cache'][0]['data']['freeSlots']['1'] = 0
-        building_queue_raw['cache'][0]['data']['freeSlots']['4'] = 1
-        with requests_mock.mock() as mock:
-            mock.register_uri(
-                'POST',
-                'https://com93.kingdoms.com/api/',
-                [
-                    {'json':village_raw},
-                    {'json':buildings_raw},
-                    {'json':building_queue_raw},
-                    {'json':{'mock': 'mocked'}}
-                ]
-            )
-            r = v1.upgrade('main building')
-            self.assertEqual(r, {'mock': 'mocked'})
-
-        building_queue_raw['cache'][0]['data']['freeSlots']['4'] = 0
-        with requests_mock.mock() as mock:
-            mock.register_uri(
-                'POST',
-                'https://com93.kingdoms.com/api/',
-                [
-                    {'json':village_raw},
-                    {'json':buildings_raw},
-                    {'json':building_queue_raw},
-                    {'json':{'mock': 'mocked'}}
-                ]
-            )
-            with self.assertRaises(QueueFull):
-                v1.upgrade('main building')
-
-        v1.client.accountDetails['tribeId'] = '1'
-        building_queue_raw['cache'][0]['data']['freeSlots']['1'] = 1
-        with requests_mock.mock() as mock:
-            mock.register_uri(
-                'POST',
-                'https://com93.kingdoms.com/api/',
-                [
-                    {'json':village_raw},
-                    {'json':buildings_raw},
-                    {'json':building_queue_raw},
-                    {'json':{'mock': 'mocked'}}
-                ]
-            )
-            r = v1.upgrade('main building')
-            self.assertEqual(r, {'mock': 'mocked'})
-
-        building_queue_raw['cache'][0]['data']['freeSlots']['1'] = 0
-        building_queue_raw['cache'][0]['data']['freeSlots']['4'] = 1
-        with requests_mock.mock() as mock:
-            mock.register_uri(
-                'POST',
-                'https://com93.kingdoms.com/api/',
-                [
-                    {'json':village_raw},
-                    {'json':buildings_raw},
-                    {'json':building_queue_raw},
-                    {'json':{'mock': 'mocked'}}
-                ]
-            )
-            r = v1.upgrade('main building')
-            self.assertEqual(r, {'mock': 'mocked'})
-
-        building_queue_raw['cache'][0]['data']['freeSlots']['4'] = 0
-        with requests_mock.mock() as mock:
-            mock.register_uri(
-                'POST',
-                'https://com93.kingdoms.com/api/',
-                [
-                    {'json':village_raw},
-                    {'json':buildings_raw},
-                    {'json':building_queue_raw},
-                    {'json':{'mock': 'mocked'}}
-                ]
-            )
-            with self.assertRaises(QueueFull):
-                v1.upgrade('main building')
-
-        buildings_raw['cache'][0]['data']['cache'][0]['data']['isMaxLvl'] = True
-        with requests_mock.mock() as mock:
-            mock.register_uri(
-                'POST',
-                'https://com93.kingdoms.com/api/',
-                [
-                    {'json':village_raw},
-                    {'json':buildings_raw},
-                    {'json':building_queue_raw},
-                    {'json':construction_list_raw}
-                ]
-            )
-            with self.assertRaises(BuildingAtMaxLevel):
-                v1.upgrade('main building')
-
-        building_queue_raw['cache'][0]['data']['freeSlots']['4'] = 1
-        with requests_mock.mock() as mock:
-            mock.register_uri(
-                'POST',
-                'https://com93.kingdoms.com/api/',
-                [
-                    {'json':village_raw},
-                    {'json':buildings_raw},
-                    {'json':building_queue_raw},
-                    {'json':construction_list_raw}
-                ]
-            )
-            v1.upgrade('smithy')
-
-        for x in buildings_raw['cache'][0]['data']['cache']:
-            if x['data']['buildingType'] == '1':
-                x['data']['upgradeCosts'] = {'1': 0, '2': 0, '3': 0, '4': 0}
-        with requests_mock.mock() as mock:
-            mock.register_uri(
-                'POST',
-                'https://com93.kingdoms.com/api/',
-                [
-                    {'json':village_raw},
-                    {'json':buildings_raw},
-                    {'json':building_queue_raw},
-                    {'json':{'mock': 'mocked'}}
-                ]
-            )
-            r = v1.upgrade('wood')
-            self.assertEqual(r, {'mock': 'mocked'})
-
-        building_queue_raw['cache'][0]['data']['freeSlots']['2'] = 0
-        building_queue_raw['cache'][0]['data']['freeSlots']['4'] = 1
-        with requests_mock.mock() as mock:
-            mock.register_uri(
-                'POST',
-                'https://com93.kingdoms.com/api/',
-                [
-                    {'json':village_raw},
-                    {'json':buildings_raw},
-                    {'json':building_queue_raw},
-                    {'json':{'mock': 'mocked'}}
-                ]
-            )
-            r = v1.upgrade('wood')
-            self.assertEqual(r, {'mock': 'mocked'})
-
-        building_queue_raw['cache'][0]['data']['freeSlots']['4'] = 0
-        with requests_mock.mock() as mock:
-            mock.register_uri(
-                'POST',
-                'https://com93.kingdoms.com/api/',
-                [
-                    {'json':village_raw},
-                    {'json':buildings_raw},
-                    {'json':building_queue_raw},
-                    {'json':{'mock': 'mocked'}}
-                ]
-            )
-            with self.assertRaises(QueueFull):
-                v1.upgrade('wood')
-
-    def test_village_construct(self):
-        with open('./tests/unit/fixtures/pickled_driver.py', 'rb') as f:
-            g = pickle.load(f)
-
-        with open('./tests/unit/fixtures/villages_raw.json', 'r') as f:
-            villages_raw = json.load(f)
-
-        with open('./tests/unit/fixtures/village_raw.json', 'r') as f:
-            village_raw = json.load(f)
-
-        with open('./tests/unit/fixtures/buildings_raw.json', 'r') as f:
-            buildings_raw = json.load(f)
-
-        with open('./tests/unit/fixtures/building_queue_raw.json', 'r') as f:
-            building_queue_raw = json.load(f)
-
-        with open('./tests/unit/fixtures/construction_list_raw.json', 'r') as f:
-            construction_list_raw = json.load(f)
-
-        with requests_mock.mock() as mock:
-            mock.register_uri(
-                'POST',
-                'https://com93.kingdoms.com/api/',
-                json=villages_raw
-            )
-            v = Villages(g)
-            v.pull()
-            v1 = v['001']
-
-        with requests_mock.mock() as mock:
-            mock.register_uri(
-                'POST',
-                'https://com93.kingdoms.com/api/?c=cache&a=get',
-                [
-                    {'json': village_raw},
-                    {'json': buildings_raw},
-                    {'json': building_queue_raw}
-                ]
-            )
-            mock.register_uri(
-                'POST',
-                'https://com93.kingdoms.com/api/?c=building&a=getBuildingList',
-                json=construction_list_raw
-            )
-            mock.register_uri(
-                'POST',
-                'https://com93.kingdoms.com/api/?c=building&a=useMasterBuilder',
-                json={'mock': 'mocked'}
-            )
-            v1.pull()
-            v1.buildings.pull()
-            v1.buildingQueue.pull()
-            r = v1._construct('smithy')
-            self.assertEqual(r, {'mock': 'mocked'})
-
-        building_queue_raw['cache'][0]['data']['freeSlots']['4'] = 0
-        with requests_mock.mock() as mock:
-            mock.register_uri(
-                'POST',
-                'https://com93.kingdoms.com/api/?c=cache&a=get',
-                [
-                    {'json': village_raw},
-                    {'json': buildings_raw},
-                    {'json': building_queue_raw}
-                ]
-            )
-            mock.register_uri(
-                'POST',
-                'https://com93.kingdoms.com/api/?c=building&a=getBuildingList',
-                json=construction_list_raw
-            )
-            v1.pull()
-            v1.buildings.pull()
-            v1.buildingQueue.pull()
-            with self.assertRaises(QueueFull):
-                v1._construct('smithy')
-
-        building_queue_raw['cache'][0]['data']['freeSlots']['4'] = 1
-        construction_list_raw['response']['buildings']['buildable'][0]['upgradeCosts']['1'] = 9999999999
-        with requests_mock.mock() as mock:
-            mock.register_uri(
-                'POST',
-                'https://com93.kingdoms.com/api/?c=cache&a=get',
-                [
-                    {'json': village_raw},
-                    {'json': buildings_raw},
-                    {'json': building_queue_raw}
-                ]
-            )
-            mock.register_uri(
-                'POST',
-                'https://com93.kingdoms.com/api/?c=building&a=getBuildingList',
-                json=construction_list_raw
-            )
-            v1.pull()
-            v1.buildings.pull()
-            v1.buildingQueue.pull()
-            with self.assertRaises(WarehouseNotEnough):
-                v1._construct('smithy')
-
-        construction_list_raw['response']['buildings']['buildable'][0]['upgradeCosts'] = {'1': 0, '2': 0, '3': 0, '4': 0}
-        with requests_mock.mock() as mock:
-            mock.register_uri(
-                'POST',
-                'https://com93.kingdoms.com/api/?c=cache&a=get',
-                [
-                    {'json': village_raw},
-                    {'json': buildings_raw},
-                    {'json': building_queue_raw}
-                ]
-            )
-            mock.register_uri(
-                'POST',
-                'https://com93.kingdoms.com/api/?c=building&a=getBuildingList',
-                json=construction_list_raw
-            )
-            mock.register_uri(
-                'POST',
-                'https://com93.kingdoms.com/api/?c=building&a=upgrade',
-                json={'mock': 'mocked'}
-            )
-            v1.pull()
-            v1.buildings.pull()
-            v1.buildingQueue.pull()
-            r = v1._construct('smithy')
-            self.assertEqual(r, {'mock': 'mocked'})
-
-        building_queue_raw['cache'][0]['data']['freeSlots']['1'] = 0
-        with requests_mock.mock() as mock:
-            mock.register_uri(
-                'POST',
-                'https://com93.kingdoms.com/api/?c=cache&a=get',
-                [
-                    {'json': village_raw},
-                    {'json': buildings_raw},
-                    {'json': building_queue_raw}
-                ]
-            )
-            mock.register_uri(
-                'POST',
-                'https://com93.kingdoms.com/api/?c=building&a=getBuildingList',
-                json=construction_list_raw
-            )
-            mock.register_uri(
-                'POST',
-                'https://com93.kingdoms.com/api/?c=building&a=useMasterBuilder',
-                json={'mock': 'mocked'}
-            )
-            v1.pull()
-            v1.buildings.pull()
-            v1.buildingQueue.pull()
-            r = v1._construct('smithy')
-            self.assertEqual(r, {'mock': 'mocked'})
-
-        building_queue_raw['cache'][0]['data']['freeSlots']['4'] = 0
-        with requests_mock.mock() as mock:
-            mock.register_uri(
-                'POST',
-                'https://com93.kingdoms.com/api/?c=cache&a=get',
-                [
-                    {'json': village_raw},
-                    {'json': buildings_raw},
-                    {'json': building_queue_raw}
-                ]
-            )
-            mock.register_uri(
-                'POST',
-                'https://com93.kingdoms.com/api/?c=building&a=getBuildingList',
-                json=construction_list_raw
-            )
-            v1.pull()
-            v1.buildings.pull()
-            v1.buildingQueue.pull()
-            with self.assertRaises(QueueFull):
-                v1._construct('smithy')
-
-        with requests_mock.mock() as mock:
-            mock.register_uri(
-                'POST',
-                'https://com93.kingdoms.com/api/?c=cache&a=get',
-                [
-                    {'json': village_raw},
-                    {'json': buildings_raw},
-                    {'json': building_queue_raw}
-                ]
-            )
-            mock.register_uri(
-                'POST',
-                'https://com93.kingdoms.com/api/?c=building&a=getBuildingList',
-                json=construction_list_raw
-            )
-            v1.pull()
-            v1.buildings.pull()
-            v1.buildingQueue.pull()
-            with self.assertRaises(FailedConstructBuilding):
-                v1._construct('stable')
-
-        with requests_mock.mock() as mock:
-            mock.register_uri(
-                'POST',
-                'https://com93.kingdoms.com/api/?c=cache&a=get',
-                [
-                    {'json': village_raw},
-                    {'json': buildings_raw},
-                    {'json': building_queue_raw}
-                ]
-            )
-            mock.register_uri(
-                'POST',
-                'https://com93.kingdoms.com/api/?c=building&a=getBuildingList',
-                json=construction_list_raw
-            )
-            v1.pull()
-            v1.buildings.pull()
-            v1.buildingQueue.pull()
-            with self.assertRaises(BuildingAtMaxLevel):
-                v1._construct('main building')
-
-        for x in buildings_raw['cache'][0]['data']['cache']:
-            x['data']['buildingType'] = '1'
-        with requests_mock.mock() as mock:
-            mock.register_uri(
-                'POST',
-                'https://com93.kingdoms.com/api/?c=cache&a=get',
-                [
-                    {'json': village_raw},
-                    {'json': buildings_raw},
-                    {'json': building_queue_raw}
-                ]
-            )
-            mock.register_uri(
-                'POST',
-                'https://com93.kingdoms.com/api/?c=building&a=getBuildingList',
-                json=construction_list_raw
-            )
-            v1.pull()
-            v1.buildings.pull()
-            v1.buildingQueue.pull()
-            with self.assertRaises(BuildingSlotFull):
-                v1._construct('smithy')
-
-    def test_village_warehouse(self):
-        with open('./tests/unit/fixtures/pickled_driver.py', 'rb') as f:
-            g = pickle.load(f)
-
-        with open('./tests/unit/fixtures/villages_raw.json', 'r') as f:
-            villages_raw = json.load(f)
-
-        with requests_mock.mock() as mock:
-            mock.register_uri(
-                'POST',
-                'https://com93.kingdoms.com/api/',
-                json=villages_raw
-            )
-            v = Villages(g)
-            v.pull()
-            v1 = v['001']
-            self.assertEqual(v1.warehouse.storage, {'1': 929.07843923224, '2': 712.9796366545, '3': 691.80224180989, '4': 641.28190453036})
-            self.assertEqual(v1.warehouse.production, {'1': 1290, '2': 990, '3': 960, '4': 890})
-            self.assertEqual(v1.warehouse.capacity, {'1': 22500, '2': 22500, '3': 22500, '4': 15000})
-            self.assertEqual(v1.warehouse.wood, '929.07843923224/22500 1290')
-            self.assertEqual(v1.warehouse.clay, '712.9796366545/22500 990')
-            self.assertEqual(v1.warehouse.iron, '691.80224180989/22500 960')
-            self.assertEqual(v1.warehouse.crop, '641.28190453036/15000 890')
-            self.assertEqual(v1.warehouse['1'], 929.07843923224)
-            self.assertEqual(v1.warehouse['wood'], 929.07843923224)
-            with self.assertRaises(KeyError):
-                v1.warehouse['key error']
 
 if __name__ == '__main__':
-    unittest.main()
+    unittest.run()

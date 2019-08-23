@@ -18,10 +18,10 @@ class Buildings:
         >>> [<Building({"buildingType": "15", "villageId": "536461288", "locationId": "27",...})>]
     """
 
-    def __init__(self, client, villageId):
+    def __init__(self, client, villageId, raw={}):
         self.client = client
         self.villageId = villageId
-        self._raw = dict()
+        self._raw = raw
 
     def __getitem__(self, key):
         return sorted(

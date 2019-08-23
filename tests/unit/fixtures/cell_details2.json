@@ -1,0 +1,27 @@
+{
+    "cache": [
+        {
+            "name": "MapDetails:537313244",
+            "data": {
+                "isOasis": false,
+                "oasisType": "0",
+                "hasVillage": "1",
+                "hasNPC": 0,
+                "resType": "4446",
+                "isHabitable": 1,
+                "landscape": "7",
+                "playerId": "1",
+                "playerName": "mocked",
+                "kingdomId": "0",
+                "kingdomTag": "",
+                "population": "1",
+                "tribe": "-1",
+                "treasures": 0
+            }
+        }
+    ],
+    "ignoreSerial": 0,
+    "time": 1566510252168,
+    "serialNo": 10327,
+    "response": []
+}
