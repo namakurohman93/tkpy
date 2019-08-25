@@ -33,7 +33,7 @@ class Farmlist:
 
     def pull(self):
         """ :meth:`pull` for pulling farmlist data from TK. """
-        r = self.client.cache.get({"names": ["Collection:Farmlist:"]})
+        r = self.client.cache.get({"names": ["Collection:FarmList:"]})
         for x in r["cache"][0]["data"]["cache"]:
             self.item[x["data"]["listName"]] = FarmlistEntry(
                 client=self.client, data=x["data"], raw=ImmutableDict()
@@ -88,7 +88,8 @@ class FarmlistEntry(ImmutableDataclass):
         return: :class:`dict`
         """
         return self.client.troops.startFarmListRaid({
-            "listIds": [self.listId], "villageId": villageId
+            "listIds": [self.listId],
+            "villageId": villageId,
         })
 
     def _update_data(self, r):
@@ -104,7 +105,8 @@ class FarmlistEntry(ImmutableDataclass):
         """
         self._update_data(
             self.client.farmList.addEntry({
-                "listId": self.listId, "villageId": villageId
+                "listId": self.listId,
+                "villageId": villageId,
             })
         )
 
@@ -117,7 +119,8 @@ class FarmlistEntry(ImmutableDataclass):
         """
         self._update_data(
             self.client.farmList.toggleEntry({
-                "listId": self.listId, "villageId": villageId
+                "listId": self.listId,
+                "villageId": villageId,
             })
         )
 
