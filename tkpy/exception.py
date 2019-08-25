@@ -1,3 +1,6 @@
+""" Collection of exception that is used for `tkpy` """
+
+
 class NotAuthenticated(Exception):
     """ Not authenticated """
 
@@ -44,3 +47,11 @@ class BuildingAtMaxLevel(Exception):
 
 class TargetNotFound(Exception):
     """ Target not found """
+
+
+class HeroNotInHome(Exception):
+    """ Hero not in home """
+
+
+class NotEnoughAdventurePoint(Exception):
+    """ Not enough adventure point """

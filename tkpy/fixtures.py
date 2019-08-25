@@ -88,3 +88,14 @@ unitDict = {
 tribeName = {1: 'Roman', 2: 'Teuton', 3: 'Gauls'}
 
 tribeOffset = {1: 0, 2: 10, 3: 20, 4: 30, 5: 40}
+
+adventureDict = {
+    'short': {
+        'questId': 991,
+        'usingAdventurePoint': 1
+    },
+    'long': {
+        'questId': 992,
+        'usingAdventurePoint': 2
+    }
+}
