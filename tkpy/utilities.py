@@ -13,7 +13,7 @@ from .exception import NotAuthenticated
 def credential():
     """ :func:`credential` is an argument parser for parsing credential.
 
-    Usage::
+    Usage:
         >>> email, password, gameworld, avatar = credential()
     """
     parser = argparse.ArgumentParser(usage='python3 %(prog)s <email> <password> <gameworld> [--avatar]')
@@ -37,6 +37,8 @@ def credential():
 def login(email, password, gameworld, avatar):
     """ :func:`login` for login to gameworld and return
     :class:`Gameworld` object.
+
+    return: :class:`Gameworld`
     """
     lobby = Lobby()
     lobby.authenticate(email, password)
@@ -45,7 +47,12 @@ def login(email, password, gameworld, avatar):
 
 
 def hash_password(password):
-    """ Hashing a password. """
+    """ :func:`hash_password` hashing a password.
+
+    :param password: - :class:`str` password that want to be hassed.
+
+    return: :class:`str`
+    """
     salt = hashlib.sha256(os.urandom(60)).hexdigest().encode('ascii')
     pwdhash = hashlib.pbkdf2_hmac(
         'sha512',
@@ -58,7 +65,15 @@ def hash_password(password):
 
 
 def verify_password(stored_password, provided_password):
-    """ Verify a stored password against one provided by user. """
+    """ :func:`verify_password` verify a stored password against one
+    provided by user.
+
+    :param stored_password: - :class:`str` hashed password.
+    :param provided_password: - :class:`str` password that want to be
+                                compared with hashed password.
+
+    return: :class:`boolean`
+    """
     salt = stored_password[:64]
     stored_password = stored_password[64:]
 
@@ -74,17 +89,39 @@ def verify_password(stored_password, provided_password):
 
 
 def retrieve_data(query, params):
+    """ :func:`retrieve_data` for retrieve data from database.
+
+    :param query: - :class:`str` query for database.
+    :param params: - :class:`tuple` parameters that will be used for
+                     query.
+
+    return: :class:`dict`
+    """
     with get_db() as db:
         return db.execute(query, params).fetchone()
 
 
 def commit_query(query, params):
+    """ :func:`commit_query` for commit query to database.
+
+    :param query: - :class:`str` query for database.
+    :param params: - :class:`tuple` parameters that will be used for
+                     query.
+    """
     with get_db() as db:
         db.execute(query, params)
         db.commit()
 
 
 def get_user_id(email, password):
+    """ :func:`get_user_id` send query to database for retrieve user id
+    based on email and password.
+
+    :param email: - :class:`str` email of user.
+    :param password: - :class:`str` password of user.
+
+    return: :class:`str`
+    """
     user = retrieve_data(
         'SELECT * FROM user WHERE email = ?',
         (email,)
@@ -100,6 +137,13 @@ def get_user_id(email, password):
 
 
 def add_user(email, password):
+    """ :func:`add_user` add user to database and return its user id.
+
+    :param email: - :class:`str` email of user.
+    :param password: - :class:`str` password of user.
+
+    return: :class:`str`
+    """
     user_id = uuid.uuid4().hex
 
     commit_query(
@@ -111,6 +155,15 @@ def add_user(email, password):
 
 
 def get_driver_id(user_id, gameworld, avatar):
+    """ :func:`get_driver_id` get driver id from database. If driver
+    id not found, it will raise :exception:`DriverNotFound`.
+
+    :param user_id: - :class:`str` user id.
+    :param gameworld: - :class:`str` gameworld name.
+    :param avatar: - :class:`str` avatar name.
+
+    return: :class:`str`
+    """
     driver = retrieve_data(
         'SELECT g.id FROM gameworld g JOIN user u ON g.user_id = u.id WHERE user_id = ? AND avatar = ? AND game_world = ?',
         (user_id, avatar or '?', gameworld)
@@ -123,6 +176,14 @@ def get_driver_id(user_id, gameworld, avatar):
 
 
 def insert_driver(user_id, driver, gameworld, avatar):
+    """ :func:`insert_driver` insert driver to database.
+
+    :param user_id: - class:`str` user id.
+    :param driver: - class:`Gameworld` gameworld that want to be stored
+                     to database.
+    :param gameworld: - :class:`str` gameworld name.
+    :param avatar: - :class:`str` avatar name.
+    """
     commit_query(
         'INSERT INTO gameworld (id, user_id, driver, avatar, game_world) VALUES (?, ?, ?, ?, ?)',
         (uuid.uuid4().hex, user_id, pickle.dumps(driver), avatar or '?', gameworld)
@@ -130,6 +191,12 @@ def insert_driver(user_id, driver, gameworld, avatar):
 
 
 def update_driver(driver_id, driver):
+    """ :func:`update_driver` update driver from database.
+
+    :param driver_id: - :class:`str` driver id.
+    :param driver: - :class:`Gameworld` gameworld that want to be updated
+                     to database.
+    """
     commit_query(
         'UPDATE gameworld SET driver = ? WHERE id = ?',
         (pickle.dumps(driver), driver_id)
@@ -137,6 +204,12 @@ def update_driver(driver_id, driver):
 
 
 def get_driver(driver_id):
+    """ :func:`get_driver` get driver from database.
+
+    :param driver_id: - :class:`str` driver id.
+
+    return: :class:`Gameworld`
+    """
     driver = retrieve_data(
         'SELECT driver FROM gameworld WHERE id = ?',
         (driver_id,)
@@ -146,6 +219,16 @@ def get_driver(driver_id):
 
 
 def _login(email, password, gameworld, avatar=None):
+    """ :func:`_login` is used for login to TK and return
+    :class:`Gameworld` object.
+
+    :param email: - :class:`str` email user.
+    :param password: - :class:`str` password user.
+    :param gameworld: - :class:`str` gameworld name.
+    :param avatar: - :class:`str` (optional) avatar name. Default = None
+
+    return: :class:`Gameworld`
+    """
     user_id = get_user_id(email, password) or add_user(email, password)
 
     try:

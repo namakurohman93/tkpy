@@ -18,8 +18,8 @@ def cell_id(x, y):
 
 
 def reverse_id(vid):
-    """ :func:`reverse_id` will convert cell id into x, y tuple coordinate
-    that read able for human.
+    """ :func:`reverse_id` will convert cell id into x, y tuple
+    coordinate that read able for human.
 
     :param vid: - :class:`int` cell id
 
@@ -90,8 +90,8 @@ class Point:
 
     @classmethod
     def from_cell_id(cls, id):
-        """ :meth:`from_cell_id` instantiate :class:`Point` using cell id
-        as argument.
+        """ :classmethod:`from_cell_id` instantiate :class:`Point`
+        using cell id as argument.
 
         return: :class:`Point`
         """
@@ -99,10 +99,15 @@ class Point:
 
     @property
     def id(self):
+        """ :property:`id` return id of this coordinate that is used
+        for TK.
+
+        return: :class:`int`
+        """
         return cell_id(self.x, self.y)
 
     def distance_to(self, x, y):
-        """ Calculate distance between two points.
+        """ :meth:`distance_to` calculate distance between two points.
 
         return :class:`float`
         """
@@ -110,13 +115,14 @@ class Point:
 
 
 class Map:
-    """ :class:`Map` is represent of map object for TK. Map data from TK
-    is stored in here. This class provide an easy way to access map data
-    by using :meth:`coordinate` for accessing specific cell based on their
-    coordinate, or using :property:`villages` for yield cell that contains
+    """ :class:`Map` is represent of map object for TK. Map data
+    from TK is stored in here. This class provide an easy way
+    to access map data by using :meth:`coordinate` for accessing
+    specific cell based on their coordinate, or using
+    :property:`villages` for yield cell that contains
     village data on it, or by using another property.
 
-    Usage::
+    Usage:
         >>> m = Map(driver)
         >>> m.pull()
         >>> m.coordinate(0, 0)
@@ -131,10 +137,14 @@ class Map:
         self._kingdoms = _Storage()
 
     def __repr__(self):
-        return f"<{type(self).__name__}(cell={len(self._cell)}, player={len(self._players.item)}, kingdom={len(self._kingdoms)})>"
+        t = type(self).__name__
+        c = len(self._cell)
+        p = len(self._players)
+        k = len(self._kingdoms)
+        return '<%s(cell=%d, player=%d, kingdom=%d)>' % (t, c, p, k)
 
     def __dir__(self):
-        return [*filter(lambda d: d.startswith("_"), dir(Map))]
+        return [*filter(lambda d: not d.startswith("_"), dir(Map))]
 
     def _create_index(self, response):
         for c in response:
@@ -192,8 +202,8 @@ class Map:
 
     @property
     def cell(self):
-        """ :property:`cell` is a :func:`generator` that yield :class:`Cell`
-        object.
+        """ :property:`cell` is a :func:`generator` that yield
+        :class:`Cell` object.
 
         yield: :class:`Cell`
         """
@@ -202,8 +212,8 @@ class Map:
 
     @property
     def villages(self):
-        """ :property:`villages` is a :func:`generator` that yield :class:`Cell`
-        that have 'village' data on it.
+        """ :property:`villages` is a :func:`generator` that yield
+        :class:`Cell` that have 'village' data on it.
 
         yield: :class:`Cell`
         """
@@ -215,8 +225,8 @@ class Map:
 
     @property
     def tiles(self):
-        """ :property:`tiles` is a :func:`generator that yield :class:`Cell`
-        known as Abandoned valley in game.
+        """ :property:`tiles` is a :func:`generator that yield
+        :class:`Cell` also known as Abandoned valley in game.
 
         yield: :class:`Cell`
         """
@@ -228,8 +238,8 @@ class Map:
 
     @property
     def oasis(self):
-        """ :property:`oasis` is a :func:`generator` that yield :class:`Cell`
-        that have 'oasis' data on it.
+        """ :property:`oasis` is a :func:`generator` that yield
+        :class:`Cell` that have 'oasis' data on it.
 
         yield: :class:`Cell`
         """
@@ -241,8 +251,8 @@ class Map:
 
     @property
     def wilderness(self):
-        """ :property:`wilderness` is a :func:`generator` that yield :class:`Cell`
-        alsow know as Wilderness in game.
+        """ :property:`wilderness` is a :func:`generator` that yield
+        :class:`Cell` also know as Wilderness in game.
 
         yield: :class:`Cell`
         """
@@ -253,13 +263,13 @@ class Map:
                 continue
 
     def coordinate(self, x, y, default={}):
-        """ :meth:`coordinate` is used for find specific :cell:`Cell` object
-        based on cell's coordinate.
+        """ :meth:`coordinate` is used for find specific :class:`Cell`
+        object based on cell's coordinate.
 
         :param x: - :class:`int` x cell's coordinate.
         :param y: - :class:`int` y cell's coordinate.
-        :param default: - :class:`dict` (optional) default value if :cell:`Cell`
-                          object didnt' found. Default: {}
+        :param default: - :class:`dict` (optional) default value if
+                          :cell:`Cell` object didnt' found. Default: {}
 
         return: :class:`Cell`
         """
@@ -269,12 +279,12 @@ class Map:
             return default
 
     def tile(self, id, default={}):
-        """ :meth:`tile` is used for find specific :cell:`Cell` object
+        """ :meth:`tile` is used for find specific :class:`Cell` object
         based on cell's id.
 
         :param id: - :class:`int` cell id.
-        :param default: - :class:`dict` (optional) default value if :cell:`Cell`
-                          object didn't found. Default: {}
+        :param default: - :class:`dict` (optional) default value if
+                          :cell:`Cell` object didn't found. Default: {}
 
         return: :class:`Cell`
         """
@@ -285,8 +295,8 @@ class Map:
 
     @property
     def kingdoms(self):
-        """ :property:`kingdoms` is a :func:`generator` that yield :class:`Kingdom`
-        object.
+        """ :property:`kingdoms` is a :func:`generator` that yield
+        :class:`Kingdom` object.
 
         yield: :class:`Kingdom`
         """
@@ -346,6 +356,9 @@ class _Storage:
         self.item = dict()
         self.item_name = dict()
 
+    def __len__(self):
+        return len(self.item)
+
     def insert(self, id, name, item):
         """ :meth:`insert` for add and update items.
 
@@ -388,8 +401,8 @@ class Cell(ImmutableDataclass):
     client: Any
 
     def details(self):
-        """ :meth:`details` send requests to TK for perceive more details
-        about this cell.
+        """ :meth:`details` send requests to TK for perceive more
+        details about this cell.
 
         return: :class:`dict`
         """
@@ -408,8 +421,8 @@ class Cell(ImmutableDataclass):
 
 @dataclasses.dataclass(frozen=True, repr=False)
 class Player(ImmutableDataclass):
-    """ :class:`Player` is represent of player object. This class is where
-    player data stored.
+    """ :class:`Player` is represent of player object. This class is
+    where player data stored.
     """
 
     __slots__ = ["client", "id"]
@@ -438,7 +451,8 @@ class Player(ImmutableDataclass):
 
     @property
     def is_active(self):
-        """ :property:`is_active` return whether this player is active or not.
+        """ :property:`is_active` return whether this player is
+        active or not.
 
         return: :class:`boolean`
         """
@@ -449,8 +463,8 @@ class Player(ImmutableDataclass):
 
 @dataclasses.dataclass(frozen=True, repr=False)
 class Kingdom(ImmutableDataclass):
-    """ :class:`Kingdom` represent of kingdom object. This class is where
-    kingdom data stored.
+    """ :class:`Kingdom` represent of kingdom object. This class is
+    where kingdom data stored.
     """
 
     __slots__ = ["id"]

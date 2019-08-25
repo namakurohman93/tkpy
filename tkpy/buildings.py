@@ -7,15 +7,16 @@ from .models import ImmutableDataclass
 
 class Buildings:
     """ :class:`Buildings` is where building data of village is stored.
-    This class provide an easy way to access building data by using building name.
-    It return a :class:`list` of :class:`Building` and sorted based on their level.
+    This class provide an easy way to access building data by using
+    building name. It return a :class:`list` of :class:`Building`
+    and sorted based on their level.
 
-    Usage::
+    Usage:
         >>> v = Villages(driver)
         >>> v.pull()
         >>> v['first village'].buildings.pull()
         >>> v['first village'].buildings['main building']
-        >>> [<Building({"buildingType": "15", "villageId": "536461288", "locationId": "27",...})>]
+        [<Building({"buildingType": "15", "villageId": "536461...,})>]
     """
 
     def __init__(self, client, villageId, raw={}):
@@ -37,7 +38,9 @@ class Buildings:
         return str(type(self))
 
     def pull(self):
-        """ :meth:`pull` for pulling building data of this village from TK. """
+        """ :meth:`pull` for pulling building data of this village
+        from TK.
+        """
         self._raw.update(
             self.client.cache.get({
                 "names": [f"Collection:Building:{self.villageId}"]
@@ -46,16 +49,20 @@ class Buildings:
 
     @property
     def freeSlots(self):
-        """ :property:`freeSlots` is for check whether there is a free slot or not
-        on this village for construct new building.
+        """ :property:`freeSlots` is for check whether there is a free
+        slot or not on this village for construct new building.
 
         return: :class:`list`
         """
-        return [x["locationId"] for x in self.raw if x["buildingType"] == "0"]
+        return [
+            x["locationId"]
+            for x in self.raw if x["buildingType"] == "0"
+        ]
 
     @property
     def raw(self):
-        """ :property:`raw` is a :func:`generator` that yield raw building data.
+        """ :property:`raw` is a :func:`generator` that yield raw
+        building data.
 
         yield: :class:`dict`
         """
@@ -65,20 +72,18 @@ class Buildings:
 
 @dataclasses.dataclass(frozen=True, repr=False)
 class Building(ImmutableDataclass):
-    """ :class:`Building` is a :class:`dict` - like object that represent
-    of 'Building' object for TK. This class is where building data from TK
-    stored.
+    """ :class:`Building` is a :class:`dict` - like object that
+    represent of 'Building' object for TK. This class is where building
+    data from TK stored.
 
-    Usage::
+    Usage:
         >>> v = Villages(driver)
         >>> v.pull()
-        >>> v['first village'].buildings.pull()
-        >>> # Since we know there is only 1 main building on village, so we can do
-        ...
-        >>> main_building = v['first village'].buildings['main building'][0]
+        >>> v['01'].buildings.pull()
+        >>> # Since we know there is only 1 main building, we can do
+        ... main_building = v['01'].buildings['main building'][0]
         >>> # for upgrade main building, use :meth:`upgrade`
-        ...
-        >>> main_building.upgrade()
+        ... main_building.upgrade()
     """
 
     __slots__ = ["client"]
@@ -96,7 +101,7 @@ class Building(ImmutableDataclass):
         })
 
     def queues(self, reserveResources):
-        """ :meth:`upgrade` for upgrade this building.
+        """ :meth:`queues` for add this building to queues.
 
         return: :class:`dict`
         """
@@ -110,11 +115,12 @@ class Building(ImmutableDataclass):
 
 @dataclasses.dataclass(frozen=True, repr=False)
 class BuildingQueue(ImmutableDataclass):
-    """ :class:`BuildingQueue` represent building queue of TK. This class
-    is where building queue data is stored. The idea of this class is just
-    to make access data of building queue easier.
+    """ :class:`BuildingQueue` represent building queue of TK.
+    This class is where building queue data is stored.
+    The idea of this class is just to make access
+    data of building queue easier.
 
-    Usage::
+    Usage:
         >>> v = Villages(driver)
         >>> v.pull()
         >>> v['first village'].buildingQueue.pull()
@@ -132,7 +138,9 @@ class BuildingQueue(ImmutableDataclass):
         object.__setattr__(self, "villageId", villageId)
 
     def pull(self):
-        """ :meth:`pull` for pulling building queue data from TK of this village. """
+        """ :meth:`pull` for pulling building queue data from TK
+        of this village.
+        """
         self.data.update(
             self.client.cache.get({
                 "names": [f"BuildingQueue:{self.villageId}"]
@@ -140,8 +148,8 @@ class BuildingQueue(ImmutableDataclass):
         )
 
     def finish_now(self, queueType):
-        """ :meth:`finishNow` is for instant finish building that upgrade
-        progress time is less than 5 minutes.
+        """ :meth:`finish_now` is for instant finish building that
+        upgrade progress time is less than 5 minutes.
 
         :param queueType: - `str` it is either '1' or '2'.
                             '1' if building is building.
@@ -157,12 +165,13 @@ class BuildingQueue(ImmutableDataclass):
 
 
 class ConstructionList:
-    """ :class:`ConstructionList` is a class that stored data of building
-    that can be constructed on this village. It pulling data from TK using
-    :meth:`pull` and stored the data so it can be accessed easily. It
-    return :class:`Building` object.
+    """ :class:`ConstructionList` is a class that stored data of
+    building that can be constructed on this village.
+    It pulling data from TK using :meth:`pull` and
+    stored the data so it can be accessed easily.
+    It return :class:`Building` object.
 
-    Usage::
+    Usage:
         >>> v = Villages(driver)
         >>> v.pull()
         >>> v['first village'].buildings.pull()
@@ -173,9 +182,9 @@ class ConstructionList:
         ... )
         >>> construction_list.pull()
         >>> construction_list['sawmill']
-        >>> <Building({'buildingType': '5', 'locationToBuild': '20', ...})>
+        <Building({'buildingType': '5', 'locationToBuild': '20', ...})>
         >>> construction_list['sawmill'].upgrade()
-        """
+    """
 
     def __init__(self, client, villageId, locationId):
         self.client = client
@@ -207,8 +216,9 @@ class ConstructionList:
 
     @property
     def buildable(self):
-        """ :property:`buildable` return :class:`list` of raw building data
-        that can be constructed cause required building already filled.
+        """ :property:`buildable` return :class:`list` of raw building
+        data that can be constructed cause required building already
+        filled.
 
         return: :class:`list`
         """
@@ -216,8 +226,9 @@ class ConstructionList:
 
     @property
     def notBuildable(self):
-        """ :property:`notBuildable` return :class:`list` of raw building
-        data that can't be constructed cause lack of required building.
+        """ :property:`notBuildable` return :class:`list` of raw
+        building data that can't be constructed cause lack of
+        required building.
 
         return: :class:`list`
         """

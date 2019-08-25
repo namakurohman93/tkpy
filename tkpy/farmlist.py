@@ -7,15 +7,15 @@ from .models import ImmutableDict
 
 
 class Farmlist:
-    """:class:`Farmlist` is a represent of farmlist object. This class is
-    the place where :class:`FarmlistEntry` stored. And the way to get
-    :class:`FarmlistEntry` is just using farmlist name.
+    """:class:`Farmlist` is a represent of farmlist object. This class
+    is the place where :class:`FarmlistEntry` stored. And the
+    way to get :class:`FarmlistEntry` is just using farmlist name.
 
-    Usage::
+    Usage:
         >>> f = Farmlist(driver)
         >>> f.pull()
         >>> f['Startup farm list']
-        <FarmListEntry({'listId': '1631', 'listName': 'Startup farm list', ...})>
+        <FarmListEntry({'listId': '1631', 'listName': 'Startup , ...})>
     """
 
     def __init__(self, client):
@@ -53,8 +53,6 @@ class Farmlist:
         """ :meth:`create_farmlist` for create new farmlist.
 
         :param name: - `str` name of new created farmlist
-
-        return: :class:`dict`
         """
         self.client.farmList.createList({"name": name})
         self.pull()
@@ -66,7 +64,7 @@ class FarmlistEntry(ImmutableDataclass):
     class contains farmlist entry data. You mostly maintain farmlist entry
     using this class.
 
-    Usage::
+    Usage:
         >>> f = Farmlist(driver)
         >>> f.pull()
         >>> f['Startup farm list'].add(536461288)
@@ -98,10 +96,11 @@ class FarmlistEntry(ImmutableDataclass):
                 self.data.update(x["data"])
 
     def add(self, villageId):
-        """ :meth:`add` for add village to this farmlist using village id.
+        """ :meth:`add` for add village to this farmlist using
+        village id.
 
-        :param villageId: - :class:`int` village id that want to be added
-                            to this farmlist entry.
+        :param villageId: - :class:`int` village id that want to be
+                            added to this farmlist entry.
         """
         self._update_data(
             self.client.farmList.addEntry({
@@ -114,8 +113,8 @@ class FarmlistEntry(ImmutableDataclass):
         """ :meth:`toggle` for toggling village to this farmlist entry
         using village id.
 
-        :param villageId: - :class:`int` village id that want to be toggled
-                            to this farmlist entry.
+        :param villageId: - :class:`int` village id that want to be
+                            toggled to this farmlist entry.
         """
         self._update_data(
             self.client.farmList.toggleEntry({
@@ -125,8 +124,8 @@ class FarmlistEntry(ImmutableDataclass):
         )
 
     def pull(self):
-        """ :meth:`pull` for pulling entry data that exists in this farmlist
-        entry.
+        """ :meth:`pull` for pulling entry data that exists in this
+        farmlist entry.
         """
         self.raw.update(
             self.client.cache.get({
@@ -136,7 +135,7 @@ class FarmlistEntry(ImmutableDataclass):
 
     @property
     def farmlistEntry(self):
-        """ :meth:`farmlistEntry` is a :func:`generator` that yield
+        """ :property:`farmlistEntry` is a :func:`generator` that yield
         :class:`EntryId`.
 
         yield: :class:`EntryId`
@@ -147,10 +146,10 @@ class FarmlistEntry(ImmutableDataclass):
 
 @dataclasses.dataclass(frozen=True, repr=False)
 class EntryId(ImmutableDataclass):
-    """ :class:`EntryId` represent of entry from farmlist. This class contains
-    more details about entry.
+    """ :class:`EntryId` represent of entry from farmlist. This class
+    contains more details about entry.
 
-    Usage::
+    Usage:
         >>> f = Farmlist(driver)
         >>> f.pull()
         >>> f['Startup farm list'].add(536461288)
@@ -158,7 +157,6 @@ class EntryId(ImmutableDataclass):
         >>> entrys = list(f['Startup farm list'].farmlistEntry)
         >>> entrys[0].villageId
         536461288
-        >>>
     """
 
     __slots__ = ["client"]
@@ -166,8 +164,8 @@ class EntryId(ImmutableDataclass):
 
     @property
     def notification_type(self):
-        """ :property:`notificationType` return notification type of this
-        entry.
+        """ :property:`notification_type` return notification type of
+        this entry.
         """
         try:
             return self.data["lastReport"]["notificationType"]
@@ -176,7 +174,7 @@ class EntryId(ImmutableDataclass):
 
     @property
     def raided_sum(self):
-        """ :property:`raidedSum` return raided sum of this entry. """
+        """ :property:`raided_sum` return raided sum of this entry. """
         try:
             return self.data["lastReport"]["raidedResSum"]
         except:
@@ -191,11 +189,11 @@ class EntryId(ImmutableDataclass):
             return 0
 
     def copy(self, farmlistId):
-        """ :meth:`copy` copy this entry to another farmlist using farmlist
-        id.
+        """ :meth:`copy` copy this entry to another farmlist using
+        farmlist id.
 
-        :param farmlistId: - :class:`int` farmlist id target for copying
-                             this entry.
+        :param farmlistId: - :class:`int` farmlist id target for
+                             copying this entry.
         """
         self.client.farmList.copyEntry({
             "entryId": self.entryId,

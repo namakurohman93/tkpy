@@ -24,7 +24,7 @@ class Villages:
         >>> v = Villages(driver)
         >>> v.pull()
         >>> v['my first village']
-        >>> <Village({'villageId': '537313245', 'playerId': '001', 'name': 'my first village',...})>
+        <Village({'villageId': '537313245', 'playerId': '001',...})>
     """
 
     def __init__(self, client):
@@ -57,7 +57,8 @@ class Villages:
             )
 
     def get_capital_village(self):
-        """ :meth:`get_capital_village` for find capital village and return it.
+        """ :meth:`get_capital_village` for find capital village
+        and return it.
 
         return: :class:`Village`
         """
@@ -68,8 +69,8 @@ class Villages:
 
 @dataclasses.dataclass(frozen=True, repr=False)
 class Village(ImmutableDataclass):
-    """ :class:`Village` represent of village object. This class is where
-    village data stored.
+    """ :class:`Village` represent of village object. This class is
+    where village data stored.
     """
 
     __slots__ = ["client", "buildings", "buildingQueue", "warehouse"]
@@ -139,8 +140,8 @@ class Village(ImmutableDataclass):
         :param y: - :class:`int` y coordinate of target.
         :param destVillageId: - :class:`int` cell id of target.
         :param movementType: - :class:`int` type of movement.
-        :param redeployHero: - :class:`boolean` it is used for moving hero's home
-                               to another account village.
+        :param redeployHero: - :class:`boolean` it is used for moving
+                               hero's home to another account village.
         :param spyMission: - :class:`str` choose mission, is it either
                              'resources' or 'defend'
         :param units: - :class:`dict` units dict that want to be sent.
@@ -206,7 +207,7 @@ class Village(ImmutableDataclass):
         :param x: - :class:`int` (optional) value of x coordinate.
         :param y: - :class:`int` (optional) value of y coordinate.
         :param targetId: - :class:`int` (optional) cell id of target.
-        :param units: - :class:`units` (optional) units dict that want to sent.
+        :param units: - :class:`dict` (optional) units dict that want to sent.
 
         return: :class:`dict`
         """
@@ -228,7 +229,7 @@ class Village(ImmutableDataclass):
         :param x: - :class:`int` (optional) value of x coordinate.
         :param y: - :class:`int` (optional) value of y coordinate.
         :param targetId: - :class:`int` (optional) cell id of target.
-        :param units: - :class:`units` (optional) units dict that want to sent.
+        :param units: - :class:`dict` (optional) units dict that want to sent.
 
         return: :class:`dict`
         """
@@ -250,7 +251,7 @@ class Village(ImmutableDataclass):
         :param x: - :class:`int` (optional) value of x coordinate.
         :param y: - :class:`int` (optional) value of y coordinate.
         :param targetId: - :class:`int` (optional) cell id of target.
-        :param units: - :class:`units` (optional) units dict that want to sent.
+        :param units: - :class:`dict` (optional) units dict that want to sent.
         :param redeployHero: - :class:`boolean` (optional) it used for changing
                                hero's home. Default: False
 
@@ -308,7 +309,7 @@ class Village(ImmutableDataclass):
         :param x: - :class:`int` (optional) value of x coordinate.
         :param y: - :class:`int` (optional) value of y coordinate.
         :param targetId: - :class:`int` (optional) cell id of target.
-        :param units: - :class:`units` (optional) units dict that want to sent.
+        :param units: - :class:`dict` (optional) units dict that want to sent.
 
         return: :class:`dict`
         """
@@ -334,7 +335,8 @@ class Village(ImmutableDataclass):
         return: :class:`dict`
         """
         return self.client.troops.startFarmListRaid({
-            "listIds": listIds, "villageId": self.villageId
+            "listIds": listIds,
+            "villageId": self.villageId
         })
 
     def upgrade(self, building):
