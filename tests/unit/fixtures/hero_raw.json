@@ -1,0 +1,71 @@
+{
+    "cache": [
+        {
+            "name": "Hero:1",
+            "data": {
+                "playerId": "1",
+                "villageId": "1",
+                "destVillageId": "1",
+                "destVillageName": "Robber hideout II",
+                "destPlayerName": "Robber",
+                "destPlayerId": "-1",
+                "status": "7",
+                "health": "0",
+                "lastHealthTime": "1",
+                "baseRegenerationRate": 15,
+                "regenerationRate": 15,
+                "fightStrength": 1,
+                "fightStrengthPoints": "0",
+                "attBonusPoints": "0",
+                "defBonusPoints": "0",
+                "resBonusPoints": "0",
+                "resBonusType": "0",
+                "freePoints": "0",
+                "speed": 1,
+                "untilTime": "1",
+                "bonuses": {},
+                "maxScrollsPerDay": "0",
+                "scrollsUsedToday": "0",
+                "waterbucketUsedToday": "0",
+                "ointmentsUsedToday": "0",
+                "adventurePointCardUsedToday": "0",
+                "resourceChestsUsedToday": "0",
+                "cropChestsUsedToday": "0",
+                "artworkUsedToday": "0",
+                "isMoving": false,
+                "adventurePoints": "1",
+                "adventurePointTime": "1",
+                "reviveCosts": {
+                    "1": 264,
+                    "2": 219,
+                    "3": 394,
+                    "4": 0
+                },
+                "reviveDuration": 2880,
+                "reviveDurationReduction": 0,
+                "reviveCostReduction": {
+                    "1": -0.99999999999994,
+                    "2": -0.99999999999994,
+                    "3": -0.99999999999989,
+                    "4": 0
+                },
+                "reviveCostMinimal": {
+                    "1": 264,
+                    "2": 219,
+                    "3": 394,
+                    "4": 0
+                },
+                "reviveDurationMinimal": 2880,
+                "levelUp": "0",
+                "xp": "742",
+                "xpThisLevel": 500,
+                "xpNextLevel": 750,
+                "level": "1"
+            }
+        }
+    ],
+    "ignoreSerial": 0,
+    "time": 1,
+    "serialNo": 1,
+    "response": []
+}
