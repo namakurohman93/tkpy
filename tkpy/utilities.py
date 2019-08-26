@@ -2,8 +2,9 @@ import os
 import uuid
 import pickle
 import hashlib
-import binascii
 import argparse
+import binascii
+
 from .driver import Lobby
 from .database import get_db
 from .exception import DriverNotFound

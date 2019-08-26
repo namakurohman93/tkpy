@@ -1,8 +1,8 @@
 import dataclasses
 from typing import Any
 
-from .fixtures import buildingDict
 from .models import ImmutableDataclass
+from .fixtures import buildingDict
 
 
 class Buildings:

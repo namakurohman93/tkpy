@@ -1,7 +1,6 @@
-import sqlite3
 import pathlib
+import sqlite3
 import contextlib
-
 
 BASE_DIR = pathlib.Path(__file__).resolve().parent
 

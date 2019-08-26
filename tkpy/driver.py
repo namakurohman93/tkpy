@@ -1,16 +1,40 @@
 import json
 import time
-import requests
 from urllib import parse
-from .exception import NotAuthenticated, AvatarNotFound
-from primordial.controllers.lobby import (
-    achievements, cache, dual, gameworld, notification, player, sitter, login
-)
-from primordial.controllers.gameworld import (
-    player, farmList, logger, troops, village, cache, quest, error, auctions,
-    hero, building, trade, ranking, kingdom, map, reports, society,
-    premiumFeature, payment, kingdomTreaty, login
-)
+
+import requests
+from primordial.controllers.lobby import dual
+from primordial.controllers.lobby import cache
+from primordial.controllers.lobby import login
+from primordial.controllers.lobby import player
+from primordial.controllers.lobby import sitter
+from primordial.controllers.lobby import gameworld
+from primordial.controllers.lobby import achievements
+from primordial.controllers.lobby import notification
+from primordial.controllers.gameworld import map
+from primordial.controllers.gameworld import hero
+from primordial.controllers.gameworld import cache
+from primordial.controllers.gameworld import error
+from primordial.controllers.gameworld import login
+from primordial.controllers.gameworld import quest
+from primordial.controllers.gameworld import trade
+from primordial.controllers.gameworld import logger
+from primordial.controllers.gameworld import player
+from primordial.controllers.gameworld import troops
+from primordial.controllers.gameworld import kingdom
+from primordial.controllers.gameworld import payment
+from primordial.controllers.gameworld import ranking
+from primordial.controllers.gameworld import reports
+from primordial.controllers.gameworld import society
+from primordial.controllers.gameworld import village
+from primordial.controllers.gameworld import auctions
+from primordial.controllers.gameworld import building
+from primordial.controllers.gameworld import farmList
+from primordial.controllers.gameworld import kingdomTreaty
+from primordial.controllers.gameworld import premiumFeature
+
+from .exception import AvatarNotFound
+from .exception import NotAuthenticated
 
 
 class HttpClient:
