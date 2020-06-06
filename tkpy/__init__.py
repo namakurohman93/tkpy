@@ -17,3 +17,4 @@ from .villages import Villages
 from .notepads import Notepad
 from .farmlist import Farmlist
 from .utilities import _login as login
+from .login.login import authenticate
