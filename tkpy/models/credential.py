@@ -7,36 +7,26 @@ def dict_parser(data):
 
     return result
 
+def query_maker(data):
+    temp = []
+    for key in data.keys():
+        temp.append(f'{key} = ?')
+
+    return ' AND '.join(temp)
+
 class Lobby:
     @staticmethod
-    def find_all():
+    def find_one(**kwargs):
+        query = 'SELECT * FROM lobbies'
+        params = []
+
+        if kwargs:
+            query += ' WHERE ' + query_maker(kwargs)
+            params = list(kwargs.values())
+
         with get_connection() as conn:
             cursor = conn.cursor()
-            cursor.execute('SELECT * FROM lobbies')
-
-            results = cursor.fetchall()
-
-            if results:
-                return list(map(dict_parser, results))
-            return None
-
-    @staticmethod
-    def find_by_pk(pk):
-        with get_connection() as conn:
-            cursor = conn.cursor()
-            cursor.execute('SELECT * FROM lobbies WHERE id = ?', (pk, ))
-
-            result = cursor.fetchone()
-
-            if result:
-                return dict_parser(result)
-            return None
-
-    @staticmethod
-    def find_by_email(email):
-        with get_connection() as conn:
-            cursor = conn.cursor()
-            cursor.execute('SELECT * FROM lobbies WHERE email = ?', (email, ))
+            cursor.execute(query, params)
 
             result = cursor.fetchone()
 
@@ -59,13 +49,17 @@ class Lobby:
 
 class Gameworld:
     @staticmethod
-    def find_by_lobby_id_and_gameworld_name(lobby_id, gameworld_name):
+    def find_one(**kwargs):
+        query = 'SELECT * FROM gameworlds'
+        params = []
+
+        if kwargs:
+            query += ' WHERE ' + query_maker(kwargs)
+            params = list(kwargs.values())
+
         with get_connection() as conn:
             cursor = conn.cursor()
-            cursor.execute(
-                'SELECT * FROM gameworlds WHERE lobby_id = ? AND gameworld_name = ?',
-                (lobby_id, gameworld_name)
-            )
+            cursor.execute(query, params)
 
             result = cursor.fetchone()
 
