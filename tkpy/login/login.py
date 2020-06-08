@@ -21,14 +21,14 @@ def authenticate(email, password, gameworld_name):
     lobby_id = None
     driver = None
 
-    lobby = LobbyModel.find_by_email(email)
+    lobby = LobbyModel.find_one(email=email)
 
     if lobby:
         lobby_id = lobby['id']
     else:
         lobby_id = LobbyModel.create(email, password)
 
-    gameworld = GameworldModel.find_by_lobby_id_and_gameworld_name(lobby_id, gameworld_name)
+    gameworld = GameworldModel.find_one(lobby_id=lobby_id, gameworld_name=gameworld_name)
 
     if gameworld:
         driver = pickle.loads(gameworld['driver'])
