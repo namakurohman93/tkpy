@@ -24,7 +24,10 @@ def authenticate(email, password, gameworld_name):
     lobby = LobbyModel.find_one(email=email)
 
     if lobby:
-        lobby_id = lobby['id']
+        if LobbyModel.verify_password(lobby['password'], password):
+            lobby_id = lobby['id']
+        else:
+            raise Exception('Password in database and password that provided is different')
     else:
         lobby_id = LobbyModel.create(email, password)
 
@@ -32,6 +35,9 @@ def authenticate(email, password, gameworld_name):
 
     if gameworld:
         driver = pickle.loads(gameworld['driver'])
+        if not driver.is_authenticated():
+            driver = login(email, password, gameworld_name)
+            GameworldModel.update({'driver': pickle.dumps(driver)}, {'id': driver['id']})
     else:
         driver = login(email, password, gameworld_name)
         GameworldModel.create(gameworld_name, pickle.dumps(driver), lobby_id)
