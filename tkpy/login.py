@@ -1,8 +1,8 @@
 import pickle
 from primordial import Lobby
-from ..models.credential import Lobby as LobbyModel
-from ..models.credential import Gameworld as GameworldModel
-from ..exception import AvatarNotFound
+from .models.credential import Lobby as LobbyModel
+from .models.credential import Gameworld as GameworldModel
+from .exception import AvatarNotFound
 
 def login(email, password, gameworld_name):
     lobby = Lobby()
