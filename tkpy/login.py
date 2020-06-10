@@ -37,7 +37,7 @@ def authenticate(email, password, gameworld_name):
         driver = pickle.loads(gameworld['driver'])
         if not driver.is_authenticated():
             driver = login(email, password, gameworld_name)
-            GameworldModel.update({'driver': pickle.dumps(driver)}, {'id': driver['id']})
+            GameworldModel.update({'driver': pickle.dumps(driver)}, {'id': gameworld['id']})
     else:
         driver = login(email, password, gameworld_name)
         GameworldModel.create(gameworld_name, pickle.dumps(driver), lobby_id)
