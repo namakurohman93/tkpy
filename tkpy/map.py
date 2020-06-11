@@ -1,6 +1,13 @@
 from math import sqrt
 
 
+regionIds = {
+    cell_id(x, y): [
+        cell_id(xx, yy) for xx in range(0+(x*7), 7+(x*7)) for yy in range(0+(y*7), 7+(y*7))
+    ] for x in range(-13, 14) for y in range(-13, 14)
+}
+
+
 def cell_id(x, y):
     """ :func:`cell_id` will convert :class:`int` x and :class:`int` y
     into cell id that understand for TK.
@@ -41,13 +48,6 @@ def distance(source, target):
     return sqrt((source[0] - target[0])**2 + (source[1] - target[1])**2)
 
 
-regionIds = {
-    cell_id(x, y): [
-        cell_id(xx, yy) for xx in range(0+(x*7), 7+(x*7)) for yy in range(0+(y*7), 7+(y*7))
-    ] for x in range(-13, 14) for y in range(-13, 14)
-}
-
-
 class Map:
     """ :class:`Map` is represent of map object for TK. Map data from TK
     is stored in here. This class provide an easy way to access map data
@@ -64,61 +64,51 @@ class Map:
     """
     def __init__(self, client):
         self.client = client
-        self._raw = dict()
+        self._raw_data = dict()
 
     def __repr__(self):
         return str(type(self))
 
     def pull(self):
         """ :meth:`pull` for pulling map data from TK. """
-        r = self.client.map.getByRegionIds(
-            params={
-                'regionIdCollection': {
-                    '1': list(regionIds.keys())
-                }
+        r = self.client.map.getByRegionIds({
+            'regionIdCollection': {
+                '1': list(regionIds.keys())
             }
-        )
-        del r['response']['1']['reports']
-        self._raw.update(r)
+        })
+        self._raw_data.update(r)
 
-    def _pull(self, region_id=[]):
-        """ :meth:`_pull` developed new pull method. It will pull specific
-        region data from TK. But the problem is the user need to know how
-        TK map work.
+    def pull_region_id(self, region_id=[]):
+        """ :meth:`pull_region_id` will pull specific region data from 
+        TK.
 
         :param region_id: - :class:`list` (optional) list of region id
                             that want to requested to TK. Default: []
         """
-        ids = (x for x in list(range(1, len(region_id)//49 + 2)))
-        req_list = {
-            str(id): [
-                region_id.pop() for _ in range(49) if region_id
-            ] for id in ids
-        }
         r = self.client.map.getByRegionIds({
-            'regionIdCollection': req_list
+            'regionIdCollection': {
+                '1': region_id
+            }
         })
-        self._raw.update(r)
+        self._raw_data.update(r)
 
-    @property
-    def cell(self):
-        """ :property:`cell` is a :func:`generator` that yield :class:`Cell`
+    def gen_cell(self):
+        """ :meth:`gen_cell` is a :func:`generator` that yield :class:`Cell`
         object.
 
         yield: :class:`Cell`
         """
-        for c in self._raw['response']:
+        for c in self._raw_data['response']:
             try:
-                for region_id in self._raw['response'][c]['region']:
-                    for cell in self._raw['response'][c]['region'][region_id]:
+                for region_id in self._raw_data['response'][c]['region']:
+                    for cell in self._raw_data['response'][c]['region'][region_id]:
                         # yield cell
                         yield Cell(self.client, cell)
             except:
                 continue
 
-    @property
-    def villages(self):
-        """ :property:`villages` is a :func:`generator` that yield :class:`Cell`
+    def gen_villages(self):
+        """ :meth:`gen_villages` is a :func:`generator` that yield :class:`Cell`
         that have 'village' data on it.
 
         yield: :class:`Cell`
@@ -129,9 +119,8 @@ class Map:
             else:
                 continue
 
-    @property
-    def tiles(self):
-        """ :property:`tiles` is a :func:`generator that yield :class:`Cell`
+    def gen_tiles(self):
+        """ :meth:`gen_tiles` is a :func:`generator that yield :class:`Cell`
         known as Abandoned valley in game.
 
         yield: :class:`Cell`
@@ -142,9 +131,8 @@ class Map:
             else:
                 continue
 
-    @property
-    def oasis(self):
-        """ :property:`oasis` is a :func:`generator` that yield :class:`Cell`
+    def gen_oases(self):
+        """ :meth:`gen_oases` is a :func:`generator` that yield :class:`Cell`
         that have 'oasis' data on it.
 
         yield: :class:`Cell`
@@ -155,9 +143,8 @@ class Map:
             else:
                 continue
 
-    @property
-    def wilderness(self):
-        """ :property:`wilderness` is a :func:`generator` that yield :class:`Cell`
+    def gen_wilderness(self):
+        """ :meth:`gen_wilderness` is a :func:`generator` that yield :class:`Cell`
         alsow know as Wilderness in game.
 
         yield: :class:`Cell`
@@ -215,17 +202,16 @@ class Map:
                 return cell
         return default
 
-    @property
-    def kingdoms(self):
-        """ :property:`kingdoms` is a :func:`generator` that yield :class:`Kingdom`
+    def gen_kingdoms(self):
+        """ :meth:`gen_kingdoms` is a :func:`generator` that yield :class:`Kingdom`
         object.
 
         yield: :class:`Kingdom`
         """
-        for c in self._raw['response']:
+        for c in self._raw_data['response']:
             try:
-                for x in self._raw['response'][c]['kingdom']:
-                    yield Kingdom(x, self._raw['response'][c]['kingdom'][x])
+                for x in self._raw_data['response'][c]['kingdom']:
+                    yield Kingdom(x, self._raw_data['response'][c]['kingdom'][x])
             except:
                 continue
 
@@ -245,18 +231,17 @@ class Map:
                 return kingdom
         return default
 
-    @property
-    def players(self):
-        """ :property:`players` is a :func:`generator` that yield
+    def gen_players(self):
+        """ :property:`gen_players` is a :func:`generator` that yield
         :class:`Player` object.
 
         yield: :class:`Player`
         """
-        for c in self._raw['response']:
+        for c in self._raw_data['response']:
             try:
-                for x in self._raw['response'][c]['player']:
+                for x in self._raw_data['response'][c]['player']:
                     yield Player(
-                        self.client, x, self._raw['response'][c]['player'][x]
+                        self.client, x, self._raw_data['response'][c]['player'][x]
                     )
             except:
                 continue
@@ -310,7 +295,7 @@ class Cell:
     @property
     def id(self):
         """ :property:`id` return this cell id. """
-        return int(self.data['id'])
+        return self.data['id']
 
     @property
     def coordinate(self):
@@ -322,11 +307,11 @@ class Player:
     """ :class:`Player` is represent of player object. This class is where
     player data stored.
     """
-    def __init__(self, client, id, data):
+    def __init__(self, client, playerId, data):
         self.client = client
-        self.id = id
+        self.id = playerId
         self.data = data
-        self.data['playerId'] = id
+        self.data['playerId'] = playerId
 
     def __getitem__(self, key):
         try:
@@ -382,10 +367,10 @@ class Kingdom:
     """ :class:`Kingdom` represent of kingdom object. This class is where
     kingdom data stored.
     """
-    def __init__(self, id, data):
-        self.id = id
+    def __init__(self, kingdomId, data):
+        self.id = kingdomId
         self.data = data
-        self.data['kingdomId'] = id
+        self.data['kingdomId'] = kingdomId
 
     def __getitem__(self, key):
         try:
