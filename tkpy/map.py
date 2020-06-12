@@ -219,12 +219,8 @@ class Map:
 
         yield: :class:`Kingdom`
         """
-        for c in self._raw_data['response']:
-            try:
-                for x in self._raw_data['response'][c]['kingdom']:
-                    yield Kingdom(x, self._raw_data['response'][c]['kingdom'][x])
-            except:
-                continue
+        for kingdom_id in self._raw_data['response']['1']['kingdom']:
+            yield Kingdom(kingdom_id, self._raw_data['response']['1']['kingdom'][kingdom_id])
 
     def get_kingdom(self, name=None, kingdom_id=None, default={}):
         """ :meth:`kingdom` is used for find :class:`Kingdom` object
