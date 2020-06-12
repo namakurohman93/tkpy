@@ -1,5 +1,5 @@
 from tkpy.map import cell_id
-from tkpy.map import distance
+#  from tkpy.map import distance
 from tkpy.map import reverse_id
 from tkpy.map import Map
 import requests_mock
@@ -8,11 +8,11 @@ import pickle
 import json
 
 
-class TestDistance(unittest.TestCase):
+#  class TestDistance(unittest.TestCase):
 
-    def testing_distance_function(self):
-        self.assertEqual(distance((0,0), (0,3)), 3)
-        self.assertNotEqual(distance((0,0), (0,3)), 4)
+    #  def testing_distance_function(self):
+        #  self.assertEqual(distance((0,0), (0,3)), 3)
+        #  self.assertNotEqual(distance((0,0), (0,3)), 4)
 
 
 class TestCellId(unittest.TestCase):
