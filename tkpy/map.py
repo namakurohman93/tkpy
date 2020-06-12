@@ -197,7 +197,7 @@ class Map:
         for player_id in self._raw_data['response']['1']['player']:
             yield Player(self.client, player_id, self._raw_data['response']['1']['player'][player_id])
 
-    def player(self, name=None, player_id=None, default={}):
+    def get_player(self, name=None, player_id=None, default={}):
         """ :meth:`player` is used for find :class:`Player` object
         used player name or id.
 
@@ -233,7 +233,7 @@ class Map:
 
         return: :class:`Kingdom`
         """
-        for kingdom in self.kingdoms:
+        for kingdom in self.gen_kingdoms():
             if kingdom.id == str(kingdom_id) or kingdom.name == name:
                 return kingdom
         return default
