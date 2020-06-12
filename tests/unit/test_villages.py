@@ -5,7 +5,6 @@
 #  from tkpy.exception import BuildingSlotFull
 #  from tkpy.exception import BuildingAtMaxLevel
 #  from tkpy.exception import FailedConstructBuilding
-#  from tkpy.exception import NotAuthenticated
 #  from tkpy.exception import TargetNotFound
 #  import unittest
 #  import requests_mock
@@ -25,7 +24,7 @@
         #  with requests_mock.mock() as mock:
             #  mock.register_uri(
                 #  'POST',
-                #  'https://com93.kingdoms.com/api/',
+                #  'https://com1.kingdoms.com/api/',
                 #  json=villages_raw
             #  )
             #  v = Villages(g)
@@ -67,7 +66,7 @@
         #  with requests_mock.mock() as mock:
             #  mock.register_uri(
                 #  'POST',
-                #  'https://com93.kingdoms.com/api/',
+                #  'https://com1.kingdoms.com/api/',
                 #  json=villages_raw
             #  )
             #  v = Villages(g)
@@ -84,7 +83,7 @@
         #  with requests_mock.mock() as mock:
             #  mock.register_uri(
                 #  'POST',
-                #  'https://com93.kingdoms.com/api/',
+                #  'https://com1.kingdoms.com/api/',
                 #  json=village_raw
             #  )
             #  v['001'].pull()
@@ -96,7 +95,7 @@
         #  with requests_mock.mock() as mock:
             #  mock.register_uri(
                 #  'POST',
-                #  'https://com93.kingdoms.com/api/',
+                #  'https://com1.kingdoms.com/api/',
                 #  json=troops_movement_raw
             #  )
             #  r = v['001'].troops_movement()
@@ -105,7 +104,7 @@
         #  with requests_mock.mock() as mock:
             #  mock.register_uri(
                 #  'POST',
-                #  'https://com93.kingdoms.com/api/',
+                #  'https://com1.kingdoms.com/api/',
                 #  json=village_units_raw
             #  )
             #  r = v1.units()
@@ -114,7 +113,7 @@
         #  with requests_mock.mock() as mock:
             #  mock.register_uri(
                 #  'POST',
-                #  'https://com93.kingdoms.com/api/',
+                #  'https://com1.kingdoms.com/api/',
                 #  [
                     #  {'json': village_units_raw},
                     #  {'json': send_troops_raw}
@@ -126,7 +125,7 @@
         #  with requests_mock.mock() as mock:
             #  mock.register_uri(
                 #  'POST',
-                #  'https://com93.kingdoms.com/api/',
+                #  'https://com1.kingdoms.com/api/',
                 #  [
                     #  {'json': village_units_raw},
                     #  {'json': send_troops_raw}
@@ -140,7 +139,7 @@
             #  village_units_raw['cache'][0]['data']['cache'][0]['data']['units'] = {'1': '122', '2': '14', '3': '10', '4': '1', '11': '1'}
             #  mock.register_uri(
                 #  'POST',
-                #  'https://com93.kingdoms.com/api/',
+                #  'https://com1.kingdoms.com/api/',
                 #  [
                     #  {'json': village_units_raw},
                     #  {'json': send_troops_raw}
@@ -153,7 +152,7 @@
         #  with requests_mock.mock() as mock:
             #  mock.register_uri(
                 #  'POST',
-                #  'https://com93.kingdoms.com/api/',
+                #  'https://com1.kingdoms.com/api/',
                 #  [
                     #  {'json': village_units_raw},
                     #  {'json': send_troops_raw}
@@ -165,7 +164,7 @@
         #  with requests_mock.mock() as mock:
             #  mock.register_uri(
                 #  'POST',
-                #  'https://com93.kingdoms.com/api/',
+                #  'https://com1.kingdoms.com/api/',
                 #  [
                     #  {'json': village_units_raw},
                     #  {'json': send_troops_raw}
@@ -177,7 +176,7 @@
         #  with requests_mock.mock() as mock:
             #  mock.register_uri(
                 #  'POST',
-                #  'https://com93.kingdoms.com/api/',
+                #  'https://com1.kingdoms.com/api/',
                 #  [
                     #  {'json': village_units_raw},
                     #  {'json': send_troops_raw}
@@ -189,7 +188,7 @@
         #  with requests_mock.mock() as mock:
             #  mock.register_uri(
                 #  'POST',
-                #  'https://com93.kingdoms.com/api/',
+                #  'https://com1.kingdoms.com/api/',
                 #  [
                     #  {'json': village_units_raw},
                     #  {'json': send_troops_raw}
@@ -201,7 +200,7 @@
         #  with requests_mock.mock() as mock:
             #  mock.register_uri(
                 #  'POST',
-                #  'https://com93.kingdoms.com/api/',
+                #  'https://com1.kingdoms.com/api/',
                 #  [
                     #  {'json': village_units_raw},
                     #  {'json': send_troops_raw}
@@ -213,7 +212,7 @@
         #  with requests_mock.mock() as mock:
             #  mock.register_uri(
                 #  'POST',
-                #  'https://com93.kingdoms.com/api/',
+                #  'https://com1.kingdoms.com/api/',
                 #  [
                     #  {'json': village_units_raw},
                     #  {'json': send_troops_raw}
@@ -225,7 +224,7 @@
         #  with requests_mock.mock() as mock:
             #  mock.register_uri(
                 #  'POST',
-                #  'https://com93.kingdoms.com/api/',
+                #  'https://com1.kingdoms.com/api/',
                 #  [
                     #  {'json': village_units_raw},
                     #  {'json': send_troops_raw}
@@ -238,7 +237,7 @@
             #  village_units_raw['cache'][0]['data']['cache'][0]['data']['units'] = {'1': '1000', '7': '1'}
             #  mock.register_uri(
                 #  'POST',
-                #  'https://com93.kingdoms.com/api/',
+                #  'https://com1.kingdoms.com/api/',
                 #  [
                     #  {'json': village_units_raw},
                     #  {'json': send_troops_raw}
@@ -251,7 +250,7 @@
             #  village_units_raw['cache'][0]['data']['cache'][0]['data']['units'] = {'1': '1000', '7': '1'}
             #  mock.register_uri(
                 #  'POST',
-                #  'https://com93.kingdoms.com/api/',
+                #  'https://com1.kingdoms.com/api/',
                 #  [
                     #  {'json': village_units_raw},
                     #  {'json': send_troops_raw}
@@ -264,7 +263,7 @@
             #  village_units_raw['cache'][0]['data']['cache'][0]['data']['units'] = {'1': '1000', '7': '1'}
             #  mock.register_uri(
                 #  'POST',
-                #  'https://com93.kingdoms.com/api/',
+                #  'https://com1.kingdoms.com/api/',
                 #  [
                     #  {'json': village_units_raw},
                     #  {'json': send_troops_raw}
@@ -277,7 +276,7 @@
             #  village_units_raw['cache'][0]['data']['cache'][0]['data']['units'] = {'1': '1000', '7': '1'}
             #  mock.register_uri(
                 #  'POST',
-                #  'https://com93.kingdoms.com/api/',
+                #  'https://com1.kingdoms.com/api/',
                 #  [
                     #  {'json': village_units_raw},
                     #  {'json': send_troops_raw}
@@ -290,7 +289,7 @@
             #  village_units_raw['cache'][0]['data']['cache'][0]['data']['units'] = {'1': '0', '7': '0'}
             #  mock.register_uri(
                 #  'POST',
-                #  'https://com93.kingdoms.com/api/',
+                #  'https://com1.kingdoms.com/api/',
                 #  [
                     #  {'json': village_units_raw},
                     #  {'json': send_troops_raw}
@@ -303,7 +302,7 @@
             #  village_units_raw['cache'][0]['data']['cache'][0]['data']['units'] = {'1': '111', '7': '111'}
             #  mock.register_uri(
                 #  'POST',
-                #  'https://com93.kingdoms.com/api/',
+                #  'https://com1.kingdoms.com/api/',
                 #  [
                     #  {'json': village_units_raw},
                     #  {'json': send_troops_raw_failed},
@@ -315,7 +314,7 @@
         #  with requests_mock.mock() as mock:
             #  mock.register_uri(
                 #  'POST',
-                #  'https://com93.kingdoms.com/api/',
+                #  'https://com1.kingdoms.com/api/',
                 #  json={'mock': 'mocked'}
             #  )
             #  r = v1.send_farmlist([123])
@@ -330,7 +329,7 @@
         #  with requests_mock.mock() as mock:
             #  mock.register_uri(
                 #  'POST',
-                #  'https://com93.kingdoms.com/api/',
+                #  'https://com1.kingdoms.com/api/',
                 #  [
                     #  {'json':village_raw},
                     #  {'json':buildings_raw},
@@ -345,7 +344,7 @@
         #  with requests_mock.mock() as mock:
             #  mock.register_uri(
                 #  'POST',
-                #  'https://com93.kingdoms.com/api/',
+                #  'https://com1.kingdoms.com/api/',
                 #  [
                     #  {'json':village_raw},
                     #  {'json':buildings_raw},
@@ -361,7 +360,7 @@
         #  with requests_mock.mock() as mock:
             #  mock.register_uri(
                 #  'POST',
-                #  'https://com93.kingdoms.com/api/',
+                #  'https://com1.kingdoms.com/api/',
                 #  [
                     #  {'json':village_raw},
                     #  {'json':buildings_raw},
@@ -376,7 +375,7 @@
         #  with requests_mock.mock() as mock:
             #  mock.register_uri(
                 #  'POST',
-                #  'https://com93.kingdoms.com/api/',
+                #  'https://com1.kingdoms.com/api/',
                 #  [
                     #  {'json':village_raw},
                     #  {'json':buildings_raw},
@@ -392,7 +391,7 @@
         #  with requests_mock.mock() as mock:
             #  mock.register_uri(
                 #  'POST',
-                #  'https://com93.kingdoms.com/api/',
+                #  'https://com1.kingdoms.com/api/',
                 #  [
                     #  {'json':village_raw},
                     #  {'json':buildings_raw},
@@ -407,7 +406,7 @@
         #  with requests_mock.mock() as mock:
             #  mock.register_uri(
                 #  'POST',
-                #  'https://com93.kingdoms.com/api/',
+                #  'https://com1.kingdoms.com/api/',
                 #  [
                     #  {'json':village_raw},
                     #  {'json':buildings_raw},
@@ -423,7 +422,7 @@
         #  with requests_mock.mock() as mock:
             #  mock.register_uri(
                 #  'POST',
-                #  'https://com93.kingdoms.com/api/',
+                #  'https://com1.kingdoms.com/api/',
                 #  [
                     #  {'json':village_raw},
                     #  {'json':buildings_raw},
@@ -439,7 +438,7 @@
         #  with requests_mock.mock() as mock:
             #  mock.register_uri(
                 #  'POST',
-                #  'https://com93.kingdoms.com/api/',
+                #  'https://com1.kingdoms.com/api/',
                 #  [
                     #  {'json':village_raw},
                     #  {'json':buildings_raw},
@@ -454,7 +453,7 @@
         #  with requests_mock.mock() as mock:
             #  mock.register_uri(
                 #  'POST',
-                #  'https://com93.kingdoms.com/api/',
+                #  'https://com1.kingdoms.com/api/',
                 #  [
                     #  {'json':village_raw},
                     #  {'json':buildings_raw},
@@ -469,7 +468,7 @@
         #  with requests_mock.mock() as mock:
             #  mock.register_uri(
                 #  'POST',
-                #  'https://com93.kingdoms.com/api/',
+                #  'https://com1.kingdoms.com/api/',
                 #  [
                     #  {'json':village_raw},
                     #  {'json':buildings_raw},
@@ -484,7 +483,7 @@
         #  with requests_mock.mock() as mock:
             #  mock.register_uri(
                 #  'POST',
-                #  'https://com93.kingdoms.com/api/',
+                #  'https://com1.kingdoms.com/api/',
                 #  [
                     #  {'json':village_raw},
                     #  {'json':buildings_raw},
@@ -500,7 +499,7 @@
         #  with requests_mock.mock() as mock:
             #  mock.register_uri(
                 #  'POST',
-                #  'https://com93.kingdoms.com/api/',
+                #  'https://com1.kingdoms.com/api/',
                 #  [
                     #  {'json':village_raw},
                     #  {'json':buildings_raw},
@@ -516,7 +515,7 @@
         #  with requests_mock.mock() as mock:
             #  mock.register_uri(
                 #  'POST',
-                #  'https://com93.kingdoms.com/api/',
+                #  'https://com1.kingdoms.com/api/',
                 #  [
                     #  {'json':village_raw},
                     #  {'json':buildings_raw},
@@ -531,7 +530,7 @@
         #  with requests_mock.mock() as mock:
             #  mock.register_uri(
                 #  'POST',
-                #  'https://com93.kingdoms.com/api/',
+                #  'https://com1.kingdoms.com/api/',
                 #  [
                     #  {'json':village_raw},
                     #  {'json':buildings_raw},
@@ -564,7 +563,7 @@
         #  with requests_mock.mock() as mock:
             #  mock.register_uri(
                 #  'POST',
-                #  'https://com93.kingdoms.com/api/',
+                #  'https://com1.kingdoms.com/api/',
                 #  json=villages_raw
             #  )
             #  v = Villages(g)
@@ -574,7 +573,7 @@
         #  with requests_mock.mock() as mock:
             #  mock.register_uri(
                 #  'POST',
-                #  'https://com93.kingdoms.com/api/?c=cache&a=get',
+                #  'https://com1.kingdoms.com/api/?c=cache&a=get',
                 #  [
                     #  {'json': village_raw},
                     #  {'json': buildings_raw},
@@ -583,12 +582,12 @@
             #  )
             #  mock.register_uri(
                 #  'POST',
-                #  'https://com93.kingdoms.com/api/?c=building&a=getBuildingList',
+                #  'https://com1.kingdoms.com/api/?c=building&a=getBuildingList',
                 #  json=construction_list_raw
             #  )
             #  mock.register_uri(
                 #  'POST',
-                #  'https://com93.kingdoms.com/api/?c=building&a=useMasterBuilder',
+                #  'https://com1.kingdoms.com/api/?c=building&a=useMasterBuilder',
                 #  json={'mock': 'mocked'}
             #  )
             #  v1.pull()
@@ -601,7 +600,7 @@
         #  with requests_mock.mock() as mock:
             #  mock.register_uri(
                 #  'POST',
-                #  'https://com93.kingdoms.com/api/?c=cache&a=get',
+                #  'https://com1.kingdoms.com/api/?c=cache&a=get',
                 #  [
                     #  {'json': village_raw},
                     #  {'json': buildings_raw},
@@ -610,7 +609,7 @@
             #  )
             #  mock.register_uri(
                 #  'POST',
-                #  'https://com93.kingdoms.com/api/?c=building&a=getBuildingList',
+                #  'https://com1.kingdoms.com/api/?c=building&a=getBuildingList',
                 #  json=construction_list_raw
             #  )
             #  v1.pull()
@@ -624,7 +623,7 @@
         #  with requests_mock.mock() as mock:
             #  mock.register_uri(
                 #  'POST',
-                #  'https://com93.kingdoms.com/api/?c=cache&a=get',
+                #  'https://com1.kingdoms.com/api/?c=cache&a=get',
                 #  [
                     #  {'json': village_raw},
                     #  {'json': buildings_raw},
@@ -633,7 +632,7 @@
             #  )
             #  mock.register_uri(
                 #  'POST',
-                #  'https://com93.kingdoms.com/api/?c=building&a=getBuildingList',
+                #  'https://com1.kingdoms.com/api/?c=building&a=getBuildingList',
                 #  json=construction_list_raw
             #  )
             #  v1.pull()
@@ -646,7 +645,7 @@
         #  with requests_mock.mock() as mock:
             #  mock.register_uri(
                 #  'POST',
-                #  'https://com93.kingdoms.com/api/?c=cache&a=get',
+                #  'https://com1.kingdoms.com/api/?c=cache&a=get',
                 #  [
                     #  {'json': village_raw},
                     #  {'json': buildings_raw},
@@ -655,12 +654,12 @@
             #  )
             #  mock.register_uri(
                 #  'POST',
-                #  'https://com93.kingdoms.com/api/?c=building&a=getBuildingList',
+                #  'https://com1.kingdoms.com/api/?c=building&a=getBuildingList',
                 #  json=construction_list_raw
             #  )
             #  mock.register_uri(
                 #  'POST',
-                #  'https://com93.kingdoms.com/api/?c=building&a=upgrade',
+                #  'https://com1.kingdoms.com/api/?c=building&a=upgrade',
                 #  json={'mock': 'mocked'}
             #  )
             #  v1.pull()
@@ -673,7 +672,7 @@
         #  with requests_mock.mock() as mock:
             #  mock.register_uri(
                 #  'POST',
-                #  'https://com93.kingdoms.com/api/?c=cache&a=get',
+                #  'https://com1.kingdoms.com/api/?c=cache&a=get',
                 #  [
                     #  {'json': village_raw},
                     #  {'json': buildings_raw},
@@ -682,12 +681,12 @@
             #  )
             #  mock.register_uri(
                 #  'POST',
-                #  'https://com93.kingdoms.com/api/?c=building&a=getBuildingList',
+                #  'https://com1.kingdoms.com/api/?c=building&a=getBuildingList',
                 #  json=construction_list_raw
             #  )
             #  mock.register_uri(
                 #  'POST',
-                #  'https://com93.kingdoms.com/api/?c=building&a=useMasterBuilder',
+                #  'https://com1.kingdoms.com/api/?c=building&a=useMasterBuilder',
                 #  json={'mock': 'mocked'}
             #  )
             #  v1.pull()
@@ -700,7 +699,7 @@
         #  with requests_mock.mock() as mock:
             #  mock.register_uri(
                 #  'POST',
-                #  'https://com93.kingdoms.com/api/?c=cache&a=get',
+                #  'https://com1.kingdoms.com/api/?c=cache&a=get',
                 #  [
                     #  {'json': village_raw},
                     #  {'json': buildings_raw},
@@ -709,7 +708,7 @@
             #  )
             #  mock.register_uri(
                 #  'POST',
-                #  'https://com93.kingdoms.com/api/?c=building&a=getBuildingList',
+                #  'https://com1.kingdoms.com/api/?c=building&a=getBuildingList',
                 #  json=construction_list_raw
             #  )
             #  v1.pull()
@@ -721,7 +720,7 @@
         #  with requests_mock.mock() as mock:
             #  mock.register_uri(
                 #  'POST',
-                #  'https://com93.kingdoms.com/api/?c=cache&a=get',
+                #  'https://com1.kingdoms.com/api/?c=cache&a=get',
                 #  [
                     #  {'json': village_raw},
                     #  {'json': buildings_raw},
@@ -730,7 +729,7 @@
             #  )
             #  mock.register_uri(
                 #  'POST',
-                #  'https://com93.kingdoms.com/api/?c=building&a=getBuildingList',
+                #  'https://com1.kingdoms.com/api/?c=building&a=getBuildingList',
                 #  json=construction_list_raw
             #  )
             #  v1.pull()
@@ -742,7 +741,7 @@
         #  with requests_mock.mock() as mock:
             #  mock.register_uri(
                 #  'POST',
-                #  'https://com93.kingdoms.com/api/?c=cache&a=get',
+                #  'https://com1.kingdoms.com/api/?c=cache&a=get',
                 #  [
                     #  {'json': village_raw},
                     #  {'json': buildings_raw},
@@ -751,7 +750,7 @@
             #  )
             #  mock.register_uri(
                 #  'POST',
-                #  'https://com93.kingdoms.com/api/?c=building&a=getBuildingList',
+                #  'https://com1.kingdoms.com/api/?c=building&a=getBuildingList',
                 #  json=construction_list_raw
             #  )
             #  v1.pull()
@@ -765,7 +764,7 @@
         #  with requests_mock.mock() as mock:
             #  mock.register_uri(
                 #  'POST',
-                #  'https://com93.kingdoms.com/api/?c=cache&a=get',
+                #  'https://com1.kingdoms.com/api/?c=cache&a=get',
                 #  [
                     #  {'json': village_raw},
                     #  {'json': buildings_raw},
@@ -774,7 +773,7 @@
             #  )
             #  mock.register_uri(
                 #  'POST',
-                #  'https://com93.kingdoms.com/api/?c=building&a=getBuildingList',
+                #  'https://com1.kingdoms.com/api/?c=building&a=getBuildingList',
                 #  json=construction_list_raw
             #  )
             #  v1.pull()
@@ -793,7 +792,7 @@
         #  with requests_mock.mock() as mock:
             #  mock.register_uri(
                 #  'POST',
-                #  'https://com93.kingdoms.com/api/',
+                #  'https://com1.kingdoms.com/api/',
                 #  json=villages_raw
             #  )
             #  v = Villages(g)
