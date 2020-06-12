@@ -1,16 +1,9 @@
 from math import sqrt
 
 
-regionIds = {
-    cell_id(x, y): [
-        cell_id(xx, yy) for xx in range(0+(x*7), 7+(x*7)) for yy in range(0+(y*7), 7+(y*7))
-    ] for x in range(-13, 14) for y in range(-13, 14)
-}
-
-
 def cell_id(x, y):
     """ :func:`cell_id` will convert :class:`int` x and :class:`int` y
-    into cell id that understand for TK.
+    into cell id that being used for Travian: Kingdom.
 
     :param x: - :class:`int` x cell's coordinate.
     :param y: - :class:`int` y cell's coordinate.
@@ -37,23 +30,20 @@ def reverse_id(vid):
     return realx, realy
 
 
-def distance(source, target):
-    """ :func:`distance` for calculating distance between point.
-
-    :param source: x, y tuple of source coordinates
-    :param target: x, y tuple of target coordinates
-
-    return: :class:`float`
-    """
-    return sqrt((source[0] - target[0])**2 + (source[1] - target[1])**2)
+regionIds = {
+    cell_id(x, y): [
+        cell_id(xx, yy) for xx in range(0+(x*7), 7+(x*7)) for yy in range(0+(y*7), 7+(y*7))
+    ] for x in range(-13, 14) for y in range(-13, 14)
+}
 
 
 class Map:
-    """ :class:`Map` is represent of map object for TK. Map data from TK
-    is stored in here. This class provide an easy way to access map data
-    by using :meth:`coordinate` for accessing specific cell based on their
-    coordinate, or using :property:`villages` for yield cell that contains
-    village data on it, or by using another property.
+    """ :class:`Map` is represent of map object for Travian: Kingdom. Map
+    data from Travian: Kingdom is stored in here. This class provide an
+    easy way to access map data by using :meth:`coordinate` for accessing
+    specific cell based on their coordinate, or using :property:`villages`
+    for yield cell that contains village data on it, or by using another
+    property.
 
     Usage::
         >>> m = Map(driver)
@@ -70,7 +60,7 @@ class Map:
         return str(type(self))
 
     def pull(self):
-        """ :meth:`pull` for pulling map data from TK. """
+        """ :meth:`pull` for pulling map data from Travian: Kingdom. """
         r = self.client.map.getByRegionIds({
             'regionIdCollection': {
                 '1': list(regionIds.keys())
@@ -79,11 +69,12 @@ class Map:
         self._raw_data.update(r)
 
     def pull_region_id(self, region_id=[]):
-        """ :meth:`pull_region_id` will pull specific region data from 
-        TK.
+        """ :meth:`pull_region_id` will pull specific region data from
+        Travian: Kingdom.
 
         :param region_id: - :class:`list` (optional) list of region id
-                            that want to requested to TK. Default: []
+                            that want to requested to Travian: Kingdom.
+                            Default: []
         """
         r = self.client.map.getByRegionIds({
             'regionIdCollection': {
@@ -92,20 +83,15 @@ class Map:
         })
         self._raw_data.update(r)
 
-    def gen_cell(self):
-        """ :meth:`gen_cell` is a :func:`generator` that yield :class:`Cell`
+    def gen_tiles(self):
+        """ :meth:`gen_tiles` is a :func:`generator` that yield :class:`Cell`
         object.
 
         yield: :class:`Cell`
         """
-        for c in self._raw_data['response']:
-            try:
-                for region_id in self._raw_data['response'][c]['region']:
-                    for cell in self._raw_data['response'][c]['region'][region_id]:
-                        # yield cell
-                        yield Cell(self.client, cell)
-            except:
-                continue
+        for region_id in self._raw_data['response']['1']['region']:
+            for cell in self._raw_data['response']['1']['region'][region_id]:
+                yield Cell(self.client, cell)
 
     def gen_villages(self):
         """ :meth:`gen_villages` is a :func:`generator` that yield :class:`Cell`
@@ -113,19 +99,19 @@ class Map:
 
         yield: :class:`Cell`
         """
-        for cell in self.cell:
+        for cell in self.gen_tiles():
             if 'village' in cell:
                 yield cell
             else:
                 continue
 
-    def gen_tiles(self):
-        """ :meth:`gen_tiles` is a :func:`generator that yield :class:`Cell`
-        known as Abandoned valley in game.
+    def gen_abandoned_valley(self):
+        """ :meth:`gen_abandoned_valley` is a :func:`generator that yield
+        :class:`Cell` that known as abandoned valley in the game.
 
         yield: :class:`Cell`
         """
-        for cell in self.cell:
+        for cell in self.gen_tiles():
             if 'village' not in cell and 'resType' in cell:
                 yield cell
             else:
@@ -137,7 +123,7 @@ class Map:
 
         yield: :class:`Cell`
         """
-        for cell in self.cell:
+        for cell in self.gen_tiles():
             if 'oasis' in cell:
                 yield cell
             else:
@@ -145,61 +131,86 @@ class Map:
 
     def gen_wilderness(self):
         """ :meth:`gen_wilderness` is a :func:`generator` that yield :class:`Cell`
-        alsow know as Wilderness in game.
+        that known as wilderness in the game.
 
         yield: :class:`Cell`
         """
-        for cell in self.cell:
+        for cell in self.gen_tiles():
             if 'oasis' not in cell and 'resType' not in cell:
                 yield cell
             else:
                 continue
 
-    def village(self, name=None, id=None, default={}):
-        """ :meth:`village` is used for find specific :cell:`Cell` object
-        that have village data on it based on village name or id.
+    def get_village(self, name=None, village_id=None, default={}):
+        """ :meth:`get_village` is used for find specific :class:`Cell` object
+        that have village data on it based on village name or village id.
 
         :param name: - :class:`str` village name.
-        :param id: - :class:`int` village id.
+        :param village_id: - :class:`int` village id.
         :param default: - :class:`dict` (optional) default value if :cell:`Cell` object
                           didn't found. Default: {}.
 
         return: :class:`Cell`
         """
-        for village in self.villages:
-            if village['id'] == str(id) or village['village']['name'] == name:
+        for village in self.gen_villages():
+            if village['id'] == str(village_id) or village['village']['name'] == name:
                 return village
         return default
 
     def coordinate(self, x, y, default={}):
-        """ :meth:`coordinate` is used for find specific :cell:`Cell` object
+        """ :meth:`coordinate` is used for find specific :class:`Cell` object
         based on cell's coordinate.
 
         :param x: - :class:`int` x cell's coordinate.
         :param y: - :class:`int` y cell's coordinate.
-        :param default: - :class:`dict` (optional) default value if :cell:`Cell`
-                          object didnt' found. Default: {}
-
-        return: :class:`Cell`
-        """
-        for cell in self.cell:
-            if cell['id'] == str(cell_id(x, y)):
-                return cell
-        return default
-
-    def tile(self, id, default={}):
-        """ :meth:`tile` is used for find specific :cell:`Cell` object
-        based on cell's id.
-
-        :param id: - :class:`int` cell id.
-        :param default: - :class:`dict` (optional) default value if :cell:`Cell`
+        :param default: - :class:`dict` (optional) default value if :class:`Cell`
                           object didn't found. Default: {}
 
         return: :class:`Cell`
         """
-        for cell in self.cell:
-            if cell['id'] == str(id):
+        for cell in self.gen_tiles():
+            if cell['id'] == str(cell_id(x, y)):
                 return cell
+        return default
+
+    def get_tile_by_id(self, cell_id, default={}):
+        """ :meth:`get_tile_by_id` is used for find specific :class:`Cell` object
+        based on cell's id.
+
+        :param cell_id: - :class:`int` cell id.
+        :param default: - :class:`dict` (optional) default value if :class:`Cell`
+                          object didn't found. Default: {}
+
+        return: :class:`Cell`
+        """
+        for cell in self.gen_tiles():
+            if cell['id'] == str(cell_id):
+                return cell
+        return default
+
+    def gen_players(self):
+        """ :property:`gen_players` is a :func:`generator` that yield
+        :class:`Player` object.
+
+        yield: :class:`Player`
+        """
+        for player_id in self._raw_data['response']['1']['player']:
+            yield Player(self.client, player_id, self._raw_data['response']['1']['player'][player_id])
+
+    def player(self, name=None, player_id=None, default={}):
+        """ :meth:`player` is used for find :class:`Player` object
+        used player name or id.
+
+        :param name: - :class:`str` player's name.
+        :param player_id: - :class:`int` player's id.
+        :param default: - :class:`dict` (optional) default value when
+                          :class:`Player` object not found. Default: {}
+
+        return: :class:`Player`
+        """
+        for player in self.gen_players():
+            if player.id == str(player_id) or player.name == name:
+                return player
         return default
 
     def gen_kingdoms(self):
@@ -215,52 +226,35 @@ class Map:
             except:
                 continue
 
-    def kingdom(self, name=None, id=None, default={}):
+    def get_kingdom(self, name=None, kingdom_id=None, default={}):
         """ :meth:`kingdom` is used for find :class:`Kingdom` object
         using name or id of kingdom.
 
         :param name: - :class:`str` kingdom's name.
-        :param id: - :class:`int` kingdom's id.
+        :param kingdom_id: - :class:`int` kingdom's id.
         :param default: - :class:`dict` (optional) default value when
                           :class:`Kingdom` object not found. Default: {}
 
         return: :class:`Kingdom`
         """
         for kingdom in self.kingdoms:
-            if kingdom.id == str(id) or kingdom.name == name:
+            if kingdom.id == str(kingdom_id) or kingdom.name == name:
                 return kingdom
         return default
 
-    def gen_players(self):
-        """ :property:`gen_players` is a :func:`generator` that yield
-        :class:`Player` object.
+    @staticmethod
+    def distance(source, target):
+        return sqrt((source.coordinate.x - target.coordinate.x) ** 2 + (source.coordinate.y - target.coordinate.y) ** 2)
 
-        yield: :class:`Player`
-        """
-        for c in self._raw_data['response']:
-            try:
-                for x in self._raw_data['response'][c]['player']:
-                    yield Player(
-                        self.client, x, self._raw_data['response'][c]['player'][x]
-                    )
-            except:
-                continue
 
-    def player(self, name=None, id=None, default={}):
-        """ :meth:`player` is used for find :class:`Player` object
-        used player name or id.
+class Coordinate:
+    def __init__(self, x, y):
+        self.x = x
+        self.y = y
 
-        :param name: - :class:`str` player's name.
-        :param id: - :class:`int` player's id.
-        :param default: - :class:`dict` (optional) default value when
-                          :class:`Player` object not found. Default: {}
-
-        return: :class:`Player`
-        """
-        for player in self.players:
-            if player.id == str(id) or player.name == name:
-                return player
-        return default
+    @classmethod
+    def generate_by_id(cls, cellId):
+        return cls(*reverse_id(int(cellId)))
 
 
 class Cell:
@@ -270,6 +264,7 @@ class Cell:
     def __init__(self, client, data):
         self.client = client
         self.data = data
+        self.coordinate = Coordinate.generate_by_id(self.id)
 
     def __contains__(self, item):
         return self.data.__contains__(item)
@@ -284,8 +279,8 @@ class Cell:
         return f'<{type(self).__name__}({self.data})>'
 
     def details(self):
-        """ :meth:`details` send requests to TK for perceive more details
-        about this cell.
+        """ :meth:`details` send requests to Travian: Kingdom for perceive more
+        details about this cell.
 
         return: :class:`dict`
         """
@@ -296,11 +291,6 @@ class Cell:
     def id(self):
         """ :property:`id` return this cell id. """
         return self.data['id']
-
-    @property
-    def coordinate(self):
-        """ :property:`coordinate` return this cell coordinate. """
-        return reverse_id(self.id)
 
 
 class Player:
