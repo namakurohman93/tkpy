@@ -55,10 +55,14 @@ class TestMap(unittest.TestCase):
             )
             self.assertEqual(m.coordinate(0, 0).details()['resType'], '11115')
 
+        self.assertEqual(m.coordinate(0, 0).id, cell_id(0, 0))
+        self.assertEqual(m.coordinate(0, 0).coordinate.x, 0)
+        self.assertEqual(m.coordinate(0, 0).coordinate.y, 0)
         self.assertEqual(m.coordinate(0, 0)['id'], str(cell_id(0, 0)))
         self.assertTrue('id' in m.coordinate(0, 0))
 
         self.assertEqual(len(list(m.gen_villages())), 2376)
+        self.assertEqual(len(list(m.gen_abandoned_valley())), 5815)
         self.assertEqual(len(list(m.gen_oases())), 1226)
         self.assertEqual(len(list(m.gen_wilderness())), 26305)
 
@@ -71,7 +75,7 @@ class TestMap(unittest.TestCase):
             m.coordinate(0, 0)['asdf']
 
         self.assertEqual(m.get_tile_by_id(123), {})
-        self.assertEqual(m.get_tile_by_id(cell_id(0, 0)).id, str( cell_id(0, 0) ))
+        self.assertEqual(m.get_tile_by_id(cell_id(0, 0)).id, cell_id(0, 0))
 
         self.assertEqual(len(list(m.gen_kingdoms())), 161)
         self.assertEqual(len(list(m.gen_players())), 1624)

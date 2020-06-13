@@ -286,7 +286,7 @@ class Cell:
     @property
     def id(self):
         """ :property:`id` return this cell id. """
-        return self.data['id']
+        return int(self.data['id'])
 
 
 class Player:
