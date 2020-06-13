@@ -1,3 +1,6 @@
+import enum
+
+
 buildingDict = {
     'wood': '1',
     'clay': '2',
@@ -99,3 +102,62 @@ adventureDict = {
         'usingAdventurePoint': 2
     }
 }
+
+
+class Building(enum.Enum):
+    WOOD = 1
+    CLAY = 2
+    IRON_MINE = 3
+    CROP = 4
+    SAWMILL = 5
+    BRICKYARD = 6
+    IRON_FOUNDRY = 7
+    GRAIN_MILL = 8
+    BAKERY = 9
+    WAREHOUSE = 10
+    GRANARY = 11
+    SMITHY = 13
+    TOURNAMENT_SQUARE = 14
+    MAIN_BUILDING = 15
+    RALLY_POINT = 16
+    MARKETPLACE = 17
+    EMBASSY = 18
+    BARRACKS = 19
+    STABLE = 20
+    WORKSHOP = 21
+    ACADEMY = 22
+    CRANNY = 23
+    TOWN_HALL = 24
+    RESIDENCE = 25
+    PALACE = 26
+    TREASURY = 27
+    TRADE_OFFICE = 28
+    GREAT_BARRACKS = 29
+    GREAT_STABLE = 30
+    CITY_WALL = 31
+    EARTH_WALL = 32
+    PALISADE = 33
+    STONEMASON = 34
+    BREWERY = 35
+    TRAPPER = 36
+    GREAT_WAREHOUSE = 38
+    GREAT_GRANARY = 39
+    WORLD_OF_WONDER = 40
+    HORSE_DRINKING_TROUGH = 41
+    WATER_DITCH = 42
+    NATARIAN_WALL = 43
+    HIDDEN_TREASURY = 45
+
+    # def __init__(self, building_id):
+    #     self.details = building_dict[id]
+
+    @property
+    def normalized_name(self):
+        return self.name.replace('_', ' ').title()
+
+
+class Resources(enum.Enum):
+    Wood = 1
+    Clay = 2
+    Iron = 3
+    Crop = 4

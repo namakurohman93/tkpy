@@ -400,6 +400,10 @@ class Cell(ImmutableDataclass):
     __slots__ = ["client"]
     client: Any
 
+    def __init__(self, client, data={}, safe=['name']):
+        super().__init__(data, safe)
+        object.__setattr__(self, 'client', client)
+
     def details(self):
         """ :meth:`details` send requests to TK for perceive more
         details about this cell.
@@ -429,6 +433,11 @@ class Player(ImmutableDataclass):
     client: Any
     id: int
 
+    def __init__(self, client, id, data={}, safe=['name']):
+        super().__init__(data, safe)
+        object.__setattr__(self, 'client', client)
+        object.__setattr__(self, 'id', id)
+
     def hero_equipment(self):
         """ :meth:`hero_equipment` send requests to TK for perceive
         hero equipment of this player.
@@ -456,7 +465,7 @@ class Player(ImmutableDataclass):
 
         return: :class:`boolean`
         """
-        if self.data["active"] == "1":
+        if self.data["active"] == 1:
             return True
         return False
 
@@ -469,6 +478,10 @@ class Kingdom(ImmutableDataclass):
 
     __slots__ = ["id"]
     id: int
+
+    def __init__(self, id, data={}, safe=['tag']):
+        super().__init__(data, safe)
+        object.__setattr__(self, 'id', id)
 
     @property
     def name(self):

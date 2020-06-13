@@ -1,14 +1,18 @@
 import os
 import uuid
+import json
 import pickle
 import hashlib
 import argparse
 import binascii
 
-from .driver import Lobby
+from primordial import Lobby
+
+# from .driver import Lobby
 from .database import get_db
 from .exception import DriverNotFound
 from .exception import NotAuthenticated
+from .exception import AvatarNotFound
 
 
 def credential():
@@ -253,3 +257,56 @@ def _login(email, password, gameworld, avatar=None):
             driver.update_account()
 
     return driver
+
+
+def pprint(data, indent=4):
+    """ :func:`pprint` for print `dict` or `list` with indentation so
+    it can be more read-able.
+
+    :param data: - :class:`dict` data that want to be printed with indentation.
+    :param indent: - :class:`int` spaces that used for indentation. Default = 4
+    """
+    print(json.dumps(data, indent=indent))
+
+
+def relogin(email, password, gameworld, avatar=None, lobby=Lobby()):
+
+    lobby.authenticate(email, password)
+
+    if avatar:
+        gameworld_id = None
+        avatar_id = get_avatar_id(lobby, avatar, gameworld)
+    else:
+        gameworld_id = get_gameworld_id(lobby, gameworld)
+        avatar_id = None
+
+    driver = lobby.connect_to_gameworld(
+        gameworld_name=gameworld,
+        gameworld_id=gameworld_id,
+        avatar_id=avatar_id,
+    )
+
+    return driver
+
+def get_avatar_id(lobby, avatar, gameworld):
+    for x in ('Collection:Sitter:1', 'Collection:Sitter:4'):
+        r = lobby.cache.get({'names':[x]})
+
+        for avatar in r['cache'][0]['data']['cache']:
+            if (
+                avatar['data']['avatarName'] == avatar
+                and avatar['data']['worldName'].lower() == gameworld.lower()
+            ):
+                return avatar['data']['avatarIdentifier']
+
+    raise AvatarNotFound(f'Avatar {avatar} on {gameworld} not found.')
+
+def get_gameworld_id(lobby, gameworld):
+    r = lobby.cache.get({'names':['Collection:Avatar']})
+
+    for avatar in r['cache'][0]['data']['cache']:
+        if gameworld.lower() == avatar['data']['worldName'].lower():
+            gameworld_id = avatar['data']['consumersId']
+            return gameworld_id
+
+    raise AvatarNotFound(f'Avatar on {gameworld} not found')

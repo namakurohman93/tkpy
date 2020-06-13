@@ -100,7 +100,7 @@ class TestVillage(unittest.TestCase):
             data=self.village_raw['cache'][0]['data']
         )
         self.assertEqual(v.name, '001')
-        self.assertEqual(v.villageId, '536461288')
+        self.assertEqual(v.villageId, 536461288)
         self.assertEqual(v.coordinates, {'x': '-24', 'y': '-13'})
         self.assertTrue(v.isMainVillage)
         self.assertFalse(v.isTown)
@@ -114,7 +114,7 @@ class TestVillage(unittest.TestCase):
             )
             self.village.pull()
         self.assertEqual(self.village.name, '001')
-        self.assertEqual(self.village.villageId, '536461288')
+        self.assertEqual(self.village.villageId, 536461288)
         self.assertEqual(self.village.coordinates, {'x': '-24', 'y': '-13'})
         self.assertTrue(self.village.isMainVillage)
         self.assertFalse(self.village.isTown)

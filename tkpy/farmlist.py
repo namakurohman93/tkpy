@@ -1,7 +1,7 @@
 import dataclasses
 from typing import Any
 
-from .models import ImmutableDict
+from .models import CustomizeDict
 from .models import ImmutableDataclass
 from .exception import FarmListNotFound
 
@@ -36,7 +36,7 @@ class Farmlist:
         r = self.client.cache.get({"names": ["Collection:FarmList:"]})
         for x in r["cache"][0]["data"]["cache"]:
             self.item[x["data"]["listName"]] = FarmlistEntry(
-                client=self.client, data=x["data"], raw=ImmutableDict()
+                client=self.client, data=x["data"]
             )
 
     @property
@@ -74,7 +74,12 @@ class FarmlistEntry(ImmutableDataclass):
 
     __slots__ = ["client", "raw"]
     client: Any
-    raw: ImmutableDict
+    raw: dict
+
+    def __init__(self, client, data, raw={}, safe=['listName']):
+        super().__init__(data, safe)
+        object.__setattr__(self, 'client', client)
+        object.__setattr__(self, 'raw', CustomizeDict(raw))
 
     def send(self, villageId):
         """ :meth:`send` for send this farmlist entry from village using
@@ -161,6 +166,10 @@ class EntryId(ImmutableDataclass):
 
     __slots__ = ["client"]
     client: Any
+
+    def __init__(self, client, data={}, safe=['villageName']):
+        super().__init__(data, safe)
+        object.__setattr__(self, 'client', client)
 
     @property
     def notification_type(self):

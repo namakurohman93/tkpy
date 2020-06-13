@@ -316,3 +316,17 @@ class Gameworld:
         if 'error' in r.json():
             raise NotAuthenticated()
         return r.json()
+
+
+class Account:
+    def __init__(self, gameworld):
+        self.gameworld = gameworld
+        self.details = dict()
+        self.update_account()
+
+    def update_account(self):
+        self.details.update(
+            self.gameworld.cache.get({
+                'names':[f'Player:{self.gameworld.player_id}']
+            })['cache'][0]['data']
+        )

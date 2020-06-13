@@ -13,20 +13,41 @@ Class model for tkpy
 import dataclasses
 
 
-class ImmutableDict(dict):
-    """ :class:`ImmutableDict` is an object that inherit from built-in
-    :class:`dict` but didn't implement item assignment.
+class CustomizeDict(dict):
+    """ :class:`CustomizeDict` is an object that inherit from built-in
+    :class:`dict`. It's internally used for storing data from TK.
     """
 
-    def __init__(self, *args, **kwargs):
+    __slots__ = ["safe"]
+
+    def __init__(self, *args, safe=[], **kwargs):
+        self.safe = safe
         super().__init__(*args, **kwargs)
 
     def __setitem__(self, name, value):
-        if name in self.keys():
-            raise TypeError(
-                f"'{type(self).__name__}' object does not implement item assignment"
-            )
-        raise KeyError(f"{name}")
+        raise TypeError(
+            f"'{type(self).__name__}' object does not implement item assignment"
+        )
+
+    def __getitem__(self, name):
+        item = super().__getitem__(name)
+
+        if isinstance(item, str) and item.isdigit() and name not in self.safe:
+            return int(item)
+
+        if isinstance(item, dict):
+            return self._make(item, safe=self.safe)
+
+        if isinstance(item, list) and isinstance(item[0], dict):
+            return [
+                *map(lambda x: self._make(x, safe=self.safe), item)
+            ]
+
+        return item
+
+    @classmethod
+    def _make(cls, *args, safe=[], **kwargs):
+        return cls(*args, **kwargs, safe=safe)
 
 
 @dataclasses.dataclass(frozen=True)
@@ -34,7 +55,7 @@ class ImmutableDataclass:
     """ :class:`ImmutableDataclass` is a slotted class that simply cant
     reassign attribute and cant add new attribute.
     Furthemore, data of this class is stored on :attr:`data` and it
-    has :class:`ImmutableDict` type.
+    has :class:`CustomizeDict` type.
     Data can be accessed using key, or for simplicity sake, can be accessed
     as an 'attribute' too.
 
@@ -59,7 +80,7 @@ class ImmutableDataclass:
           File "<stdin>", line 1, in <module>
           File "/tkpy/models.py", line 27, in __setitem__
             f"'{type(self).__name__}' object does not implement item assignment"
-        TypeError: 'ImmutableDict' object does not implement item assignment
+        TypeError: 'CustomizeDict' object does not implement item assignment
         >>> foo['a']
         'a'
         >>> foo.a
@@ -72,10 +93,11 @@ class ImmutableDataclass:
     """
 
     __slots__ = ["data"]
-    data: dict
+    data: dataclasses.InitVar[dict]
+    safe: dataclasses.InitVar[list]
 
-    def __post_init__(self):
-        object.__setattr__(self, "data", ImmutableDict(self.data))
+    def __post_init__(self, data, safe):
+        object.__setattr__(self, "data", CustomizeDict(data, safe=safe))
 
     def __getattr__(self, name):
         if name in self.__getattribute__("data").keys():

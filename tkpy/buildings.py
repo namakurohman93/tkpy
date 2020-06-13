@@ -89,6 +89,10 @@ class Building(ImmutableDataclass):
     __slots__ = ["client"]
     client: Any
 
+    def __init__(self, client, data={}, safe=[]):
+        super().__init__(data, safe)
+        object.__setattr__(self, 'client', client)
+
     def upgrade(self):
         """ :meth:`upgrade` for upgrade this building.
 
@@ -132,8 +136,8 @@ class BuildingQueue(ImmutableDataclass):
     client: Any
     villageId: int
 
-    def __init__(self, client, villageId, data={}):
-        super().__init__(data)
+    def __init__(self, client, villageId, data={}, safe=[]):
+        super().__init__(data, safe)
         object.__setattr__(self, "client", client)
         object.__setattr__(self, "villageId", villageId)
 

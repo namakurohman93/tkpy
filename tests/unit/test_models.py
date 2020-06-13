@@ -1,23 +1,23 @@
-from tkpy.models import ImmutableDict
+from tkpy.models import CustomizeDict
 from tkpy.models import ImmutableDataclass
 
 import unittest
 
 
-class TestImmutableDict(unittest.TestCase):
+class TestCustomizeDict(unittest.TestCase):
 
     def testing_immutable_dict(self):
-        d = ImmutableDict({'a':'a', 'b':'b', 'c':'c'})
+        d = CustomizeDict({'a':'a', 'b':'b', 'c':'c'})
         with self.assertRaises(TypeError):
             d['a'] = 'z'
-        with self.assertRaises(KeyError):
+        with self.assertRaises(TypeError):
             d['z'] = 'z'
 
 
 class TestImmutableDataclass(unittest.TestCase):
 
     def testing_immutable_data_class(self):
-        d = ImmutableDataclass({'a':'a', 'b':'b', 'c':'c'})
+        d = ImmutableDataclass({'a':'a', 'b':'b', 'c':'c'}, safe=[])
         self.assertEqual(d.a, 'a')
         self.assertEqual(d['a'], 'a')
         with self.assertRaises(TypeError):

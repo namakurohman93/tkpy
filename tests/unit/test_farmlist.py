@@ -77,15 +77,15 @@ class TestFarmlistEntry(unittest.TestCase):
     def testing_farmlist_entry_attribute(self):
         fle = self.farmlist['01']
         self.assertEqual(fle.listName, '01')
-        self.assertEqual(fle.listId, '1398')
+        self.assertEqual(fle.listId, 1398)
         self.assertEqual(len(fle.villageIds), 10)
         self.assertEqual(len(fle.entryIds), 10)
         self.assertEqual(fle.maxEntriesCount, 100)
         self.assertFalse(fle.isDefault)
-        self.assertEqual(fle.lastSent, '1561872785')
+        self.assertEqual(fle.lastSent, 1561872785)
         self.assertEqual(fle.lastChanged, 1561849070)
         self.assertEqual(fle.units, {'1': '0', '2': '0', '3': '0', '4': '0', '5': '10', '6': '0'})
-        self.assertEqual(fle.orderNr, '2')
+        self.assertEqual(fle.orderNr, 2)
 
     def testing_farmlist_entry_send(self):
         with requests_mock.mock() as mock:
@@ -170,14 +170,14 @@ class TestEntryId(unittest.TestCase):
         self.entry_id = fl_list[0]
 
     def testing_entry_id_attribute(self):
-        self.assertEqual(self.entry_id.entryId, '6350')
-        self.assertEqual(self.entry_id.villageId, '535150570')
+        self.assertEqual(self.entry_id.entryId, 6350)
+        self.assertEqual(self.entry_id.villageId, 535150570)
         self.assertEqual(self.entry_id.villageName, 'kolobelix 1')
         self.assertEqual(self.entry_id.units, {'1': '0', '2': '0', '3': '0', '4': '0', '5': '0', '6': '0'})
         self.assertEqual(self.entry_id.coords, {'x': '-22', 'y': '-53'})
-        self.assertEqual(self.entry_id.targetOwnerId, '1302')
-        self.assertEqual(self.entry_id.belongsToKing, '203')
-        self.assertEqual(self.entry_id.population, '300')
+        self.assertEqual(self.entry_id.targetOwnerId, 1302)
+        self.assertEqual(self.entry_id.belongsToKing, 203)
+        self.assertEqual(self.entry_id.population, 300)
         self.assertEqual(self.entry_id.lastReport, None)
         self.assertFalse(self.entry_id.isOasis)
         # class properties

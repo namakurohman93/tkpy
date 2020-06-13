@@ -22,8 +22,8 @@ class Hero(ImmutableDataclass):
     __slots__ = ["client"]
     client: Any
 
-    def __init__(self, client, data={}):
-        super().__init__(data)
+    def __init__(self, client, data={}, safe=[]):
+        super().__init__(data, safe)
         object.__setattr__(self, "client", client)
 
     def pull(self):
@@ -57,7 +57,7 @@ class Hero(ImmutableDataclass):
 
         return: :class:`boolean`
         """
-        return not self.isMoving and self.status == "0"
+        return not self.isMoving and self.status == 0
 
     def _check_adventure_point(self, adventure):
         # check if current adventure point is enough to be used for

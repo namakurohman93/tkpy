@@ -76,8 +76,8 @@ class Village(ImmutableDataclass):
     __slots__ = ["client", "buildings", "buildingQueue", "warehouse"]
     client: Any
 
-    def __init__(self, client, data):
-        super().__init__(data)
+    def __init__(self, client, data, safe=['name']):
+        super().__init__(data, safe)
         object.__setattr__(self, "client", client)
         object.__setattr__(
             self,

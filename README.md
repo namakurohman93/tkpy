@@ -13,7 +13,7 @@ Since `tkpy` depend on `primordial` package, first install [primordial package](
 After that, run `tkpy-init` for create database that will be used for storing `Gameworld` object.
 
 ```sh
-(venv)$ pip install git+https://github.com/lijok/primordial.git
+(venv)$ pip install git+https://github.com/didadadida93/primordial.git
 (venv)$ pip install tkpy
 (venv)$ tkpy-init
 ```

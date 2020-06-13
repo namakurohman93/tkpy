@@ -29,18 +29,18 @@ class TestHero(unittest.TestCase):
             self.hero.pull()
 
     def testing_hero_attribute(self):
-        self.assertEqual(self.hero.playerId, '1')
-        self.assertEqual(self.hero.villageId, '1')
-        self.assertEqual(self.hero.destVillageId, '1')
-        self.assertEqual(self.hero.level, '1')
+        self.assertEqual(self.hero.playerId, 1)
+        self.assertEqual(self.hero.villageId, 1)
+        self.assertEqual(self.hero.destVillageId, 1)
+        self.assertEqual(self.hero.level, 1)
         self.assertEqual(self.hero.xpThisLevel, 500)
         self.assertEqual(self.hero.xpNextLevel, 750)
-        self.assertEqual(self.hero.adventurePoints, '1')
-        self.assertEqual(self.hero.freePoints, '0')
+        self.assertEqual(self.hero.adventurePoints, 1)
+        self.assertEqual(self.hero.freePoints, 0)
         self.assertFalse(self.hero.isMoving)
         self.assertEqual(self.hero.regenerationRate, 15)
-        self.assertEqual(self.hero.status, '7') # die
-        self.assertEqual(self.hero.health, '0')
+        self.assertEqual(self.hero.status, 7) # die
+        self.assertEqual(self.hero.health, 0)
         # property
         self.assertEqual(self.hero.exp, 242)
         self.assertEqual(self.hero.exp_next_level, 250)

@@ -83,9 +83,9 @@ class TestMap(unittest.TestCase):
             )
             self.assertEqual(m.coordinate(0, 0).details()['resType'], '11115')
 
-        self.assertEqual(m.coordinate(0, 0).id, str(cell_id(0, 0)))
+        self.assertEqual(m.coordinate(0, 0).id, cell_id(0, 0))
         self.assertEqual(m.coordinate(0, 0).coordinate.x, 0)
-        self.assertEqual(m.coordinate(0, 0)['id'], str(cell_id(0, 0)))
+        self.assertEqual(m.coordinate(0, 0)['id'], cell_id(0, 0))
         self.assertTrue('id' in m.coordinate(0, 0))
 
         self.assertEqual(len(list(m.villages)), 2376)
@@ -94,12 +94,12 @@ class TestMap(unittest.TestCase):
         self.assertEqual(len(list(m.wilderness)), 26305)
 
         self.assertEqual(m.coordinate(-111111, 111111), {})
-        self.assertEqual(m.coordinate(0, 0)['id'], str(cell_id(0, 0)))
+        self.assertEqual(m.coordinate(0, 0)['id'], cell_id(0, 0))
         with self.assertRaises(KeyError):
             m.coordinate(0, 0)['asdf']
 
         self.assertEqual(m.tile(123), {})
-        self.assertEqual(m.tile(cell_id(0, 0)).id, str(cell_id(0, 0)))
+        self.assertEqual(m.tile(cell_id(0, 0)).id, cell_id(0, 0))
 
         self.assertEqual(len(list(m.kingdoms)), 161)
         self.assertEqual(len(list(m.players)), 1624)
@@ -117,7 +117,7 @@ class TestMap(unittest.TestCase):
         self.assertEqual(m.player(), {})
         self.assertEqual(m.player('Punisher').name, 'Punisher')
         self.assertEqual(m.player('Punisher')['name'], 'Punisher')
-        self.assertEqual(m.player('Punisher').tribeId, '1')
+        self.assertEqual(m.player('Punisher').tribeId, 1)
         self.assertTrue(m.player('Punisher').is_active)
         self.assertFalse(m.player('Mustafa').is_active)
         with self.assertRaises(KeyError):
