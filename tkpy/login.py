@@ -1,3 +1,4 @@
+import re
 import pickle
 from primordial import Lobby
 from .models.credential import Lobby as LobbyModel
@@ -8,7 +9,26 @@ def login(email, password, gameworld_name):
     lobby = Lobby()
     lobby.authenticate(email, password)
     gameworld_id = get_gameworld_id(lobby, gameworld_name)
-    return lobby.connect_to_gameworld(gameworld_name, gameworld_id)
+    #  return lobby.connect_to_gameworld(gameworld_name, gameworld_id)
+    gameworld = lobby.connect_to_gameworld(gameworld_name, gameworld_id)
+
+    r = gameworld.player.getAll({'deviceDimension': '1920:1080'})
+    gameworld_detail = get_gameworld_detail(r)
+
+    gameworld.tribe_id = gameworld_detail['tribe_id']
+
+    return gameworld
+
+def get_gameworld_detail(data):
+    # maybe I need this for get another detail
+    result = dict()
+    regex = re.compile('^Player:')
+
+    for cache in data['cache']:
+        if regex.search(cache['name']):
+            result['tribe_id'] = int(cache['data']['tribeId'])
+
+    return result
 
 def get_gameworld_id(lobby, gameworld_name):
     r = lobby.cache.get({'names':['Collection:Avatar']})
