@@ -105,6 +105,20 @@ class Map:
             else:
                 continue
 
+    def gen_grey_villages(self):
+        """ :meth: `gen_grey_villages` is a :func:`generator` that yield :class:`Cell`
+        that have 'village' data on it and it already grey (inactive).
+
+        yield: :class:`Cell`
+        """
+        players = [player['playerId'] for player in self.gen_players() if player.is_active]
+
+        for village in self.gen_villages():
+            if village['playerId'] in players:
+                yield village
+            else:
+                continue
+
     def gen_abandoned_valley(self):
         """ :meth:`gen_abandoned_valley` is a :func:`generator that yield
         :class:`Cell` that known as abandoned valley in the game.
@@ -126,6 +140,18 @@ class Map:
         for cell in self.gen_tiles():
             if 'oasis' in cell:
                 yield cell
+            else:
+                continue
+
+    def gen_unoccupied_oases(self):
+        """ :meth:`gen_unoccupied_oases` is a :func:`generator` that yield :class:`Cell`
+        that have 'oasis' data on it and it unoccupied.
+
+        yield: :class:`Cell`
+        """
+        for oasis in self.gen_oases():
+            if (oasis['oasisStatus'] == '3'):
+                yield oasis
             else:
                 continue
 
