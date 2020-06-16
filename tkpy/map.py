@@ -91,7 +91,7 @@ class Map:
         """
         for region_id in self._raw_data['response']['1']['region']:
             for cell in self._raw_data['response']['1']['region'][region_id]:
-                yield Cell(self.client, cell)
+                yield Cell(self.client, cell, region_id)
 
     def gen_villages(self):
         """ :meth:`gen_villages` is a :func:`generator` that yield :class:`Cell`
@@ -111,7 +111,7 @@ class Map:
 
         yield: :class:`Cell`
         """
-        players = [player['playerId'] for player in self.gen_players() if player.is_active]
+        players = [player['playerId'] for player in self.gen_players() if player.is_active is False]
 
         for village in self.gen_villages():
             if village['playerId'] in players:
@@ -223,6 +223,13 @@ class Map:
         for player_id in self._raw_data['response']['1']['player']:
             yield Player(self.client, player_id, self._raw_data['response']['1']['player'][player_id])
 
+    def gen_inactive_players(self):
+        for player in self.gen_players():
+            if player.is_active is False:
+                yield player
+            else:
+                continue
+
     def get_player(self, name=None, player_id=None, default={}):
         """ :meth:`player` is used for find :class:`Player` object
         used player name or id.
@@ -274,6 +281,9 @@ class Coordinate:
         self.x = x
         self.y = y
 
+    def __repr__(self):
+        return f'<{type(self).__name__} x: {self.x}, y: {self.y}>'
+
     @classmethod
     def generate_by_id(cls, cellId):
         return cls(*reverse_id(int(cellId)))
@@ -283,9 +293,10 @@ class Cell:
     """ :class:`Cell` is a class that represent cell object. This class
     is where cell data stored.
     """
-    def __init__(self, client, data):
+    def __init__(self, client, data, region_id):
         self.client = client
         self.data = data
+        self.region_id = region_id
         self.coordinate = Coordinate.generate_by_id(self.id)
 
     def __contains__(self, item):
