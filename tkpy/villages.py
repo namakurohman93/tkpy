@@ -24,55 +24,39 @@ class Villages:
     """
     def __init__(self, client):
         self.client = client
-        self._raw = dict()
-        self.item = dict()
+        self._raw_data = dict()
 
     def __getitem__(self, key):
         try:
-            return self.item[key]
+            return self._raw_data[key]
         except:
             raise VillageNotFound(f'Village {key} is not found')
 
     def __iter__(self):
-        return iter(self.item.keys())
-
-    @property
-    def dorps(self):
-        """ :property:`dorps` is a :func:`generator` that yield
-        :class:`Village` object.
-
-        yield: :class:`Village`
-        """
-        for x in self.item:
-            yield self.item[x]
-
-    @property
-    def raw(self):
-        """ :property:`raw` is a :func:`generator` that yield village
-        raw data.
-
-        yield: :class:`dict`
-        """
-        for x in self._raw['cache'][0]['data']['cache']:
-            yield x['data']
+        return iter(self._raw_data.keys())
 
     def pull(self):
-        """ :meth:`pull` for pulling data from TK. """
-        self._raw.update(
-            self.client.cache.get(
-                {'names': ['Collection:Village:own']}
-            )
-        )
-        # store village object
-        for x in self.raw:
-            self.item[x['name']] = Village(self.client, x)
+        """ :meth:`pull` for pulling data from Travian: Kingdom. """
+        r = self.client.cache.get({'names': ['Collection:Village:own']})
+
+        for village in r['cache'][0]['data']['cache']:
+            self._raw_data[village['data']['name']] = Village(self.client, village['data'])
+
+    def keys(self):
+        return self._raw_data.keys()
+
+    def items(self):
+        return self._raw_data.items()
+
+    def values(self):
+        return self._raw_data.values()
 
     def get_capital_village(self):
         """ :meth:`get_capital_village` for find capital village and return it.
 
         return: :class:`Village`
         """
-        for village in self.dorps:
+        for village in self.values():
             if village.isMainVillage:
                 return village
 
@@ -98,7 +82,7 @@ class Village:
         return f'<{type(self).__name__}({self.data})>'
 
     def pull(self):
-        """ :meth:`pull` for pulling this village data from TK. """
+        """ :meth:`pull` for pulling this village data from Travian: Kingdom. """
         r = self.client.cache.get({
             'names': [f'Village:{self.id}']
         })
@@ -128,7 +112,7 @@ class Village:
         return self.data['isMainVillage']
 
     def units(self):
-        """ :meth:`units` send requests to TK for perceive units that
+        """ :meth:`units` send requests to Travian: Kingdom for perceive units that
         belong to this village.
 
         return: :class:`dict`
@@ -141,7 +125,7 @@ class Village:
                 return x['data']['units'] or {}
 
     def troops_movement(self):
-        """ :meth:`troops_movement` send requests to TK for perceive
+        """ :meth:`troops_movement` send requests to Travian: Kingdom for perceive
         troops movement in and out of this village.
 
         return: :class:`list`
@@ -154,7 +138,7 @@ class Village:
     def _send_troops(self, x, y, destVillageId, movementType, redeployHero,
             spyMission, units):
         """ :meth:`_send_troops` is real troops sender. It send a requests
-        to TK for sending troops to target.
+        to Travian: Kingdom for sending troops to target.
 
         :param x: - :class:`int` x coordinate of target.
         :param y: - :class:`int` y coordinate of target.
@@ -223,7 +207,7 @@ class Village:
         return r
 
     def attack(self, x=None, y=None, targetId=None, units=None):
-        """ :meth:`attack` send requests to TK for attacking target.
+        """ :meth:`attack` send requests to Travian: Kingdom for attacking target.
 
         :param x: - :class:`int` (optional) value of x coordinate.
         :param y: - :class:`int` (optional) value of y coordinate.
@@ -245,7 +229,7 @@ class Village:
         )
 
     def raid(self, x=None, y=None, targetId=None, units=None):
-        """ :meth:`raid` send requests to TK for raiding target.
+        """ :meth:`raid` send requests to Travian: Kingdom for raiding target.
 
         :param x: - :class:`int` (optional) value of x coordinate.
         :param y: - :class:`int` (optional) value of y coordinate.
@@ -266,7 +250,7 @@ class Village:
 
     def defend(self, x=None, y=None, targetId=None, units=None,
             redeployHero=False):
-        """ :meth:`defend` send a requests to TK for defending target.
+        """ :meth:`defend` send a requests to Travian: Kingdom for defending target.
 
         :param x: - :class:`int` (optional) value of x coordinate.
         :param y: - :class:`int` (optional) value of y coordinate.
@@ -292,7 +276,7 @@ class Village:
 
     def spy(self, x=None, y=None, targetId=None, amount=0,
             mission='resources'):
-        """ :meth:`spy` send requests to TK for spying target.
+        """ :meth:`spy` send requests to Travian: Kingdom for spying target.
 
         :param x: - :class:`int` (optional) value of x coordinate.
         :param y: - :class:`int` (optional) value of y coordinate.
@@ -323,7 +307,7 @@ class Village:
         )
 
     def siege(self, x=None, y=None, targetId=None, units=None):
-        """ :meth:`siege` send a requests to TK for siege target.
+        """ :meth:`siege` send a requests to Travian: Kingdom for siege target.
 
         :param x: - :class:`int` (optional) value of x coordinate.
         :param y: - :class:`int` (optional) value of y coordinate.
@@ -347,7 +331,7 @@ class Village:
         )
 
     def send_farmlist(self, listIds):
-        """ :meth:`send_farmlist` send requests to TK for send farmlist.
+        """ :meth:`send_farmlist` send requests to Travian: Kingdom for send farmlist.
 
         :param listIds: - :class:`list` list of farmlist id that want to sent.
 
@@ -359,7 +343,7 @@ class Village:
         })
 
     def upgrade(self, building):
-        """ :meth:`upgrade` send requests to TK for upgrade building.
+        """ :meth:`upgrade` send requests to Travian: Kingdom for upgrade building.
 
         :param building: - :class:`str` building name that want to be ugpraded.
 
