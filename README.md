@@ -70,3 +70,16 @@ m.get_player('player name')
 m.get_kingdom('kingdom name')
 <Kingdom({'tag': 'kingdom name', 'kingdomId': '9999'})>
 ```
+
+### Villages
+Villages object is like built-in `dict` object from `Python` so you can access the village using its name as key. To get village data from Travian: Kingdom, you need to call `pull` method first.
+
+```python
+from tkpy import Villages
+
+v = Villages(driver)
+v.pull()
+
+v['your first village']
+<Village({'villageId': '537313245', 'playerId': '001', 'name': 'my first village',...})>
+```
