@@ -35,6 +35,9 @@ class Villages:
     def __iter__(self):
         return iter(self._raw_data.keys())
 
+    def __repr__(self):
+        return str(type(self))
+
     def pull(self):
         """ :meth:`pull` for pulling data from Travian: Kingdom. """
         r = self.client.cache.get({'names': ['Collection:Village:own']})
