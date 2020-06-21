@@ -1,4 +1,5 @@
 from math import sqrt
+from copy import deepcopy
 
 
 def cell_id(x, y):
@@ -39,6 +40,30 @@ def distance(source, target):
     return: :class:`float`
     """
     return sqrt((source[0] - target[0]) ** 2 + (source[1] - target[1]) ** 2)
+
+
+def slice_map(center, radius, m):
+    """ :func:`slice_map` for slicing Map object based on center and radius.
+
+    :param center: x, y tuple of center of sliced map
+    :param radius: - :class:`int` center of sliced map
+    :param m: - :class:`Map` Map object that want to be sliced
+
+    return :class:`Map`
+    """
+    results = dict()
+
+    for cell in m.gen_tiles():
+        if distance(center, (cell.coordinate.x, cell.coordinate.y)) <= radius:
+            if cell.region_id not in results:
+                results[cell.region_id] = []
+            results[cell.region_id].append(cell)
+
+    new_map = Map(m.client)
+    new_map._raw_data = deepcopy(m._raw_data)
+    new_map._raw_data['response']['1']['region'] = results
+
+    return new_map
 
 
 regionIds = {
