@@ -71,6 +71,13 @@ m.get_kingdom('kingdom name')
 <Kingdom({'tag': 'kingdom name', 'kingdomId': '9999'})>
 ```
 
+If you want to slice map data based on the area of your interest, you can use `slice_map` function.
+```python
+from tkpy import slice_map
+
+sliced_map = slice_map((0, 0), 5, m)
+```
+
 ### Villages
 Villages object is like built-in `dict` object from `Python` so you can access the village using its name as key. To get village data from Travian: Kingdom, you need to call `pull` method first.
 
