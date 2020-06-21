@@ -30,6 +30,17 @@ def reverse_id(vid):
     return realx, realy
 
 
+def distance(source, target):
+    """ :func:`distance` for calculating distance between point.
+
+    :param source: x, y tuple of source coordinates
+    :param target: x, y tuple of target coordinates
+
+    return: :class:`float`
+    """
+    return sqrt((source[0] - target[0]) ** 2 + (source[1] - target[1]) ** 2)
+
+
 regionIds = {
     cell_id(x, y): [
         cell_id(xx, yy) for xx in range(0+(x*7), 7+(x*7)) for yy in range(0+(y*7), 7+(y*7))
@@ -270,10 +281,6 @@ class Map:
             if kingdom.id == str(kingdom_id) or kingdom.name == name:
                 return kingdom
         return default
-
-    @staticmethod
-    def distance(source, target):
-        return sqrt((source.coordinate.x - target.coordinate.x) ** 2 + (source.coordinate.y - target.coordinate.y) ** 2)
 
 
 class Coordinate:
