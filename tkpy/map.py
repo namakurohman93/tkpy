@@ -307,6 +307,16 @@ class Map:
                 return kingdom
         return default
 
+    def slice_map(self, center, radius):
+        """ :meth:`slice_map` is used for slicing map based on area of your interest.
+
+        :param center: x, y tuple of center of sliced map
+        :param radius: - :class:`int` center of sliced map
+        
+        return :class:`Map`
+        """
+        return slice_map(center, radius, self)
+
 
 class Coordinate:
     def __init__(self, x, y):
