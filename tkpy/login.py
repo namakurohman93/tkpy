@@ -1,4 +1,3 @@
-import re
 import pickle
 from primordial import Lobby
 from .models.credential import Lobby as LobbyModel
