@@ -44,6 +44,7 @@ Once you call `pull` method, now you can get all tiles data using several method
 all_villages = list(m.gen_villages()) # get all villages from map
 abandoned_valleys = list(m.gen_abandoned_valley()) # get all unsettled tiles from map
 oases = list(m.gen_oases()) # get all oases from map
+grey_villages = list(m.gen_grey_villages()) # get all grey villages from map
 ```
 
 Or if you want to get data from specific tile, you can use `coordinate` method.
@@ -71,11 +72,14 @@ m.get_kingdom('kingdom name')
 <Kingdom({'tag': 'kingdom name', 'kingdomId': '9999'})>
 ```
 
-If you want to slice map data based on the area of your interest, you can use `slice_map` function.
+If you want to slice map data based on the area of your interest, you can use `slice_map` method.
 ```python
 from tkpy import slice_map
 
-sliced_map = slice_map(center=(0, 0), radius=5, m=m)
+sliced_map = m.slice_map(center=(0, 0), radius=5)
+
+# now you can do the same thing as `Map` object
+grey_villages = list(sliced_map.gen_grey_villages())
 ```
 
 ### Villages
