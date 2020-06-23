@@ -31,8 +31,7 @@ class TestVillages(unittest.TestCase):
             v.pull()
         self.assertEqual(v['001'].name, '001')
         self.assertEqual(len(list(x for x in v)), 2)
-        self.assertEqual(len(list(v.dorps)), 2)
-        self.assertEqual(len(list(v.raw)), 2)
+        self.assertEqual(len(list(v._raw_data)), 2)
         v_capital = v.get_capital_village()
         self.assertEqual(v_capital.name, '001')
         with self.assertRaises(VillageNotFound):
