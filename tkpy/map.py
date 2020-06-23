@@ -353,8 +353,8 @@ class Cell:
     def __repr__(self):
         return f'<{type(self).__name__}({self.data})>'
 
-    def request_details(self):
-        """ :meth:`request_details` send requests to Travian: Kingdom for perceive more
+    def req_details(self):
+        """ :meth:`req_details` send requests to Travian: Kingdom for perceive more
         details about this cell.
 
         return: :class:`dict`
@@ -387,8 +387,8 @@ class Player:
     def __repr__(self):
         return f'<{type(self).__name__}({self.data})>'
 
-    def request_hero_equipment(self):
-        """ :meth:`request_hero_equipment` send requests to Travian: Kingdom for perceive
+    def req_hero_equipment(self):
+        """ :meth:`req_hero_equipment` send requests to Travian: Kingdom for perceive
         hero equipment of this player.
 
         return: :class:`dict`
@@ -396,8 +396,8 @@ class Player:
         r = self.client.cache.get({'names': [f'Collection:HeroItem:{self.id}']})
         return r['cache'][0]['data']['cache']
 
-    def request_details(self):
-        """ :meth:`request_details` send requests to Travian: Kingdom for perceive this player
+    def req_details(self):
+        """ :meth:`req_details` send requests to Travian: Kingdom for perceive this player
         details.
 
         return: :class:`dict`

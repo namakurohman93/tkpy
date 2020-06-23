@@ -53,7 +53,7 @@ class TestMap(unittest.TestCase):
                 'https://com1.kingdoms.com/api/',
                 json=cell_details
             )
-            self.assertEqual(m.coordinate(0, 0).request_details()['resType'], '11115')
+            self.assertEqual(m.coordinate(0, 0).req_details()['resType'], '11115')
 
         self.assertEqual(m.coordinate(0, 0).id, cell_id(0, 0))
         self.assertEqual(m.coordinate(0, 0).coordinate.x, 0)
@@ -106,7 +106,7 @@ class TestMap(unittest.TestCase):
                 'https://com1.kingdoms.com/api/',
                 json=hero_equipment
             )
-            self.assertEqual(m.get_player('Punisher').request_hero_equipment()[0]['name'], 'HeroItem:20922')
+            self.assertEqual(m.get_player('Punisher').req_hero_equipment()[0]['name'], 'HeroItem:20922')
 
         with open('./tests/unit/fixtures/player_details.json', 'r') as f:
             player_details = json.load(f)
@@ -117,7 +117,7 @@ class TestMap(unittest.TestCase):
                 'https://com1.kingdoms.com/api/',
                 json=player_details
             )
-            self.assertEqual(m.get_player('Punisher').request_details()['name'], 'Punisher')
+            self.assertEqual(m.get_player('Punisher').req_details()['name'], 'Punisher')
 
         with requests_mock.mock() as mock:
             mock.register_uri(
