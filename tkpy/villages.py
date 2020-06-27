@@ -2,6 +2,7 @@ from .map import cell_id
 from .buildings import Buildings
 from .buildings import BuildingQueue
 from .buildings import ConstructionList
+from .rally_point import RallyPoint
 from .exception import VillageNotFound
 from .exception import BuildingSlotFull
 from .exception import FailedConstructBuilding
@@ -60,7 +61,7 @@ class Villages:
         return: :class:`Village`
         """
         for village in self.values():
-            if village.isMainVillage:
+            if village.is_main_village:
                 return village
 
 
@@ -74,6 +75,7 @@ class Village:
         self.buildings = Buildings(self.client, self.id)
         self.buildingQueue = BuildingQueue(self.client, self.id)
         self.warehouse = Warehouse(self.data)
+        self.rally_point = RallyPoint(self.client, self.data['villageId'])
 
     def __getitem__(self, key):
         try:
@@ -108,230 +110,88 @@ class Village:
         return int(x), int(y)
 
     @property
-    def isMainVillage(self):
-        """ :property:`isMainVillage` return whether this village is capital
+    def is_main_village(self):
+        """ :property:`is_main_village` return whether this village is capital
         village or not.
         """
         return self.data['isMainVillage']
 
-    def units(self):
-        """ :meth:`units` send requests to Travian: Kingdom for perceive units that
-        belong to this village.
+    def send_attack(self, x=None, y=None, units=None, target_id=None, check_target=True):
+        """ :meth:`send_attack` send requests to Travian: Kingdom for attacking target.
+
+        :param x: - :class:`int` (optional) x coordinate.
+        :param y: - :class:`int` (optional) y coordinate.
+        :param unit: - :class:`dict` units that want to be sent to the target.
+        :param target_id: - :class:`int` or :class:`str` (optional) target id.
+        :param check_target: - :class:`boolean` (optional) whether check target or not. Default True.
 
         return: :class:`dict`
         """
-        r = self.client.cache.get({
-            'names': [f'Collection:Troops:stationary:{self.id}']
-        })
-        for x in r['cache'][0]['data']['cache']:
-            if x['data']['villageId'] == str(self.id):
-                return x['data']['units'] or {}
+        self.rally_point.pull()
+        return self.rally_point.send_attack(x, y, units, target_id, ,check_target)
 
-    def troops_movement(self):
-        """ :meth:`troops_movement` send requests to Travian: Kingdom for perceive
-        troops movement in and out of this village.
+    def send_raid(self, x=None, y=None, units=None, target_id=None, check_target=True):
+        """ :meth:`send_raid` send requests to Travian: Kingdom for raiding target.
 
-        return: :class:`list`
-        """
-        r = self.client.cache.get({
-            'names': [f'Collection:Troops:moving:{self.id}']
-        })
-        return [x['data'] for x in r['cache'][0]['data']['cache']]
-
-    def _send_troops(self, x, y, destVillageId, movementType, redeployHero,
-            spyMission, units):
-        """ :meth:`_send_troops` is real troops sender. It send a requests
-        to Travian: Kingdom for sending troops to target.
-
-        :param x: - :class:`int` x coordinate of target.
-        :param y: - :class:`int` y coordinate of target.
-        :param destVillageId: - :class:`int` cell id of target.
-        :param movementType: - :class:`int` type of movement.
-        :param redeployHero: - :class:`boolean` it is used for moving hero's home
-                               to another account village.
-        :param spyMission: - :class:`str` choose mission, is it either
-                             'resources' or 'defend'
-        :param units: - :class:`dict` units dict that want to be sent.
+        :param x: - :class:`int` (optional) x coordinate.
+        :param y: - :class:`int` (optional) y coordinate.
+        :param unit: - :class:`dict` units that want to be sent to the target.
+        :param target_id: - :class:`int` or :class:`str` (optional) target id.
+        :param check_target: - :class:`boolean` (optional) whether check target or not. Default True.
 
         return: :class:`dict`
         """
-        target = destVillageId or cell_id(x, y)
-        troops = self.units()
-        # check amount of every units if units
-        if units:
-            for k in units:
-                if int(units[k]) == -1:
-                    units[k] = int(troops.get(k, 0))
-                if int(units[k]) > int(troops.get(k, 0)):
-                    raise SyntaxError(
-                        f'Not enough troops {k}'
-                    )
-            if sum(int(v) for v in units.values()) <= 0:
-                raise SyntaxError(
-                    'Send at least 1 troops'
-                )
-            # check total amount of units if movementType 47 (siege)
-            if movementType == 47:
-                if sum(int(v) for v in units.values()) < 1000:
-                    raise SyntaxError(
-                        'Need at least 1000 troops'
-                    )
-                # check if ram exists
-                if '7' not in units:
-                    raise SyntaxError(
-                        'Need at least 1 ram for siege'
-                    )
-        else:
-            # since it send all unit on village, first
-            # set scout amount to 0
-            if self.client.tribe_id in (1, 2):
-                troops['4'] = 0
-            else:
-                troops['3'] = 0
-            # use all troops on village
-            if sum(int(v) for v in troops.values()) <= 0:
-                raise SyntaxError(
-                    f'There is no troops on {self.name} village'
-                )
-        r = self.client.troops.send({
-            # 'catapultTargets': [
-            #     99, # random
-            #     3,
-            # ],
-            'destVillageId': target,
-            'movementType': movementType,
-            'redeployHero': redeployHero,
-            'spyMission': spyMission,
-            'units': units or troops,
-            'villageId': self.id
-        })
-        if 'errors' in r['response']:
-            raise TargetNotFound('make sure your target is oasis or village')
-        return r
+        self.rally_point.pull()
+        return self.rally_point.send_raid(x, y, units, target_id, check_target)
 
-    def attack(self, x=None, y=None, targetId=None, units=None):
-        """ :meth:`attack` send requests to Travian: Kingdom for attacking target.
+    def send_defend(self, x=None, y=None, units=None, redeploy_hero=False,
+            target_id=None, check_target=True):
+        """ :meth:`send_defend` send a requests to Travian: Kingdom for defending target.
+
+        :param x: - :class:`int` (optional) x coordinate.
+        :param y: - :calss:`int` (optional) y coordinate.
+        :param unit: - :class:`dict` units that want to be sent to the target.
+        :param redeploy_hero: - :class:`boolean` (optional) whether to redeploy the hero or not.
+                                                 Default False
+        :param target_id: - :class:`int` or :class:`str` (optional) target id.
+        :param check_target: - :class:`boolean` (optional) whether check target or not. Default True.
+
+        return: :class:`dict`
+        """
+        self.rally_point.pull()
+        return self.rally_point.send_defend(x, y, units, redeploy_hero, target_id, check_target)
+
+    def send_spy(self, x=None, y=None, amount=1, mission='resources',
+            target_id=None, check_target=True):
+        """ :meth:`send_spy` send requests to Travian: Kingdom for spying target.
 
         :param x: - :class:`int` (optional) value of x coordinate.
         :param y: - :class:`int` (optional) value of y coordinate.
-        :param targetId: - :class:`int` (optional) cell id of target.
-        :param units: - :class:`units` (optional) units dict that want to sent.
-
-        return: :class:`dict`
-        """
-        # TODO:
-        # add building target when cata in units and rally point level >= 5
-        return self._send_troops(
-            x=x,
-            y=y,
-            destVillageId=targetId,
-            movementType=3,
-            redeployHero=False,
-            spyMission='resources',
-            units=units,
-        )
-
-    def raid(self, x=None, y=None, targetId=None, units=None):
-        """ :meth:`raid` send requests to Travian: Kingdom for raiding target.
-
-        :param x: - :class:`int` (optional) value of x coordinate.
-        :param y: - :class:`int` (optional) value of y coordinate.
-        :param targetId: - :class:`int` (optional) cell id of target.
-        :param units: - :class:`units` (optional) units dict that want to sent.
-
-        return: :class:`dict`
-        """
-        return self._send_troops(
-            x=x,
-            y=y,
-            destVillageId=targetId,
-            movementType=4,
-            redeployHero=False,
-            spyMission='resources',
-            units=units
-        )
-
-    def defend(self, x=None, y=None, targetId=None, units=None,
-            redeployHero=False):
-        """ :meth:`defend` send a requests to Travian: Kingdom for defending target.
-
-        :param x: - :class:`int` (optional) value of x coordinate.
-        :param y: - :class:`int` (optional) value of y coordinate.
-        :param targetId: - :class:`int` (optional) cell id of target.
-        :param units: - :class:`units` (optional) units dict that want to sent.
-        :param redeployHero: - :class:`boolean` (optional) it used for changing
-                               hero's home. Default: False
-
-        return: :class:`dict`
-        """
-        # TODO:
-        # if redeployHero, check if hero in units
-        # and check if target is one of village id in Village object
-        return self._send_troops(
-            x=x,
-            y=y,
-            destVillageId=targetId,
-            movementType=5,
-            redeployHero=redeployHero,
-            spyMission='resources',
-            units=units
-        )
-
-    def spy(self, x=None, y=None, targetId=None, amount=0,
-            mission='resources'):
-        """ :meth:`spy` send requests to Travian: Kingdom for spying target.
-
-        :param x: - :class:`int` (optional) value of x coordinate.
-        :param y: - :class:`int` (optional) value of y coordinate.
-        :param targetId: - :class:`int` (optional) cell id of target.
         :param amount: - :class:`int` (optional) amount of spy units that
-                         want to sent. Default: 0
+                         want to sent. Default: 1
         :param mission: - :class:`str` (optional) type of spy mission,
                           it is either `'resources'` `'defend'`. Default: 'resources'
+        :param target_id: - :class:`int` or :class:`str` (optional) target id.
+        :param check_target: - :class:`boolean` (optional) whether check target or not. Default True.
 
         return: :class:`dict`
         """
-        if mission not in ('resources', 'defence'):
-            raise SyntaxError(
-                'choose mission between \'resources\' or \'defence\''
-            )
-        if self.client.tribe_id in (1, 2):
-            units = {'4': amount} # scout of roman and teuton
-        else:
-            units = {'3': amount} # scout of gauls
-        return self._send_troops(
-            x=x,
-            y=y,
-            destVillageId=targetId,
-            movementType=6,
-            redeployHero=False,
-            spyMission=mission,
-            units=units
-        )
+        self.rally_point.pull()
+        return self.rally_point.send_spy(x, y, amount, mission, target_id, check_target)
 
-    def siege(self, x=None, y=None, targetId=None, units=None):
-        """ :meth:`siege` send a requests to Travian: Kingdom for siege target.
+    def send_siege(self, x=None, y=None, units=None, target_id=None, check_target=True):
+        """ :meth:`send_siege` send a requests to Travian: Kingdom for siege target.
 
-        :param x: - :class:`int` (optional) value of x coordinate.
-        :param y: - :class:`int` (optional) value of y coordinate.
-        :param targetId: - :class:`int` (optional) cell id of target.
-        :param units: - :class:`units` (optional) units dict that want to sent.
+        :param x: - :class:`int` (optional) x coordinate.
+        :param y: - :class:`int` (optional) y coordinate.
+        :param unit: - :class:`dict` units that want to be sent to the target.
+        :param target_id: - :class:`int` or :class:`str` (optional) target id.
+        :param check_target: - :class:`boolean` (optional) whether check target or not. Default True.
 
         return: :class:`dict`
         """
-        # TODO
-        # add building target if cata in units and rally point level >= 5
-        if not units:
-            raise SyntaxError('Set units first')
-        return self._send_troops(
-            x=x,
-            y=y,
-            destVillageId=targetId,
-            movementType=47,
-            redeployHero=False,
-            spyMission='resources',
-            units=units
-        )
+        self.rally_point.pull()
+        return self.rally_point.send_siege(x, y, units, target_id, check_target)
 
     def send_farmlist(self, listIds):
         """ :meth:`send_farmlist` send requests to Travian: Kingdom for send farmlist.
