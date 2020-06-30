@@ -13,6 +13,7 @@ class Buildings:
         >>> v['first village'].buildings['main building']
         >>> [<Building({"buildingType": "15", "villageId": "536461288", "locationId": "27",...})>]
     """
+
     def __init__(self, client, villageId):
         self.client = client
         self.villageId = villageId
@@ -20,9 +21,12 @@ class Buildings:
 
     def __getitem__(self, key):
         return sorted(
-            [Building(self.client, x) for x in self.raw
-                if x['buildingType'] == buildingDict[key]],
-            key=lambda k: int(k['lvl'])
+            [
+                Building(self.client, x)
+                for x in self.raw
+                if x["buildingType"] == buildingDict[key]
+            ],
+            key=lambda k: int(k["lvl"]),
         )
 
     def __repr__(self):
@@ -31,9 +35,7 @@ class Buildings:
     def pull(self):
         """ :meth:`pull` for pulling building data of this village from TK. """
         self._raw.update(
-            self.client.cache.get({
-                'names': [f'Collection:Building:{self.villageId}']
-            })
+            self.client.cache.get({"names": [f"Collection:Building:{self.villageId}"]})
         )
 
     @property
@@ -43,7 +45,7 @@ class Buildings:
 
         return: :class:`list`
         """
-        return [x['locationId'] for x in self.raw if x['buildingType'] == '0']
+        return [x["locationId"] for x in self.raw if x["buildingType"] == "0"]
 
     @property
     def raw(self):
@@ -51,8 +53,8 @@ class Buildings:
 
         yield: :class:`dict`
         """
-        for x in self._raw['cache'][0]['data']['cache']:
-            yield x['data']
+        for x in self._raw["cache"][0]["data"]["cache"]:
+            yield x["data"]
 
 
 class Building:
@@ -71,6 +73,7 @@ class Building:
         ...
         >>> main_building.upgrade()
     """
+
     def __init__(self, client, data):
         self.client = client
         self.data = data
@@ -82,22 +85,22 @@ class Building:
             raise
 
     def __repr__(self):
-        return f'<{type(self).__name__}({self.data})>'
+        return f"<{type(self).__name__}({self.data})>"
 
     @property
     def id(self):
         """ :property:`id` return building type of this building. """
-        return self.data['buildingType']
+        return self.data["buildingType"]
 
     @property
     def location(self):
         """ :property:`location` return location id of this building. """
-        return self.data['locationId']
+        return self.data["locationId"]
 
     @property
     def lvl(self):
         """ :property:`lvl` return level of this building. """
-        return int(self.data['lvl'])
+        return int(self.data["lvl"])
 
     @property
     def isMaxLvl(self):
@@ -106,7 +109,7 @@ class Building:
 
         return: :class:`boolean`
         """
-        return self.data['isMaxLvl']
+        return self.data["isMaxLvl"]
 
     @property
     def upgradeCost(self):
@@ -115,25 +118,27 @@ class Building:
 
         return: :class:`dict`
         """
-        return self.data['upgradeCosts']
+        return self.data["upgradeCosts"]
 
     @property
     def villageId(self):
         """ :property:`villageId` return village id where this building
         exists.
         """
-        return self.data['villageId']
+        return self.data["villageId"]
 
     def upgrade(self):
         """ :meth:`upgrade` for upgrade this building.
 
         return: :class:`dict`
         """
-        return self.client.building.upgrade({
-            'buildingType': self.id,
-            'locationId': self.location,
-            'villageId': self.villageId
-        })
+        return self.client.building.upgrade(
+            {
+                "buildingType": self.id,
+                "locationId": self.location,
+                "villageId": self.villageId,
+            }
+        )
 
     def queues(self, reserveResources):
         """ :meth:`queues` for add this building to queues.
@@ -142,12 +147,14 @@ class Building:
 
         return: :class:`dict`
         """
-        return self.client.building.useMasterBuilder({
-            'buildingType': self.id,
-            'locationId': self.location,
-            'villageId': self.villageId,
-            'reserveResources': reserveResources
-        })
+        return self.client.building.useMasterBuilder(
+            {
+                "buildingType": self.id,
+                "locationId": self.location,
+                "villageId": self.villageId,
+                "reserveResources": reserveResources,
+            }
+        )
 
 
 class BuildingQueue:
@@ -162,6 +169,7 @@ class BuildingQueue:
         >>> v['first village'].buildingQueue.freeSlots
         {'1': 1, '2': 1, '4': 2, '5': 1}
     """
+
     def __init__(self, client, villageId):
         self.client = client
         self.villageId = villageId
@@ -170,9 +178,7 @@ class BuildingQueue:
     def pull(self):
         """ :meth:`pull` for pulling building queue data from TK of this village. """
         self._raw.update(
-            self.client.cache.get({
-                'names': [f'BuildingQueue:{self.villageId}']
-            })
+            self.client.cache.get({"names": [f"BuildingQueue:{self.villageId}"]})
         )
 
     @property
@@ -182,7 +188,7 @@ class BuildingQueue:
 
         return: :class:`dict`
         """
-        return self._raw['cache'][0]['data']['freeSlots']
+        return self._raw["cache"][0]["data"]["freeSlots"]
 
     @property
     def queues(self):
@@ -191,7 +197,7 @@ class BuildingQueue:
 
         return: :class:`dict`
         """
-        return self._raw['cache'][0]['data']['queues']
+        return self._raw["cache"][0]["data"]["queues"]
 
     def finishNow(self, queueType):
         """ :meth:`finishNow` is for instant finish building that upgrade
@@ -203,11 +209,9 @@ class BuildingQueue:
 
         return: :class:`dict`
         """
-        return self.client.premiumFeature.finishNow({
-            'price': 0,
-            'queueType': queueType,
-            'villageId': self.villageId
-        })
+        return self.client.premiumFeature.finishNow(
+            {"price": 0, "queueType": queueType, "villageId": self.villageId}
+        )
 
 
 class ConstructionList:
@@ -230,6 +234,7 @@ class ConstructionList:
         >>> <Building({'buildingType': '5', 'locationToBuild': '20', ...})>
         >>> construction_list['sawmill'].upgrade()
         """
+
     def __init__(self, client, villageId, locationId):
         self.client = client
         self.villageId = villageId
@@ -238,14 +243,14 @@ class ConstructionList:
 
     def __getitem__(self, key):
         for x in self.buildable:
-            if x['buildingType'] == int(buildingDict[key]):
-                x['buildable'] = True
+            if x["buildingType"] == int(buildingDict[key]):
+                x["buildable"] = True
                 return Building(self.client, x)
         for x in self.notBuildable:
-            if x['buildingType'] == int(buildingDict[key]):
-                x['buildable'] = False
+            if x["buildingType"] == int(buildingDict[key]):
+                x["buildable"] = False
                 return Building(self.client, x)
-        raise KeyError(f'{key} not found')
+        raise KeyError(f"{key} not found")
 
     def __repr__(self):
         return str(type(self))
@@ -253,10 +258,9 @@ class ConstructionList:
     def pull(self):
         """ :meth:`pull` for pulling construction list data from TK. """
         self._raw.update(
-            self.client.building.getBuildingList({
-                'locationId': self.location,
-                'villageId': self.villageId
-            })
+            self.client.building.getBuildingList(
+                {"locationId": self.location, "villageId": self.villageId}
+            )
         )
 
     @property
@@ -266,7 +270,7 @@ class ConstructionList:
 
         return: :class:`list`
         """
-        return self._raw['response']['buildings']['buildable']
+        return self._raw["response"]["buildings"]["buildable"]
 
     @property
     def notBuildable(self):
@@ -275,4 +279,4 @@ class ConstructionList:
 
         return: :class:`list`
         """
-        return self._raw['response']['buildings']['notBuildable']
+        return self._raw["response"]["buildings"]["notBuildable"]

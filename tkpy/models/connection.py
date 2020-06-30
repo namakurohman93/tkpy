@@ -4,9 +4,10 @@ import contextlib
 from .config import create_table
 
 BASE_DIR = pathlib.Path(__file__).resolve().parent
-DB_NAME = 'cred.sqlite'
+DB_NAME = "cred.sqlite"
 
-DB_DIR = f'{BASE_DIR / DB_NAME}'
+DB_DIR = f"{BASE_DIR / DB_NAME}"
+
 
 @contextlib.contextmanager
 def get_connection():

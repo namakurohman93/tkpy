@@ -12,6 +12,7 @@ class Farmlist:
         >>> f['Startup farm list']
         <FarmListEntry({'listId': '1631', 'listName': 'Startup farm list', ...})>
     """
+
     def __init__(self, client):
         self.client = client
         self._raw = dict()
@@ -21,21 +22,17 @@ class Farmlist:
         try:
             return self.item[key]
         except:
-            raise FarmListNotFound(f'{key}')
+            raise FarmListNotFound(f"{key}")
 
     def __repr__(self):
         return str(type(self))
 
     def pull(self):
         """ :meth:`pull` for pulling farmlist data from TK. """
-        self._raw.update(
-            self.client.cache.get({
-                'names': ['Collection:FarmList:']
-            })
-        )
+        self._raw.update(self.client.cache.get({"names": ["Collection:FarmList:"]}))
         # store farmlistEntry object
         for x in self.raw:
-            self.item[x['listName']] = FarmlistEntry(self.client, x)
+            self.item[x["listName"]] = FarmlistEntry(self.client, x)
 
     @property
     def raw(self):
@@ -44,8 +41,8 @@ class Farmlist:
 
         yield: :class:`dict`
         """
-        for x in self._raw['cache'][0]['data']['cache']:
-            yield x['data']
+        for x in self._raw["cache"][0]["data"]["cache"]:
+            yield x["data"]
 
     @property
     def list(self):
@@ -64,7 +61,7 @@ class Farmlist:
 
         return: :class:`dict`
         """
-        self.client.farmList.createList({'name': name})
+        self.client.farmList.createList({"name": name})
         self.pull()
 
 
@@ -80,6 +77,7 @@ class FarmlistEntry:
         >>> f['Startup farm list'].toggle(536442311)
         >>> f['Startup farm list'].send(536411586)
     """
+
     def __init__(self, client, data):
         self.client = client
         self.data = data
@@ -92,17 +90,17 @@ class FarmlistEntry:
             raise
 
     def __repr__(self):
-        return f'<{type(self).__name__}({self.data})>'
+        return f"<{type(self).__name__}({self.data})>"
 
     @property
     def name(self):
         """ :property:`name` return this farmlist entry name. """
-        return self.data['listName']
+        return self.data["listName"]
 
     @property
     def id(self):
         """ :property:`id` return this farmlist entry id. """
-        return int(self.data['listId'])
+        return int(self.data["listId"])
 
     @property
     def villageIds(self):
@@ -111,7 +109,7 @@ class FarmlistEntry:
 
         return: :class:`list`
         """
-        return self.data['villageIds']
+        return self.data["villageIds"]
 
     @property
     def entryIds(self):
@@ -120,7 +118,7 @@ class FarmlistEntry:
 
         return: :class:`list`
         """
-        return self.data['entryIds']
+        return self.data["entryIds"]
 
     def send(self, villageId):
         """ :meth:`send` for send this farmlist entry from village using
@@ -131,15 +129,14 @@ class FarmlistEntry:
 
         return: :class:`dict`
         """
-        return self.client.troops.startFarmListRaid({
-            'listIds': [self.id],
-            'villageId': villageId
-        })
+        return self.client.troops.startFarmListRaid(
+            {"listIds": [self.id], "villageId": villageId}
+        )
 
     def _update_data(self, r):
-        for x in r['cache']:
-            if x['name'] == f'FarmList:{self.id}':
-                self.data.update(x['data'])
+        for x in r["cache"]:
+            if x["name"] == f"FarmList:{self.id}":
+                self.data.update(x["data"])
 
     def add(self, villageId):
         """ :meth:`add` for add village to this farmlist using village id.
@@ -147,10 +144,7 @@ class FarmlistEntry:
         :param villageId: - :class:`int` village id that want to be added
                             to this farmlist entry.
         """
-        r = self.client.farmList.addEntry({
-            'listId': self.id,
-            'villageId': villageId
-        })
+        r = self.client.farmList.addEntry({"listId": self.id, "villageId": villageId})
         self._update_data(r)
 
     def toggle(self, villageId):
@@ -160,10 +154,9 @@ class FarmlistEntry:
         :param villageId: - :class:`int` village id that want to be toggled
                             to this farmlist entry.
         """
-        r = self.client.farmList.toggleEntry({
-            'listId': self.id,
-            'villageId': villageId
-        })
+        r = self.client.farmList.toggleEntry(
+            {"listId": self.id, "villageId": villageId}
+        )
         self._update_data(r)
 
     def pull(self):
@@ -171,9 +164,7 @@ class FarmlistEntry:
         entry.
         """
         self._raw.update(
-            self.client.cache.get({
-                'names': [f'Collection:FarmListEntry:{self.id}']
-            })
+            self.client.cache.get({"names": [f"Collection:FarmListEntry:{self.id}"]})
         )
 
     @property
@@ -183,8 +174,8 @@ class FarmlistEntry:
 
         yield: :class:`EntryId`
         """
-        for x in self._raw['cache'][0]['data']['cache']:
-            yield EntryId(self.client, x['data'])
+        for x in self._raw["cache"][0]["data"]["cache"]:
+            yield EntryId(self.client, x["data"])
 
 
 class EntryId:
@@ -201,12 +192,13 @@ class EntryId:
         536461288
         >>>
     """
+
     def __init__(self, client, data):
         self.client = client
         self.data = data
 
     def __repr__(self):
-        return f'<{type(self).__name__}({self.data})>'
+        return f"<{type(self).__name__}({self.data})>"
 
     def __getitem__(self, key):
         try:
@@ -217,12 +209,12 @@ class EntryId:
     @property
     def id(self):
         """ :property:`id` return id of this entry. """
-        return self.data['entryId']
+        return self.data["entryId"]
 
     @property
     def villageId(self):
         """ :property:`id` return village id of this entry. """
-        return self.data['villageId']
+        return self.data["villageId"]
 
     @property
     def notificationType(self):
@@ -230,15 +222,15 @@ class EntryId:
         entry.
         """
         try:
-            return self.data['lastReport']['notificationType']
+            return self.data["lastReport"]["notificationType"]
         except:
-            return '0'
+            return "0"
 
     @property
     def raidedSum(self):
         """ :property:`raidedSum` return raided sum of this entry. """
         try:
-            return self.data['lastReport']['raidedResSum']
+            return self.data["lastReport"]["raidedResSum"]
         except:
             return 0
 
@@ -246,7 +238,7 @@ class EntryId:
     def capacity(self):
         """ :property:`capaciy` return capacity of this entry. """
         try:
-            return self.data['lastReport']['capacity']
+            return self.data["lastReport"]["capacity"]
         except:
             return 0
 
@@ -257,14 +249,10 @@ class EntryId:
         :param farmlistId: - :class:`int` farmlist id target for copying
                              this entry.
         """
-        self.client.farmList.copyEntry({
-            'entryId': self.id,
-            'villageId': self.villageId,
-            'newListId': farmlistId
-        })
+        self.client.farmList.copyEntry(
+            {"entryId": self.id, "villageId": self.villageId, "newListId": farmlistId}
+        )
 
     def delete(self):
         """ :meth:`delete` delete this entry from this farmlist. """
-        self.client.farmList.deleteEntry({
-            'entryId': self.id
-        })
+        self.client.farmList.deleteEntry({"entryId": self.id})
