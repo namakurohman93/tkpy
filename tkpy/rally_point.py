@@ -155,7 +155,7 @@ class RallyPoint:
         """
         total_units = sum(int(v) for v in units.values())
 
-        if self.client.tribe_id in (1, 2):
+        if self.client.tribe_id.value in (1, 2):
             if "4" in units and total_units == int(units["4"]):
                 return True
             else:
@@ -347,6 +347,9 @@ class RallyPoint:
         """
         # TODO:
         # add catapult target
+
+        # there is flaw in this method.
+        # if player sent 1000 scout + 1 ram, should it be success or should it be failed?
 
         target = target_id or cell_id(x, y)
 

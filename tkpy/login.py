@@ -1,5 +1,6 @@
 import pickle
 from primordial import Lobby
+from .enums.tribe import Tribe
 from .models.credential import Lobby as LobbyModel
 from .models.credential import Gameworld as GameworldModel
 from .exception import AvatarNotFound
@@ -13,7 +14,12 @@ def login(email, password, gameworld_name):
 
     gameworld_detail = get_gameworld_detail(gameworld)
 
-    gameworld.tribe_id = gameworld_detail["tribe_id"]
+    if gameworld_detail["tribe_id"] == 1:
+        gameworld.tribe_id = Tribe.ROMAN
+    elif gameworld_detail["tribe_id"] == 2:
+        gameworld.tribe_id = Tribe.TEUTON
+    else:
+        gameworld.tribe_id = Tribe.GAUL
 
     return gameworld
 
