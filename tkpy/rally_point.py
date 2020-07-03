@@ -313,7 +313,7 @@ class RallyPoint:
         if mission not in ("resources", "defence"):
             raise SyntaxError("choose mission between 'resources' or 'defence'")
 
-        if self.client.tribe_id in (1, 2):
+        if self.client.tribe_id.value in (1, 2):
             # roman or teuton
             units["4"] = amount
         else:
