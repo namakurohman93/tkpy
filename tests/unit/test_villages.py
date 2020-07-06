@@ -75,7 +75,7 @@ class TestVillages(unittest.TestCase):
         self.assertEqual(v1.name, '001')
         self.assertEqual(v1['name'], '001')
         self.assertEqual(v1.coordinate, (-24, -13))
-        self.assertTrue(v1.isMainVillage)
+        self.assertTrue(v1.is_main_village)
         with self.assertRaises(KeyError):
             v1['key error']
 
@@ -89,7 +89,7 @@ class TestVillages(unittest.TestCase):
         self.assertEqual(v1.id, 536461288)
         self.assertEqual(v1.name, '001')
         self.assertEqual(v1.coordinate, (-24, -13))
-        self.assertTrue(v1.isMainVillage)
+        self.assertTrue(v1.is_main_village)
 
         with requests_mock.mock() as mock:
             mock.register_uri(
