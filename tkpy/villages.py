@@ -251,7 +251,7 @@ class Village:
                         f"Warehouse / granary capacity not enough for upgrade {building}"
                     )
 
-            if self.client.tribe_id == 1 and int(b.id) < 5:
+            if self.client.tribe_id.value == 1 and int(b.id) < 5:
                 return self._upgrade(slot="2", b=b)
 
             return self._upgrade(slot="1", b=b)
