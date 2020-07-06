@@ -1,5 +1,5 @@
 from .fixtures import buildingDict
-from .enums.building import Building as BuildingEnum
+from .enums.building import BuildingType
 
 
 class Buildings:
@@ -21,16 +21,17 @@ class Buildings:
         self._raw = dict()
 
     def __getitem__(self, building):
-        # check if building is type of Building enums
-        return sorted(
-            [
-                Building(self.client, x)
-                for x in self.raw
-                #  if x["buildingType"] == buildingDict[building]
-                if x["buildingType"] == building.value
-            ],
-            key=lambda k: int(k["lvl"]),
-        )
+        if type(building) == BuildingType:
+            return sorted(
+                [
+                    Building(self.client, x)
+                    for x in self.raw
+                    if x["buildingType"] == building.value
+                ],
+                key=lambda k: int(k["lvl"]),
+            )
+        else:
+            raise TypeError("building need to be a BuildingType")
 
     def __repr__(self):
         return str(type(self))

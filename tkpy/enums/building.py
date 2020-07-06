@@ -1,7 +1,7 @@
 from enum import Enum
 
 
-class Building(Enum):
+class BuildingType(Enum):
     WOODCUTTER = "1"
     CLAY_PIT = "2"
     IRON_MINE = "3"
