@@ -74,8 +74,6 @@ m.get_kingdom('kingdom name')
 
 If you want to slice map data based on the area of your interest, you can use `slice_map` method.
 ```python
-from tkpy import slice_map
-
 sliced_map = m.slice_map(center=(0, 0), radius=5)
 
 # now you can do the same thing as `Map` object
