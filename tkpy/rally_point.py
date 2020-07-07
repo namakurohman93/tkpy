@@ -1,3 +1,6 @@
+from .enums.troop import RomanTroop
+from .enums.troop import TeutonTroop
+from .enums.troop import GaulTroop
 from .exception import TargetNotFound
 from .map import cell_id
 
@@ -6,6 +9,11 @@ class RallyPoint:
     """ :class:`RallyPoint` is an object that will be used for trigger action
     related to troops such as attacking, raiding, sent farmlist, siege, etc
     or for just get information related to troops.
+
+    TODO:
+        there is flaw when send attack, raid, and siege from user.
+        it didn't check if troops is all scout or not.
+        i didn't know if it's flaw or user's error.
     """
 
     def __init__(self, client, village_id):
@@ -143,8 +151,21 @@ class RallyPoint:
 
         # check if every amount of unit is enough with unit_available
         for k in units:
-            if int(units[k]) > int(unit_available[k]):
-                raise SyntaxError(f"Not enough troops with id: {k}")
+            if int(units[k]) > int(unit_available[k.value]):
+                raise SyntaxError(f"Not enough troops with id: {k.name}")
+
+    def _check_ram(self, units):
+        """ :meth:`_check_ram` is for check if there is ram in units or not. """
+        if RomanTroop.BATTERING_RAM in units and units[RomanTroop.BATTERING_RAM] > 0:
+            return True
+
+        if TeutonTroop.RAM in units and units[TeutonTroop.RAM] > 0:
+            return True
+
+        if GaulTroop.RAM in units and units[GaulTroop.RAM] > 0:
+            return True
+
+        return False
 
     def _is_all_scout(self, units):
         """ :meth:`_is_all_scout` is for checkout if units is all scouts or not.
@@ -155,16 +176,16 @@ class RallyPoint:
         """
         total_units = sum(int(v) for v in units.values())
 
-        if self.client.tribe_id.value in (1, 2):
-            if "4" in units and total_units == int(units["4"]):
-                return True
-            else:
-                return False
-        else:
-            if "3" in units and total_units == int(units["3"]):
-                return True
-            else:
-                return False
+        if RomanTroop.EQUITES_LEGATI in units and total_units == int(units[RomanTroop.EQUITES_LEGATI]):
+            return True
+
+        if TeutonTroop.SCOUT in units and total_units == int(units[TeutonTroop.SCOUT]):
+            return True
+
+        if GaulTroop.PATH_FINDER in units and total_units == int(units[GaulTroop.PATH_FINDER]):
+            return True
+
+        return False
 
     def send_attack(
         self, x=None, y=None, units=None, target_id=None, check_target=True
@@ -313,12 +334,14 @@ class RallyPoint:
         if mission not in ("resources", "defence"):
             raise SyntaxError("choose mission between 'resources' or 'defence'")
 
-        if self.client.tribe_id.value in (1, 2):
-            # roman or teuton
-            units["4"] = amount
-        else:
-            # gauls
-            units["3"] = amount
+        if self.client.tribe_id.value == 1:
+            units[RomanTroop.EQUITES_LEGATI] = amount
+
+        if self.client.tribe_id.value == 2:
+            units[TeutonTroop.SCOUT] = amount
+
+        if self.client.tribe_id.value == 3:
+            units[GaulTroop.PATH_FINDER] = amount
 
         # check units
         self._check_units(units)
@@ -348,9 +371,6 @@ class RallyPoint:
         # TODO:
         # add catapult target
 
-        # there is flaw in this method.
-        # if player sent 1000 scout + 1 ram, should it be success or should it be failed?
-
         target = target_id or cell_id(x, y)
 
         if units:
@@ -369,7 +389,9 @@ class RallyPoint:
             raise SyntaxError("Need at least 1000 troops.")
 
         # check if ram is exists
-        if "7" not in units:
+        #  if "7" not in units:
+            #  raise SyntaxError("Need at least 1 ram.")
+        if self._check_ram(units) is False:
             raise SyntaxError("Need at least 1 ram.")
 
         r = self._send_troops(
