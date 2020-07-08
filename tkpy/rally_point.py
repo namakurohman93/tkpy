@@ -156,13 +156,13 @@ class RallyPoint:
 
     def _check_ram(self, units):
         """ :meth:`_check_ram` is for check if there is ram in units or not. """
-        if RomanTroop.BATTERING_RAM in units and units[RomanTroop.BATTERING_RAM] > 0:
+        if RomanTroop.BATTERING_RAM in units and int(units[RomanTroop.BATTERING_RAM]) > 0:
             return True
 
-        if TeutonTroop.RAM in units and units[TeutonTroop.RAM] > 0:
+        if TeutonTroop.RAM in units and int(units[TeutonTroop.RAM]) > 0:
             return True
 
-        if GaulTroop.RAM in units and units[GaulTroop.RAM] > 0:
+        if GaulTroop.RAM in units and int(units[GaulTroop.RAM]) > 0:
             return True
 
         return False
@@ -211,10 +211,16 @@ class RallyPoint:
                 raise SyntaxError("You cant attack with only scouts.")
         else:
             # send all unit available.
-            units = self.unit_available["units"]
+            units = {
+                self.client.troop(unit): self.unit_available["units"][unit]
+                for unit in self.unit_available["units"]
+            }
 
         # check units
         self._check_units(units)
+
+        # then change the units to normal dict
+        units = {troop.value: units[troop] for troop in units}
 
         r = self._send_troops(
             target=target,
@@ -246,10 +252,16 @@ class RallyPoint:
                 raise SyntaxError("You cant attack with only scouts.")
         else:
             # send all unit available.
-            units = self.unit_available["units"]
+            units = {
+                self.client.troop(unit): self.unit_available["units"][unit]
+                for unit in self.unit_available["units"]
+            }
 
         # check units
         self._check_units(units)
+
+        # then change the units to normal dict
+        units = {troop.value: units[troop] for troop in units}
 
         r = self._send_troops(
             target=target,
@@ -290,10 +302,16 @@ class RallyPoint:
         target = target_id or cell_id(x, y)
 
         if not units:
-            units = self.unit_available["units"]
+            units = {
+                self.client.troop(unit): self.unit_available["units"][unit]
+                for unit in self.unit_available["units"]
+            }
 
         # check units
         self._check_units(units)
+
+        # then change the units to normal dict
+        units = {troop.value: units[troop] for troop in units}
 
         r = self._send_troops(
             target=target,
@@ -346,6 +364,9 @@ class RallyPoint:
         # check units
         self._check_units(units)
 
+        # then change the units to normal dict
+        units = {troop.value: units[troop] for troop in units}
+
         r = self._send_troops(
             target=target,
             movement_type=6,
@@ -378,8 +399,10 @@ class RallyPoint:
             if self._is_all_scout(units):
                 raise SyntaxError("You cant attack with only scouts.")
         else:
-            # send all unit available.
-            units = self.unit_available["units"]
+            units = {
+                self.client.troop(unit): self.unit_available["units"][unit]
+                for unit in self.unit_available["units"]
+            }
 
         # check units
         self._check_units(units)
@@ -393,6 +416,9 @@ class RallyPoint:
             #  raise SyntaxError("Need at least 1 ram.")
         if self._check_ram(units) is False:
             raise SyntaxError("Need at least 1 ram.")
+
+        # then change the units to normal dict
+        units = {troop.value: units[troop] for troop in units}
 
         r = self._send_troops(
             target=target,

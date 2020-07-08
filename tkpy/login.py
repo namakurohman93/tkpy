@@ -1,6 +1,9 @@
 import pickle
 from primordial import Lobby
 from .enums.tribe import Tribe
+from .enums.troop import RomanTroop
+from .enums.troop import TeutonTroop
+from .enums.troop import GaulTroop
 from .models.credential import Lobby as LobbyModel
 from .models.credential import Gameworld as GameworldModel
 from .exception import AvatarNotFound
@@ -16,10 +19,13 @@ def login(email, password, gameworld_name):
 
     if gameworld_detail["tribe_id"] == 1:
         gameworld.tribe_id = Tribe.ROMAN
+        gameworld.troop = RomanTroop
     elif gameworld_detail["tribe_id"] == 2:
         gameworld.tribe_id = Tribe.TEUTON
+        gameworld.troop = TeutonTroop
     else:
         gameworld.tribe_id = Tribe.GAUL
+        gameworld.troop = GaulTroop
 
     return gameworld
 
