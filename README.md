@@ -92,3 +92,21 @@ v.pull()
 v['your first village']
 <Village({'villageId': '537313245', 'playerId': '001', 'name': 'my first village',...})>
 ```
+
+From `Villages` object you can get `Village` object and from this object you can do `send_attack`, `send_raid`, `send_defend`, `send_spy`, and `send_siege`.  
+If you want to attack, you need to get troop enum from `tkpy`.
+```python
+from tkpy import RomanTroop # if you are a Roman tribe
+
+first_village = v['your first village'] # get your first village object
+units_siege = {RomanTroop.IMPERIAN: 1000, RomanTroop.BATTERING_RAM: 1} # prepare unit
+units_attack = {RomanTroop.LEGIONNAIRE: 1000} # prepare unit
+units_raid = {RomanTroop.EQUITES_IMPERATORIS: 50} # prepare unit
+units_defend = {RomanTroop.PRAETORIAN: 1000} # prepare unit
+
+first_village.send_siege(x=0, y=0, units=units_siege) # send siege
+first_village.send_attack(x=0, y=0, units=units_attack) # send attack
+first_village.send_raid(x=0, y=0, units=units_raid) # send raid
+first_village.send_spy(x=0, y=0, amount=1) # send spy
+first_village.send_defend(x=0, y=0, untis=unts_defend) # send defend
+```
