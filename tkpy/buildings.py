@@ -1,4 +1,3 @@
-from .fixtures import buildingDict
 from .enums.building import BuildingType
 
 
@@ -107,7 +106,7 @@ class Building:
         return int(self.data["lvl"])
 
     @property
-    def isMaxLvl(self):
+    def is_max_level(self):
         """ :property:`isMaxLvl` return whether this building is already
         at max level or not.
 
@@ -116,7 +115,7 @@ class Building:
         return self.data["isMaxLvl"]
 
     @property
-    def upgradeCost(self):
+    def upgrade_cost(self):
         """ :property:`upgradeCost` return upgrade cost for upgrade
         this building.
 
@@ -245,16 +244,22 @@ class ConstructionList:
         self.location = locationId
         self._raw = dict()
 
-    def __getitem__(self, key):
-        for x in self.buildable:
-            if x["buildingType"] == int(buildingDict[key]):
-                x["buildable"] = True
-                return Building(self.client, x)
-        for x in self.notBuildable:
-            if x["buildingType"] == int(buildingDict[key]):
-                x["buildable"] = False
-                return Building(self.client, x)
-        raise KeyError(f"{key} not found")
+    def __getitem__(self, building):
+        if type(building) == BuildingType:
+            for x in self.buildable:
+                if x["buildingType"] == int(building.value):
+                    x["buildable"] = True
+                    return Building(self.client, x)
+
+            for x in self.notBuildable:
+                if x["buildingType"] == int(building.value):
+                    x["buildable"] = False
+                    return Building(self.client, x)
+
+            raise KeyError(f"{building.name} not found")
+
+        else:
+            raise TypeError("building need to be a BuildingType")
 
     def __repr__(self):
         return str(type(self))
