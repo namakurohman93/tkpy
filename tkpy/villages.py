@@ -1,4 +1,3 @@
-from .map import cell_id
 from .buildings import Buildings
 from .buildings import BuildingQueue
 from .buildings import ConstructionList
@@ -9,7 +8,6 @@ from .exception import FailedConstructBuilding
 from .exception import QueueFull
 from .exception import WarehouseNotEnough
 from .exception import BuildingAtMaxLevel
-from .exception import TargetNotFound
 
 
 class Villages:
@@ -224,14 +222,51 @@ class Village:
             {"listIds": listIds, "villageId": self.id}
         )
 
+    def _is_enough_resources(self, b):
+        """ :meth:`_is_enough_resources` is for check whether enough resources or not for
+        upgrade building.
+        """
+        for k, v in b.upgrade_cost.items():
+            if self.warehouse[k] < v:
+                return False
+
+        return True
+
+    def _is_enough_warehouse_capacity(self, b):
+        """ :meth:`_is_enough_warehouse_capacity` is for check whether enough warehouse
+        capacity or not for upgrade building.
+        """
+        for k, v in b.upgrade_cost.items():
+            if self.warehouse.capacity[k] < v:
+                return False
+
+        return True
+
+    def _upgrade_or_queue(self, b, reserve_resource):
+        """ :meth:`_upgrade_or_queue` is for upgrade building. It will put to queue if
+        there is no free slot.
+        """
+        slot = "1"
+
+        if self.client.tribe_id.value == 1 and int(b.id) < 5:
+            slot = "2"
+
+        if self.buildingQueue.freeSlots[slot] > 0:
+            return b.upgrade()
+
+        elif self.buildingQueue.freeSlots["4"] > 0:
+            return b.queues(reserve_resource)
+
+        else:
+            raise QueueFull("Queue full")
+
     def upgrade(self, building):
         """ :meth:`upgrade` send requests to Travian: Kingdom for upgrade building.
 
-        :param building: - :class:`str` building name that want to be ugpraded.
+        :param building: - :class:`BuildingType` building type that want to be ugpraded.
 
         return: :class:`dict`
         """
-        # update data with the newest one
         self.pull()
         self.buildings.pull()
         self.buildingQueue.pull()
@@ -239,28 +274,34 @@ class Village:
         if self.buildings[building]:
             b = self.buildings[building][0]
 
-            if b.isMaxLvl:
-                return self._construct(building)
+            if b.is_max_level:
+                raise BuildingAtMaxLevel(f"{building.name} already at max level")
 
-            for k, v in b.upgradeCost.items():
-                if self.warehouse[k] < v and self.warehouse.capacity[k] > v:
-                    return self._check_queue(reserveResources=False, b=b)
+            if self._is_enough_resources(b):
+                return self._upgrade_or_queue(b, True)
 
-                if self.warehouse.capacity[k] < v:
-                    raise WarehouseNotEnough(
-                        f"Warehouse / granary capacity not enough for upgrade {building}"
-                    )
+            elif self._is_enough_warehouse_capacity(b):
+                return self._upgrade_or_queue(b, False)
 
-            if self.client.tribe_id.value == 1 and int(b.id) < 5:
-                return self._upgrade(slot="2", b=b)
+            else:
+                raise WarehouseNotEnough(
+                    f"Warehouse / granary capacity not enough for upgrade {building.name}"
+                )
 
-            return self._upgrade(slot="1", b=b)
+        else:
+            raise Exception(f"{building.name} didnt exists, please construct it first")
 
-        # building didn't exists
-        # construct it
-        return self._construct(building)
+    def construct(self, building):
+        """ :meth:`construct` send requests to Travian: Kingdom for construct building.
 
-    def _construct(self, building):
+        :param building: - :class:`BuildingType` building type that want to be constructed.
+
+        return: :class:`dict`
+        """
+        self.pull()
+        self.buildings.pull()
+        self.buildingQueue.pull()
+
         if self.buildings.freeSlots:
             c = ConstructionList(
                 client=self.client,
@@ -272,38 +313,27 @@ class Village:
             try:
                 b = c[building]
             except:
-                raise BuildingAtMaxLevel(f"{building} already at max level")
+                raise
             else:
                 if b["buildable"]:
-                    # construct it
-                    for k, v in b.upgradeCost.items():
-                        if self.warehouse[k] < v and self.warehouse.capacity[k] > v:
-                            return self._check_queue(reserveResources=False, b=b)
+                    if self._is_enough_resources(b):
+                        return self._upgrade_or_queue(b, True)
 
-                        if self.warehouse.capacity[k] < v:
-                            raise WarehouseNotEnough(
-                                f"Warehouse / granary capacity not enough for construct {building}"
-                            )
+                    elif self._is_enough_warehouse_capacity(b):
+                        return self._upgrade_or_queue(b, False)
 
-                    return self._upgrade(slot="1", b=b)
+                    else:
+                        raise WarehouseNotEnough(
+                            f"Warehouse / granary capacity not enough for construct {building.name}"
+                        )
 
-                raise FailedConstructBuilding(
-                    f"Failed construct {building} cause lack of required buildings"
-                )
+                else:
+                    raise FailedConstructBuilding(
+                        f"Failed construct {building.name} cause lack of required building"
+                    )
 
-        raise BuildingSlotFull(f"Building slot at {self.name} full")
-
-    def _upgrade(self, slot, b):
-        if self.buildingQueue.freeSlots[slot] > 0:
-            return b.upgrade()
-
-        return self._check_queue(reserveResources=True, b=b)
-
-    def _check_queue(self, reserveResources, b):
-        if self.buildingQueue.freeSlots["4"] > 0:
-            return b.queues(reserveResources)
-
-        raise QueueFull("Queue full")
+        else:
+            raise BuildingSlotFull(f"Building slot at {self.name} full")
 
 
 class Warehouse:
