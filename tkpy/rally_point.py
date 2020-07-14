@@ -156,7 +156,10 @@ class RallyPoint:
 
     def _check_ram(self, units):
         """ :meth:`_check_ram` is for check if there is ram in units or not. """
-        if RomanTroop.BATTERING_RAM in units and int(units[RomanTroop.BATTERING_RAM]) > 0:
+        if (
+            RomanTroop.BATTERING_RAM in units
+            and int(units[RomanTroop.BATTERING_RAM]) > 0
+        ):
             return True
 
         if TeutonTroop.RAM in units and int(units[TeutonTroop.RAM]) > 0:
@@ -176,13 +179,17 @@ class RallyPoint:
         """
         total_units = sum(int(v) for v in units.values())
 
-        if RomanTroop.EQUITES_LEGATI in units and total_units == int(units[RomanTroop.EQUITES_LEGATI]):
+        if RomanTroop.EQUITES_LEGATI in units and total_units == int(
+            units[RomanTroop.EQUITES_LEGATI]
+        ):
             return True
 
         if TeutonTroop.SCOUT in units and total_units == int(units[TeutonTroop.SCOUT]):
             return True
 
-        if GaulTroop.PATH_FINDER in units and total_units == int(units[GaulTroop.PATH_FINDER]):
+        if GaulTroop.PATH_FINDER in units and total_units == int(
+            units[GaulTroop.PATH_FINDER]
+        ):
             return True
 
         return False
@@ -413,7 +420,7 @@ class RallyPoint:
 
         # check if ram is exists
         #  if "7" not in units:
-            #  raise SyntaxError("Need at least 1 ram.")
+        #  raise SyntaxError("Need at least 1 ram.")
         if self._check_ram(units) is False:
             raise SyntaxError("Need at least 1 ram.")
 
