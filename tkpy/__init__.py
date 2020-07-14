@@ -20,3 +20,4 @@ from .login import authenticate
 from .enums.troop import RomanTroop
 from .enums.troop import TeutonTroop
 from .enums.troop import GaulTroop
+from .enums.building import BuildingType
