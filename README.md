@@ -93,8 +93,10 @@ v['your first village']
 <Village({'villageId': '537313245', 'playerId': '001', 'name': 'my first village',...})>
 ```
 
-From `Villages` object you can get `Village` object and from this object you can do `send_attack`, `send_raid`, `send_defend`, `send_spy`, and `send_siege`.  
-If you want to attack, you need to get troop enum from `tkpy`.
+From `Villages` object you can get `Village` object and from this object you can do `send_attack`, `send_raid`, `send_defend`, `send_spy`, and `send_siege`.
+
+> If you want to attack, you need to get troop enum from `tkpy`.
+
 ```python
 from tkpy import RomanTroop # if you are a Roman tribe
 
@@ -109,4 +111,16 @@ first_village.send_attack(x=0, y=0, units=units_attack) # send attack
 first_village.send_raid(x=0, y=0, units=units_raid) # send raid
 first_village.send_spy(x=0, y=0, amount=1) # send spy
 first_village.send_defend(x=0, y=0, untis=unts_defend) # send defend
+```
+
+From `Village` object you can also upgrade building that on the village by using `upgrade` method. And if you want to construct building, you can use `construct` method.
+
+> If you want to upgrade or construct building, you need to get building enum from `tkpy`.
+
+```python
+from tkpy import BuildingType
+
+first_village = v['your first village'] # get your first village object
+first_village.upgrade(building=BuildingType.MAIN_BUILDING) # upgrade main building
+first_village.construct(buildng=BuildingType.WAREHOUSE) # construct warehouse
 ```
