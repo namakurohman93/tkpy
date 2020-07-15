@@ -10,49 +10,56 @@ class Farmlist:
         >>> f = Farmlist(driver)
         >>> f.pull()
         >>> f['Startup farm list']
-        <FarmListEntry({'listId': '1631', 'listName': 'Startup farm list', ...})>
+        <FarmlistEntry({'listId': '1631', 'listName': 'Startup farm list', ...})>
     """
 
     def __init__(self, client):
         self.client = client
-        self._raw = dict()
-        self.item = dict()
+        self._raw_data = dict()
 
     def __getitem__(self, key):
         try:
-            return self.item[key]
+            return self._raw_data[key]
         except:
-            raise FarmListNotFound(f"{key}")
+            raise FarmListNotFound(f"Farmlist {key} is not found")
+
+    def __iter__(self):
+        return iter(self._raw_data.keys())
 
     def __repr__(self):
+        # TODO:
+        # Make __repr__ more descriptive like it will show all farmlist name
         return str(type(self))
 
     def pull(self):
         """ :meth:`pull` for pulling farmlist data from TK. """
-        self._raw.update(self.client.cache.get({"names": ["Collection:FarmList:"]}))
-        # store farmlistEntry object
-        for x in self.raw:
-            self.item[x["listName"]] = FarmlistEntry(self.client, x)
+        r = self.client.cache.get({"names": ["Collection:FarmList:"]})
 
-    @property
-    def raw(self):
-        """ :property:`raw` is a :func:`generator` that yield raw farmlist
-        data.
+        temp = [farmlist["data"] for farmlist in r["cache"][0]["data"]["cache"]]
 
-        yield: :class:`dict`
-        """
-        for x in self._raw["cache"][0]["data"]["cache"]:
-            yield x["data"]
+        r = self.client.cache.get({
+            "names": [f"Collection:FarmListEntry:{farmlist['listId']}" for farmlist in temp]
+        })
 
-    @property
-    def list(self):
-        """ :property:`list` is a :func:`generator` that yield
-        :class:`FarmlistEntry`.
+        for farmlist in temp:
+            farmlist_id = farmlist["listId"]
 
-        yield: :class:`FarmlistEntry`
-        """
-        for x in self.raw:
-            yield FarmlistEntry(self.client, x)
+            for detail_farmlist in r["cache"]:
+                if farmlist_id in detail_farmlist["name"]:
+                    farmlist["entryIds"] = [elem["data"] for elem in detail_farmlist["data"]["cache"]]
+
+                    break
+
+            self._raw_data[farmlist["listName"]] = FarmlistEntry(self.client, farmlist)
+
+    def keys(self):
+        return self._raw_data.keys()
+
+    def items(self):
+        return self._raw_data.items()
+
+    def values(self):
+        return self._raw_data.values()
 
     def create_farmlist(self, name):
         """ :meth:`create_farmlist` for create new farmlist.
