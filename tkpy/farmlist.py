@@ -37,16 +37,23 @@ class Farmlist:
 
         temp = [farmlist["data"] for farmlist in r["cache"][0]["data"]["cache"]]
 
-        r = self.client.cache.get({
-            "names": [f"Collection:FarmListEntry:{farmlist['listId']}" for farmlist in temp]
-        })
+        r = self.client.cache.get(
+            {
+                "names": [
+                    f"Collection:FarmListEntry:{farmlist['listId']}"
+                    for farmlist in temp
+                ]
+            }
+        )
 
         for farmlist in temp:
             farmlist_id = farmlist["listId"]
 
             for detail_farmlist in r["cache"]:
                 if farmlist_id in detail_farmlist["name"]:
-                    farmlist["entryIds"] = [elem["data"] for elem in detail_farmlist["data"]["cache"]]
+                    farmlist["entryIds"] = [
+                        elem["data"] for elem in detail_farmlist["data"]["cache"]
+                    ]
 
                     break
 
