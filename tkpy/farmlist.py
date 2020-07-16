@@ -52,7 +52,8 @@ class Farmlist:
             for detail_farmlist in r["cache"]:
                 if farmlist_id in detail_farmlist["name"]:
                     farmlist["entryIds"] = [
-                        elem["data"] for elem in detail_farmlist["data"]["cache"]
+                        #  elem["data"] for elem in detail_farmlist["data"]["cache"]
+                        EntryId(self.client, elem["data"]) for elem in detail_farmlist["data"]["cache"]
                     ]
 
                     break
