@@ -52,8 +52,8 @@ class Farmlist:
             for detail_farmlist in r["cache"]:
                 if farmlist_id in detail_farmlist["name"]:
                     farmlist["entryIds"] = [
-                        #  elem["data"] for elem in detail_farmlist["data"]["cache"]
-                        EntryId(self.client, elem["data"]) for elem in detail_farmlist["data"]["cache"]
+                        EntryId(self.client, elem["data"])
+                        for elem in detail_farmlist["data"]["cache"]
                     ]
 
                     break
@@ -149,9 +149,10 @@ class FarmlistEntry:
         )
 
     def _update_data(self, r):
-        for x in r["cache"]:
-            if x["name"] == f"FarmList:{self.id}":
-                self.data.update(x["data"])
+        self.data["entryIds"] = [
+            EntryId(self.client, elem["data"])
+            for elem in r["cache"][0]["data"]["cache"]
+        ]
 
     def add(self, villageId):
         """ :meth:`add` for add village to this farmlist using village id.
@@ -178,19 +179,18 @@ class FarmlistEntry:
         """ :meth:`pull` for pulling entry data that exists in this farmlist
         entry.
         """
-        self._raw.update(
-            self.client.cache.get({"names": [f"Collection:FarmListEntry:{self.id}"]})
+        r = self.client.cache.get({"names": [f"Collection:FarmListEntry:{self.id}"]})
+
+        self.data.update(r["cache"][0]["data"]["cache"]["data"])
+
+        r = self.client.cache.get(
+            {"names": [f"Collection:FarmListEntry:{farmlist_data['listId']}"]}
         )
 
-    @property
-    def farmlistEntry(self):
-        """ :meth:`farmlistEntry` is a :func:`generator` that yield
-        :class:`EntryId`.
-
-        yield: :class:`EntryId`
-        """
-        for x in self._raw["cache"][0]["data"]["cache"]:
-            yield EntryId(self.client, x["data"])
+        self.data["entryIds"] = [
+            EntryId(self.client, elem["data"])
+            for elem in r["cache"][0]["data"]["cache"]
+        ]
 
 
 class EntryId:
