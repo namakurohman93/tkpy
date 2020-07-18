@@ -36,6 +36,8 @@ class Villages:
         return iter(self._raw_data.keys())
 
     def __repr__(self):
+        # TODO:
+        # Make __repr__ more descriptive like it will show all village name
         return str(type(self))
 
     def pull(self):
