@@ -27,9 +27,7 @@ class Farmlist:
         return iter(self._raw_data.keys())
 
     def __repr__(self):
-        # TODO:
-        # Make __repr__ more descriptive like it will show all farmlist name
-        return str(type(self))
+        return f"<{type(self).__name__}({[f for f in self._raw_data]})>"
 
     def pull(self):
         """ :meth:`pull` for pulling farmlist data from TK. """
@@ -79,6 +77,16 @@ class Farmlist:
         self.client.farmList.createList({"name": name})
         self.pull()
 
+    def delete_farmlist(self, name):
+        """ :meth:`delete_farmlist` for delete farmlist.
+
+        :param name: - `str` name of farmlist
+        """
+        try:
+            del self._raw_data[name]
+        except:
+            raise FarmListNotFound(f"Farmlist {name} is not found")
+
 
 class FarmlistEntry:
     """ :class:`FarmlistEntry` is a represent of farmlist entry. In this
@@ -96,7 +104,6 @@ class FarmlistEntry:
     def __init__(self, client, data):
         self.client = client
         self.data = data
-        self._raw = dict()
 
     def __getitem__(self, key):
         try:
@@ -180,17 +187,7 @@ class FarmlistEntry:
         entry.
         """
         r = self.client.cache.get({"names": [f"Collection:FarmListEntry:{self.id}"]})
-
-        self.data.update(r["cache"][0]["data"]["cache"]["data"])
-
-        r = self.client.cache.get(
-            {"names": [f"Collection:FarmListEntry:{farmlist_data['listId']}"]}
-        )
-
-        self.data["entryIds"] = [
-            EntryId(self.client, elem["data"])
-            for elem in r["cache"][0]["data"]["cache"]
-        ]
+        self._update_data(r)
 
 
 class EntryId:
@@ -202,8 +199,7 @@ class EntryId:
         >>> f.pull()
         >>> f['Startup farm list'].add(536461288)
         >>> f['Startup farm list'].pull()
-        >>> entrys = list(f['Startup farm list'].farmlistEntry)
-        >>> entrys[0].villageId
+        >>> f['Startup farm list'].entryIds[0].villageId
         536461288
         >>>
     """
