@@ -31,6 +31,8 @@ class Farmlist:
 
     def pull(self):
         """ :meth:`pull` for pulling farmlist data from TK. """
+        self._raw_data = dict()
+
         r = self.client.cache.get({"names": ["Collection:FarmList:"]})
 
         temp = [farmlist["data"] for farmlist in r["cache"][0]["data"]["cache"]]
