@@ -124,3 +124,27 @@ first_village = v['your first village'] # get your first village object
 first_village.upgrade(building=BuildingType.MAIN_BUILDING) # upgrade main building
 first_village.construct(buildng=BuildingType.WAREHOUSE) # construct warehouse
 ```
+
+### Farmlist
+Farmlist object is like built-in `dict` object from `Python` so you can access farmlist using its name as key. To get farmlist data from Travian: Kingdom, you need to call `pull` method first. From `Farmlist` you can create new farmlist by calling `create_farmlist`.
+
+```python
+from tkpy import Farmlist
+
+f = Farmlist(driver)
+f.pull()
+
+f['Startup farm list']
+<FarmlistEntry({'listId': '1631', 'listName': 'Startup farm list', ...})>
+
+f.create_farmlist('new farmlist')
+f['new farmlist']
+<FarmlistEntry({'listId': '1632', 'listName': 'new farmlist', ...})>
+```
+
+From `Farmlist` object you can get `FarmlistEntry` object and from it you can add new village to the `FarmlistEntry`  and send this `FarmlistEntry`.
+
+```python
+f['Startup farm list'].add(villageId=536887296) # add village using village id to 'Startup farm list'
+f['Startup farm list'].send(villageId=537051141) # send 'startup farm list' from village using village id
+```
