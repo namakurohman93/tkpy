@@ -126,7 +126,7 @@ first_village.construct(buildng=BuildingType.WAREHOUSE) # construct warehouse
 ```
 
 ### Farmlist
-Farmlist object is like built-in `dict` object from `Python` so you can access farmlist using its name as key. To get farmlist data from Travian: Kingdom, you need to call `pull` method first. From `Farmlist` you can create new farmlist by calling `create_farmlist`.
+`Farmlist` object is like built-in `dict` object from `Python` so you can access farmlist using its name as key. To get farmlist data from Travian: Kingdom, you need to call `pull` method first. From `Farmlist` you can create new farmlist by calling `create_farmlist`.
 
 ```python
 from tkpy import Farmlist
@@ -147,4 +147,17 @@ From `Farmlist` object you can get `FarmlistEntry` object and from it you can ad
 ```python
 f['Startup farm list'].add(villageId=536887296) # add village using village id to 'Startup farm list'
 f['Startup farm list'].send(villageId=537051141) # send 'startup farm list' from village using village id
+```
+
+### Notepad
+`Notepad` is an object that when instantiate will create new notepad in game. Use `message` method for write new message.
+
+```python
+from tkpy import Notepad
+
+n = Notepad(driver) # new notepad will appear in game
+n.message('this is new message on new notepad') # write message to the notepad
+
+# careful, use `message` method will overwrite message previously on notepad
+n.message('old message will be overwrited')
 ```
