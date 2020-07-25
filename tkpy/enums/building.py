@@ -25,7 +25,7 @@ class BuildingType(Enum):
     ACADEMY = "22"
     CRANNY = "23"
     TOWN_HALL = "24"
-    RESIDANCE = "25"
+    RESIDENCE = "25"
     PALACE = "26"
     TREASURY = "27"
     TRADE_OFFICE = "28"
