@@ -320,7 +320,7 @@ class Map:
         """ :meth:`slice_map` is used for slicing map based on area of your interest.
 
         :param center: x, y tuple of center of sliced map
-        :param radius: - :class:`int` center of sliced map
+        :param radius: - :class:`int` radius of sliced map
         
         return :class:`Map`
         """
