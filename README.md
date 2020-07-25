@@ -5,6 +5,17 @@ It provide several object that mostly used on Travian: Kingdom such as `Map`, `V
 
 [![PyPI version](https://badge.fury.io/py/tkpy.svg)](https://pypi.org/project/tkpy/) [![Python 3.6](https://img.shields.io/badge/python-3.6+-blue.svg)](https://www.python.org/downloads/release/python-367/) [![Build Status](https://travis-ci.org/didadadida93/tkpy.svg?branch=master)](https://travis-ci.org/didadadida93/tkpy) [![codecov](https://codecov.io/gh/didadadida93/tkpy/branch/master/graph/badge.svg)](https://codecov.io/gh/didadadida93/tkpy) [![Code style: black](https://img.shields.io/badge/code%20style-black-000000.svg)](https://github.com/psf/black)  
 
+## Table of Contents
+* [Installation](https://github.com/didadadida93/tkpy/#installation)
+* [Getting started](https://github.com/didadadida93/tkpy/#getting-started)
+* [Usage](https://github.com/didadadida93/tkpy/#usage)
+    * [Map](https://github.com/didadadida93/tkpy/#map)
+    * [Villages](https://github.com/didadadida93/tkpy/#villages)
+    * [Farmlist](https://github.com/didadadida93/tkpy/#farmlist)
+    * [Notepad](https://github.com/didadadida93/tkpy/#notepad)
+* [Documentation](https://github.com/didadadida93/tkpy/#documentation)
+* [Disclaimer](https://github.com/didadadida93/tkpy/#disclaimer)
+
 ## Installation
 
 >It is recommended to use [virtualenv](https://docs.python-guide.org/dev/virtualenvs/) or any other similar virtual environment management for python.
@@ -161,6 +172,9 @@ n.message('this is new message on new notepad') # write message to the notepad
 # careful, use `message` method will overwrite message previously on notepad
 n.message('old message will be overwrited')
 ```
+
+## Documentation
+For documentation, you can go to the this [wiki](https://github.com/didadadida93/tkpy/wiki).
 
 ## Disclaimer
 _Please note that this is a research project, i am by no means responsible for any usage of this utilities._  
