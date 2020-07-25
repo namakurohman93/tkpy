@@ -161,3 +161,7 @@ n.message('this is new message on new notepad') # write message to the notepad
 # careful, use `message` method will overwrite message previously on notepad
 n.message('old message will be overwrited')
 ```
+
+## Disclaimer
+_Please note that this is a research project, i am by no means responsible for any usage of this utilities._  
+_Use on your own behalf, i am also not responsible if your accounts get banned due to extensive use of this utilites._
