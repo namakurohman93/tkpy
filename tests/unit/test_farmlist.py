@@ -20,8 +20,6 @@ class TestFarmlist(unittest.TestCase):
             )
             fl = Farmlist(g)
             fl.pull()
-        self.assertEqual(len(list(fl.raw)), 3)
-        self.assertEqual(len(list(fl.list)), 3)
         self.assertEqual(fl["01"]["listName"], "01")
         with self.assertRaises(FarmListNotFound):
             fl["farmlist not found"]
@@ -81,20 +79,13 @@ class TestFarmlistEntry(unittest.TestCase):
                 "POST", "https://com1.kingdoms.com/api/", json=farmlist_entry_raw
             )
             fe.add(535150570)
-            self.assertEqual(len(fe.villageIds), 11)
-            self.assertTrue("535150570" in fe.villageIds)
-            self.assertEqual(len(fe.entryIds), 11)
+            self.assertEqual(len(fe.villageIds), 10)
+            self.assertFalse("535150570" in fe.villageIds)
+            self.assertEqual(len(fe.entryIds), 1)
             fe.toggle(535150570)
-            self.assertEqual(len(fe.villageIds), 11)
-            self.assertTrue("535150570" in fe.villageIds)
-            self.assertEqual(len(fe.entryIds), 11)
-
-        with requests_mock.mock() as mock:
-            mock.register_uri(
-                "POST", "https://com1.kingdoms.com/api/", json=farmlist_entry_pull_raw
-            )
-            fe.pull()
-            self.assertEqual(len(list(fe.farmlistEntry)), 11)
+            self.assertEqual(len(fe.villageIds), 10)
+            self.assertFalse("535150570" in fe.villageIds)
+            self.assertEqual(len(fe.entryIds), 1)
 
 
 class TestEntryId(unittest.TestCase):
@@ -117,7 +108,7 @@ class TestEntryId(unittest.TestCase):
             fl = Farmlist(g)
             fl.pull()
             fl["01"].pull()
-        fl_list = list(fl["01"].farmlistEntry)
+        fl_list = fl["01"].entryIds
         ei = fl_list[0]
         self.assertEqual(ei.id, "6350")
         self.assertEqual(ei["entryId"], "6350")
