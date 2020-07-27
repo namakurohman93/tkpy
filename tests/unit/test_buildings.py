@@ -29,9 +29,9 @@ class TestBuildings(unittest.TestCase):
         self.assertEqual(b[BuildingType.CROPLAND][0]["buildingType"], "4")
         self.assertEqual(b[BuildingType.CROPLAND][0].location, "2")
         self.assertEqual(b[BuildingType.CROPLAND][0].lvl, 6)
-        self.assertFalse(b[BuildingType.CROPLAND][0].isMaxLvl)
+        self.assertFalse(b[BuildingType.CROPLAND][0].is_max_level)
         self.assertEqual(
-            b[BuildingType.CROPLAND][0].upgradeCost,
+            b[BuildingType.CROPLAND][0].upgrade_cost,
             {"1": 1625, "2": 1950, "3": 1845, "4": 0},
         )
         with self.assertRaises(KeyError):
@@ -86,11 +86,11 @@ class TestBuildings(unittest.TestCase):
         self.assertEqual(len(c.notBuildable), 8)
         # self.assertEqual(c['cranny'], {})
         with self.assertRaises(KeyError):
-            c["cranny"]
-        self.assertFalse(c["iron foundry"]["buildable"])
-        self.assertTrue(c["smithy"]["buildable"])
+            c[BuildingType.CRANNY]
+        self.assertFalse(c[BuildingType.IRON_FOUNDRY]["buildable"])
+        self.assertTrue(c[BuildingType.SMITHY]["buildable"])
         with self.assertRaises(KeyError):
-            c["KeyError"]
+            c[BuildingType.SMITHY]["keyError"]
 
 
 if __name__ == "__main__":
