@@ -174,7 +174,7 @@ n.message('old message will be overwrited')
 ```
 
 ## Documentation
-For documentation, you can go to the this [wiki](https://github.com/didadadida93/tkpy/wiki).
+For documentation, you can go to this [wiki](https://github.com/didadadida93/tkpy/wiki).
 
 ## Disclaimer
 _Please note that this is a research project, i am by no means responsible for any usage of this utilities._  
