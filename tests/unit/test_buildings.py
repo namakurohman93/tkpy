@@ -37,6 +37,9 @@ class TestBuildings(unittest.TestCase):
         with self.assertRaises(KeyError):
             b[BuildingType.CROPLAND][0]["KeyError"]
 
+        with self.assertRaises(TypeError):
+            b["NotABuildingType"]
+
         with requests_mock.mock() as mock:
             mock.register_uri(
                 "POST", "https://com1.kingdoms.com/api/", json={"mock": "mocked"}
@@ -84,13 +87,15 @@ class TestBuildings(unittest.TestCase):
             c.pull()
         self.assertEqual(len(c.buildable), 4)
         self.assertEqual(len(c.notBuildable), 8)
-        # self.assertEqual(c['cranny'], {})
         with self.assertRaises(KeyError):
             c[BuildingType.CRANNY]
         self.assertFalse(c[BuildingType.IRON_FOUNDRY]["buildable"])
         self.assertTrue(c[BuildingType.SMITHY]["buildable"])
         with self.assertRaises(KeyError):
             c[BuildingType.SMITHY]["keyError"]
+
+        with self.assertRaises(TypeError):
+            c["NotABuildingType"]
 
 
 if __name__ == "__main__":
