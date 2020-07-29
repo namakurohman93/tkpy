@@ -21,8 +21,15 @@ class TestFarmlist(unittest.TestCase):
             fl = Farmlist(g)
             fl.pull()
         self.assertEqual(fl["01"]["listName"], "01")
+        self.assertEqual(len(list(fl)), 3)
+        self.assertEqual(len(list(fl.keys())), 3)
+        self.assertEqual(len(list(fl.items())), 3)
+        self.assertEqual(len(list(fl.values())), 3)
         with self.assertRaises(FarmListNotFound):
             fl["farmlist not found"]
+
+        with self.assertRaises(FarmListNotFound):
+            fl.delete_farmlist("farmlist not found")
 
         farmlist_raw["cache"][0]["data"]["cache"].append(
             farmlist_raw["cache"][0]["data"]["cache"][2]
@@ -37,6 +44,9 @@ class TestFarmlist(unittest.TestCase):
             )
             fl.create_farmlist("test")
             self.assertEqual(fl["test"]["listName"], "test")
+
+        fl.delete_farmlist("test")
+        self.assertEqual(len(list(fl)), 2)
 
 
 class TestFarmlistEntry(unittest.TestCase):
