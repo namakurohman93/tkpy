@@ -189,7 +189,7 @@ class Map:
         yield: :class:`Cell`
         """
         for oasis in self.gen_oases():
-            if oasis["oasisStatus"] == "3":
+            if oasis["oasis"]["oasisStatus"] == "3":
                 yield oasis
             else:
                 continue
