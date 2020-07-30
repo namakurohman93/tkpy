@@ -9,27 +9,6 @@ from .models.credential import Gameworld as GameworldModel
 from .exception import AvatarNotFound
 
 
-def login(email, password, gameworld_name):
-    lobby = Lobby()
-    lobby.authenticate(email, password)
-    gameworld_id = get_gameworld_id(lobby, gameworld_name)
-    gameworld = lobby.connect_to_gameworld(gameworld_name, gameworld_id)
-
-    gameworld_detail = get_gameworld_detail(gameworld)
-
-    if gameworld_detail["tribe_id"] == 1:
-        gameworld.tribe_id = Tribe.ROMAN
-        gameworld.troop = RomanTroop
-    elif gameworld_detail["tribe_id"] == 2:
-        gameworld.tribe_id = Tribe.TEUTON
-        gameworld.troop = TeutonTroop
-    else:
-        gameworld.tribe_id = Tribe.GAUL
-        gameworld.troop = GaulTroop
-
-    return gameworld
-
-
 def get_gameworld_detail(driver):
     # maybe I need this for get another detail
     result = dict()
@@ -49,35 +28,57 @@ def get_gameworld_id(lobby, gameworld_name):
     raise AvatarNotFound(f"Avatar on {gameworld_name} not found")
 
 
+def get_gameworld_object(lobby, gameworld_name):
+    gameworld_id = get_gameworld_id(lobby, gameworld_name)
+    driver = lobby.connect_to_gameworld(gameworld_name, gameworld_id)
+    gameworld_detail = get_gameworld_detail(driver)
+
+    if gameworld_detail["tribe_id"] == 1:
+        driver.tribe_id = Tribe.ROMAN
+        driver.troop = RomanTroop
+
+    elif gameworld_detail["tribe_id"] == 2:
+        driver.tribe_id = Tribe.TEUTON
+        driver.troop = TeutonTroop
+
+    else:
+        driver.tribe_id = Tribe.GAUL
+        driver.troop = GaulTroop
+
+    return driver
+
+
 def authenticate(email, password, gameworld_name):
-    lobby_id = None
+    lobby = None
+    lobby_id = 0
+    lobby_data = LobbyModel.find_one(email=email)
+
     driver = None
 
-    lobby = LobbyModel.find_one(email=email)
+    gameworld_id = 0
+    gameworld_data = None
 
-    if lobby:
-        if LobbyModel.verify_password(lobby["password"], password):
-            lobby_id = lobby["id"]
-        else:
-            raise Exception(
-                "Password in database and password that provided is different"
-            )
-    else:
+    if lobby_data is None:
+        lobby = Lobby()
+        lobby.authenticate(email, password)
         lobby_id = LobbyModel.create(email, password)
 
-    gameworld = GameworldModel.find_one(
-        lobby_id=lobby_id, gameworld_name=gameworld_name
-    )
-
-    if gameworld:
-        driver = pickle.loads(gameworld["driver"])
-        if not driver.is_authenticated():
-            driver = login(email, password, gameworld_name)
-            GameworldModel.update(
-                {"driver": pickle.dumps(driver)}, {"id": gameworld["id"]}
-            )
     else:
-        driver = login(email, password, gameworld_name)
+        if LobbyModel.verify_password(lobby_data["password"], password):
+            lobby_id = lobby_data["id"]
+        else:
+            raise Exception("Password in databaase and password that provided is different")
+
+    gameworld_data = GameworldModel.find_one(lobby_id=lobby_id, gameworld_name=gameworld_name)
+
+    if gameworld_data:
+        driver = pickle.loads(gameworld_data["driver"])
+        if not driver.is_authenticated():
+            driver = get_gameworld_object(lobby, gameworld_name)
+            GameworldModel.update({"driver": pickle.dumps(driver)}, {"id": gameworld_data["id"]})
+
+    else:
+        driver = get_gameworld_object(lobby, gameworld_name)
         GameworldModel.create(gameworld_name, pickle.dumps(driver), lobby_id)
 
     return driver
