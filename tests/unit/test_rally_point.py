@@ -11,26 +11,6 @@ import json
 
 
 class TestRallyPoint(unittest.TestCase):
-    #  def testing_rally_point_property(self):
-    #  g = None
-    #  r = None
-    #  raw_rally_point = {}
-
-    #  with open('./tests/unit/fixtures/pickled_driver.py', 'rb') as f:
-    #  g = pickle.load(f)
-
-    #  with open('./tests/unit/fixtures/raw_rally_point.json', 'r') as f:
-    #  raw_rally_point = json.load(f)
-
-    #  with requests_mock.mock() as mock:
-    #  mock.register_uri(
-    #  "POST", "https://com1.kingdoms.com/api/", json=raw_rally_point
-    #  )
-    #  r = RallyPoint(g, "538230818")
-    #  r.pull()
-
-    #  self.assertEqual(r.unit_available, raw_rally_point["cache"][0]["data"]["cache"][0]["data"])
-
     def testing_rally_point_target_not_found(self):
         g = None
         rp = None
@@ -310,3 +290,7 @@ class TestRallyPoint(unittest.TestCase):
 
         with self.assertRaises(SyntaxError):
             r = rp.send_siege(0, 0, {RomanTroop.LEGIONNAIRE: 10})
+
+
+if __name__ == "__main__":
+    unittest.main()
