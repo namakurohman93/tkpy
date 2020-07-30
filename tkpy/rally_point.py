@@ -187,8 +187,8 @@ class RallyPoint:
         if TeutonTroop.SCOUT in units and total_units == int(units[TeutonTroop.SCOUT]):
             return True
 
-        if GaulTroop.PATH_FINDER in units and total_units == int(
-            units[GaulTroop.PATH_FINDER]
+        if GaulTroop.PATHFINDER in units and total_units == int(
+            units[GaulTroop.PATHFINDER]
         ):
             return True
 
@@ -366,7 +366,7 @@ class RallyPoint:
             units[TeutonTroop.SCOUT] = amount
 
         if self.client.tribe_id.value == 3:
-            units[GaulTroop.PATH_FINDER] = amount
+            units[GaulTroop.PATHFINDER] = amount
 
         # check units
         self._check_units(units)
