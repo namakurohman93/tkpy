@@ -25,9 +25,10 @@ setuptools.setup(
     install_requires=["requests",],
     license=about["__license__"],
     classifiers=[
-        "Development Status :: 1 - Planning",
+        "Development Status :: 4 - Beta",
         "Programming Language :: Python :: 3.6",
         "Programming Language :: Python :: 3.7",
+        "Programming Language :: Python :: 3.8",
         "License :: OSI Approved :: MIT License",
         "Intended Audience :: Developers",
         "Topic :: Utilities",
