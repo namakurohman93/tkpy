@@ -1,3 +1,4 @@
+from math import floor
 from math import sqrt
 from copy import deepcopy
 
@@ -39,7 +40,7 @@ def distance(source, target):
 
     return: :class:`float`
     """
-    return sqrt((source[0] - target[0]) ** 2 + (source[1] - target[1]) ** 2)
+    return floor(sqrt((source[0] - target[0]) ** 2 + (source[1] - target[1]) ** 2))
 
 
 def slice_map(center, radius, m):
@@ -51,6 +52,8 @@ def slice_map(center, radius, m):
 
     return :class:`Map`
     """
+    # TODO
+    # it should slice player list and kingdom list too
     results = dict()
 
     for cell in m.gen_tiles():
