@@ -46,9 +46,9 @@ class TestingSliceMap(unittest.TestCase):
 
         nm = slice_map((0, 0), 5, m)
 
-        self.assertEqual(len(list(nm.gen_tiles())), 81)
-        self.assertEqual(len(list(nm.gen_villages())), 13)
-        self.assertEqual(len(list(nm.gen_oases())), 2)
+        self.assertEqual(len(list(nm.gen_tiles())), 109)
+        self.assertEqual(len(list(nm.gen_villages())), 24)
+        self.assertEqual(len(list(nm.gen_oases())), 3)
 
 
 class TestMap(unittest.TestCase):
@@ -127,9 +127,9 @@ class TestMap(unittest.TestCase):
             m.get_player("Punisher")["adsf"]
 
         nm = m.slice_map((0, 0), 5)
-        self.assertEqual(len(list(nm.gen_tiles())), 81)
-        self.assertEqual(len(list(nm.gen_villages())), 13)
-        self.assertEqual(len(list(nm.gen_oases())), 2)
+        self.assertEqual(len(list(nm.gen_tiles())), 109)
+        self.assertEqual(len(list(nm.gen_villages())), 24)
+        self.assertEqual(len(list(nm.gen_oases())), 3)
 
         with open("./tests/unit/fixtures/hero_equipment.json", "r") as f:
             hero_equipment = json.load(f)
