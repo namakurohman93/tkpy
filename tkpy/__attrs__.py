@@ -9,7 +9,7 @@ _|_|_|_|  _|  _|    _|_|_|    _|    _|
 """
 
 __name__ = "tkpy"
-__version__ = "0.0.1.b1"
+__version__ = "0.0.1.b2"
 __description__ = "Travian: Kingdom utilities for your need."
 __author__ = "didadadida93"
 __author_email__ = "didadadida93@gmail.com"
