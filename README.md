@@ -15,6 +15,7 @@ It provide several object that mostly used on Travian: Kingdom such as `Map`, `V
     * [Notepad](https://github.com/didadadida93/tkpy#notepad)
 * [Documentation](https://github.com/didadadida93/tkpy#documentation)
 * [Disclaimer](https://github.com/didadadida93/tkpy#disclaimer)
+* [Changelog](https://github.com/didadadida93/tkpy/blob/master/CHANGELOG.md)
 
 ## Installation
 
