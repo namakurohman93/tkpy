@@ -21,8 +21,8 @@ setuptools.setup(
     author_email=about["__author_email__"],
     packages=["tkpy"],
     include_package_data=True,
-    package_data={"": ["schema.sql",],},
-    install_requires=["requests",],
+    package_data={"enums": ["*.py"], "models": ["*.py", "*.sql"]},
+    install_requires=["requests"],
     license=about["__license__"],
     classifiers=[
         "Development Status :: 4 - Beta",
