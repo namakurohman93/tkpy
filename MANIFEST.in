@@ -1,0 +1,3 @@
+include tkpy/enums/*.py
+include tkpy/models/*.py
+include tkpy/models/*.sql
