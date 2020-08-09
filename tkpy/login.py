@@ -78,6 +78,8 @@ def authenticate(email, password, gameworld_name):
             GameworldModel.update({"driver": pickle.dumps(driver)}, {"id": gameworld_data["id"]})
 
     else:
+        lobby = Lobby()
+        lobby.authenticate(email, password)
         driver = get_gameworld_object(lobby, gameworld_name)
         GameworldModel.create(gameworld_name, pickle.dumps(driver), lobby_id)
 
