@@ -14,10 +14,11 @@ def repr(obj):
 
 class Lobby:
     """ :class:`Lobby` is a model class for `lobbies` table."""
+
     def __init__(self, **kwargs):
-        self.id = kwargs.pop('id', None)
-        self.email = kwargs.pop('email', None)
-        self.password = kwargs.pop('password', None)
+        self.id = kwargs.pop("id", None)
+        self.email = kwargs.pop("email", None)
+        self.password = kwargs.pop("password", None)
         self.gameworlds = []
 
     def __repr__(self):
@@ -35,9 +36,7 @@ class Lobby:
         """
         self.gameworlds.append(
             Gameworld.create(
-                gameworld_name=gameworld_name,
-                driver=driver
-                lobby_id=self.id
+                driver=driver, lobby_id=self.id, gameworld_name=gameworld_name
             )
         )
 
@@ -146,7 +145,9 @@ class Lobby:
             results = cursor.fetchall()
 
             if results:
-                lobbies = [Lobby(**{k: result[k] for k in result.keys}) for result in results]
+                lobbies = [
+                    Lobby(**{k: result[k] for k in result.keys}) for result in results
+                ]
 
                 if include is True:
                     for lobby in lobbies:
@@ -157,9 +158,12 @@ class Lobby:
     @staticmethod
     def update(updater, condition):
         """ :staticmeth:`update` will update lobbies entry with `updater` based on `condition` """
-        query = "UPDATE lobbies SET " + \
-                ", ".join([f"{key} = ?" for key in updater.keys()]) + " WHERE " + \
-                " AND ".join([f"{key} = ?" for key in condition.keys()])
+        query = (
+            "UPDATE lobbies SET "
+            + ", ".join([f"{key} = ?" for key in updater.keys()])
+            + " WHERE "
+            + " AND ".join([f"{key} = ?" for key in condition.keys()])
+        )
         params = [*list(updater.values()), *list(condition.values())]
 
         with get_connection() as conn:
@@ -170,11 +174,12 @@ class Lobby:
 
 class Gameworld:
     """ :class:`Gameworld` is a model class for `gameworlds` table."""
+
     def __init__(self, **kwargs):
-        self.id = kwargs.pop('id', None)
-        self.gameworld_name = kwargs.pop('gameworld_name', None)
-        self.driver = kwargs.pop('driver', None)
-        self.lobby_id = kwargs.pop('lobby_id', None)
+        self.id = kwargs.pop("id", None)
+        self.gameworld_name = kwargs.pop("gameworld_name", None)
+        self.driver = kwargs.pop("driver", None)
+        self.lobby_id = kwargs.pop("lobby_id", None)
 
     def __repr__(self):
         return repr(self)
@@ -183,7 +188,7 @@ class Gameworld:
         updater = {
             "gameworld_name": self.gameworld_name,
             "driver": self.driver,
-            "lobby_id": self.lobby_id
+            "lobby_id": self.lobby_id,
         }
         Gameworld.update(updater=updater, condition={"id": self.id})
 
@@ -197,7 +202,9 @@ class Gameworld:
 
         return: :class:`str`
         """
-        query = "INSERT INTO gameworlds (gameworld_name, driver, lobby_id) VALUES(?, ?, ?)"
+        query = (
+            "INSERT INTO gameworlds (gameworld_name, driver, lobby_id) VALUES(?, ?, ?)"
+        )
         params = (gameworld_name, driver, lobby_id)
 
         with get_connection() as conn:
@@ -211,7 +218,7 @@ class Gameworld:
                 id=lastId,
                 driver=driver,
                 lobby_id=lobby_id,
-                gameworld_name=gameworld_name
+                gameworld_name=gameworld_name,
             )
 
     @staticmethod
@@ -251,7 +258,10 @@ class Gameworld:
             results = cursor.fetchall()
 
             if results:
-                return [Gameworld(**{k: result[k] for k in result.keys()}) for result in results]
+                return [
+                    Gameworld(**{k: result[k] for k in result.keys()})
+                    for result in results
+                ]
 
             return []
 
@@ -263,9 +273,12 @@ class Gameworld:
         :param updater: - :class:`dict` is a property that want to be updated on table
         :param condition: - :class:`dict` is a condition for update
         """
-        query = "UPDATE gameworlds SET " + \
-                ", ".join([f"{key} = ?" for key in updater.keys()]) + " WHERE " + \
-                " AND ".join([f"{key} = ?" for key in condition.keys()])
+        query = (
+            "UPDATE gameworlds SET "
+            + ", ".join([f"{key} = ?" for key in updater.keys()])
+            + " WHERE "
+            + " AND ".join([f"{key} = ?" for key in condition.keys()])
+        )
         params = [*list(updater.values()), *list(condition.values())]
 
         with get_connection() as conn:
