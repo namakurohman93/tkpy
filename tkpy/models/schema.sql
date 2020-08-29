@@ -1,6 +1,8 @@
+PRAGMA foreign_keys = ON;
+
 CREATE TABLE IF NOT EXISTS lobbies (
   id INTEGER PRIMARY KEY,
-  email TEXT NOT NULL,
+  email TEXT UNIQUE,
   password TEXT NOT NULL
 );
 
