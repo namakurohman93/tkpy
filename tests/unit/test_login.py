@@ -21,7 +21,7 @@ class TestAuthenticate(unittest.TestCase):
         driver = authenticate("testing@email.com", "testingpassword", "com99")
 
         mock_lobby.find_one.assert_called()
-        mock_lobby.find_one.assert_called_with(email="testing@email.com")
+        mock_lobby.find_one.assert_called_with(email="testing@email.com", include=True)
         mock_lobby.verify_password.assert_called()
         mock_gameworld.find_one.assert_called()
         mock_driver.is_authenticated.assert_called()

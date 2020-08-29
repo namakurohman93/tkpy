@@ -1,25 +1,25 @@
 from tkpy.models.credential import Lobby
 from tkpy.models.credential import Gameworld
-from tkpy.models.credential import dict_parser
-from tkpy.models.credential import query_maker
+#  from tkpy.models.credential import dict_parser
+#  from tkpy.models.credential import query_maker
 from unittest.mock import Mock, patch
 import unittest
 
 
-class TestingDictParser(unittest.TestCase):
-    def testing_dict_parser(self):
-        data = {"mock": "mocked", "mocked": "mock"}
-        result = dict_parser(data)
+#  class TestingDictParser(unittest.TestCase):
+    #  def testing_dict_parser(self):
+        #  data = {"mock": "mocked", "mocked": "mock"}
+        #  result = dict_parser(data)
 
-        self.assertEqual(data, result)
+        #  self.assertEqual(data, result)
 
 
-class TestingQueryMaker(unittest.TestCase):
-    def testing_query_maker(self):
-        data = {"mock": "mocked", "mocked": "mock"}
-        query = query_maker(data)
+#  class TestingQueryMaker(unittest.TestCase):
+    #  def testing_query_maker(self):
+        #  data = {"mock": "mocked", "mocked": "mock"}
+        #  query = query_maker(data)
 
-        self.assertEqual(query, "mock = ? AND mocked = ?")
+        #  self.assertEqual(query, "mock = ? AND mocked = ?")
 
 
 class TestingLobby(unittest.TestCase):
