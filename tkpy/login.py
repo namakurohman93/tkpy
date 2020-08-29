@@ -48,39 +48,32 @@ def get_gameworld_object(lobby, gameworld_name):
     return driver
 
 
+def get_driver(email, password, gameworld_name):
+    lobby = Lobby()
+    lobby.authenticate(email=email, password=password)
+    driver = get_gameworld_object(lobby, gameworld_name)
+    return driver
+
+
 def authenticate(email, password, gameworld_name):
-    lobby = None
-    lobby_id = 0
-    lobby_data = LobbyModel.find_one(email=email)
+    lobby = LobbyModel.find_one(email=email, include=True)
 
-    driver = None
-
-    gameworld_id = 0
-    gameworld_data = None
-
-    if lobby_data is None:
-        lobby = Lobby()
-        lobby.authenticate(email, password)
-        lobby_id = LobbyModel.create(email, password)
-
+    if lobby is None:
+        lobby = LobbyModel.create(email=email, password=password)
     else:
-        if LobbyModel.verify_password(lobby_data["password"], password):
-            lobby_id = lobby_data["id"]
-        else:
-            raise Exception("Password in databaase and password that provided is different")
+        if not LobbyModel.verify_password(lobby.password, password):
+            raise Exception("Password in database and password that provided is different")
 
-    gameworld_data = GameworldModel.find_one(lobby_id=lobby_id, gameworld_name=gameworld_name)
+    gameworld = lobby.find_gameworld(gameworld_name)
 
-    if gameworld_data:
-        driver = pickle.loads(gameworld_data["driver"])
+    if gameworld is None:
+        driver = get_driver(email, password, gameworld_name)
+        lobby.add_gameworld(gamewolrd_name=gameworld_name, driver=pickle.dumps(driver))
+    else:
+        driver = pickle.loads(gameworld.driver)
         if not driver.is_authenticated():
-            driver = get_gameworld_object(lobby, gameworld_name)
-            GameworldModel.update({"driver": pickle.dumps(driver)}, {"id": gameworld_data["id"]})
-
-    else:
-        lobby = Lobby()
-        lobby.authenticate(email, password)
-        driver = get_gameworld_object(lobby, gameworld_name)
-        GameworldModel.create(gameworld_name, pickle.dumps(driver), lobby_id)
+            driver = get_driver(email, password, gameworld_name)
+            gameworld.driver = pickle.dumps(driver)
+            gameworld.save()
 
     return driver
