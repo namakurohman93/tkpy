@@ -61,7 +61,7 @@ def authenticate(email, password, gameworld_name):
     if lobby is None:
         lobby = LobbyModel.create(email=email, password=password)
 
-    gameworld = lobby.find_gameworld(gameworld_name)
+    gameworld = lobby.find_gameworld(gameworld_name=gameworld_name)
 
     if gameworld is None:
         driver = get_driver(email, password, gameworld_name)
