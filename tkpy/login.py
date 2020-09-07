@@ -60,11 +60,6 @@ def authenticate(email, password, gameworld_name):
 
     if lobby is None:
         lobby = LobbyModel.create(email=email, password=password)
-    else:
-        if not LobbyModel.verify_password(lobby.password, password):
-            raise Exception(
-                "Password in database and password that provided is different"
-            )
 
     gameworld = lobby.find_gameworld(gameworld_name)
 
