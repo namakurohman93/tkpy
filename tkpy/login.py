@@ -70,7 +70,7 @@ def authenticate(email, password, gameworld_name):
 
     if gameworld is None:
         driver = get_driver(email, password, gameworld_name)
-        lobby.add_gameworld(gamewolrd_name=gameworld_name, driver=pickle.dumps(driver))
+        lobby.add_gameworld(gameworld_name=gameworld_name, driver=pickle.dumps(driver))
     else:
         driver = pickle.loads(gameworld.driver)
         if not driver.is_authenticated():
