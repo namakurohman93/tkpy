@@ -126,7 +126,7 @@ class Lobby:
                 if include is True:
                     lobby.get_gameworlds()
 
-                return Lobby
+                return lobby
 
     @staticmethod
     def find_all(include=False, **kwargs):
